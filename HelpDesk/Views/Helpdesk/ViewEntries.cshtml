@@ -15,6 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Entries</title>
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/viewentries.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
 </head>
 <body>
@@ -80,32 +81,28 @@
                         <th>Zi</th>
                         <th>Ora Apel</th>
                         <th>Durata Apel</th>
-                        <th>Problema</th>
-                        <th>Rezolvare</th>
                         <th data-column="InseratDe">Inserat De</th>
                         <th data-column="ModificatDe">Modificat De</th>
-                        <th>Confirm</th>
+                        <th>Actiuni</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td contenteditable="true" data-id="@item.Id" data-field="Firma" class="editable">@item.Firma</td>
-                            <td contenteditable="true" data-id="@item.Id" data-field="PctLucru" class="editable">@item.PctLucru</td>
-                            <td contenteditable="true" data-id="@item.Id" data-field="NrTelefon" class="editable">@item.NrTelefon</td>
+                            <td>@item.Firma</td>
+                            <td>@item.PctLucru</td>
+                            <td>@item.NrTelefon</td>
                             <td data-column="Data">
-                                <input type="date" value="@item.Data.ToString("yyyy-MM-dd")" data-id="@item.Id" data-field="Data" class="entry-input">
+                                <input type="date" value="@item.Data.ToString("yyyy-MM-dd")" data-id="@item.Id" data-field="Data" class="entry-input" disabled>
                             </td>
                             <td class="not-editable">@item.Zi</td>
-                            <td contenteditable="true" data-id="@item.Id" data-field="OraApel" class="editable">@item.OraApel</td>
-                            <td contenteditable="true" data-id="@item.Id" data-field="DurataApel" class="editable">@item.DurataApel</td>
-                            <td contenteditable="true" data-id="@item.Id" data-field="Problema" class="editable">@item.Problema</td>
-                            <td contenteditable="true" data-id="@item.Id" data-field="Rezolvare" class="editable">@item.Rezolvare</td>
-                            <td data-column="InseratDe" class="not-editable" data-id="@item.Id" data-field="InseratDe">@item.InseratDe</td>
-                            <td data-column="ModificatDe" class="not-editable" data-id="@item.Id" data-field="ModificatDe">@item.ModificatDe</td>
-                            <td>
-                                <button class="confirm-button" data-id="@item.Id" style="display: none;">Confirm</button>
+                            <td data-field="OraApel">@item.OraApel</td>
+                            <td>@item.DurataApel</td>
+                            <td data-column="InseratDe" class="not-editable">@item.InseratDe</td>
+                            <td data-column="ModificatDe" class="not-editable">@item.ModificatDe</td>
+                            <td class="center-cell">
+                                <button class="details-button" data-id="@item.Id">Detalii</button>
                             </td>
                         </tr>
                     }
@@ -182,12 +179,13 @@
         </div>
     </div>
 
-    <div id="confirmDialog" title="Confirm Update" style="display:none;">
-        <p>Are you sure you want to update this entry?</p>
-    </div>
-
-    <div id="errorDialog" title="Error" style="display:none;">
-        <p id="errorMessage"></p>
+    <div id="entryDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Detalii Apel</h2>
+            <div id="entryDetails"></div>
+            <button id="modifyEntryButton">Modificare</button>
+        </div>
     </div>
 
     @Html.Partial("_Footer")
@@ -195,30 +193,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const modifiedFields = {};
-
-            const updateField = async (id, fields) => {
-                const csrfToken = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
-                try {
-                    const response = await fetch('/Helpdesk/UpdateField', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: JSON.stringify({ id, fields })
-                    });
-                    if (!response.ok) {
-                        throw new Error('Failed to update fields');
-                    }
-                    const data = await response.json();
-                    return data.modifiedUserName;
-                } catch (error) {
-                    console.error('Error:', error);
-                    showError(`Error updating fields: ${error.message}`);
-                }
-            };
-
             const colorDayAndTimeCells = (row) => {
                 const ziCell = row.querySelector('.not-editable');
                 if (ziCell) {
@@ -234,7 +208,7 @@
                 if (oraApelCell) {
                     const time = oraApelCell.textContent.trim();
                     if (time) {
-                        const [hours, minutes, seconds] = time.split(':').map(Number);
+                        const [hours, minutes] = time.split(':').map(Number);
                         if ((hours >= 19 && hours <= 23) || (hours >= 0 && hours < 8)) {
                             oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
                             oraApelCell.style.backgroundColor = 'yellow';
@@ -249,146 +223,9 @@
                 }
             };
 
-            const resetDayAndTimeCells = (row) => {
-                const oraApelCell = row.querySelector('[data-field="OraApel"]');
-                if (oraApelCell) {
-                    oraApelCell.style.backgroundColor = oraApelCell.dataset.originalColor || '';
-                }
-            };
-
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                input.addEventListener('change', (event) => {
-                    if (!event.target.closest('.form-container')) {
-                        const id = event.target.getAttribute('data-id');
-                        const field = event.target.getAttribute('data-field');
-                        const value = event.target.value;
-
-                        if (!validateDate(value)) {
-                            showError(`Invalid Date on field: ${field}`);
-                            return;
-                        }
-
-                        if (!modifiedFields[id]) {
-                            modifiedFields[id] = {};
-                        }
-                        modifiedFields[id][field] = value;
-
-                        const confirmButton = document.querySelector(`button[data-id="${id}"]`);
-                        confirmButton.style.display = 'block';
-                        confirmButton.removeEventListener('click', () => confirmUpdate(id));
-                        confirmButton.addEventListener('click', () => confirmUpdate(id));
-
-                        if (field === 'Data') {
-                            const date = new Date(value);
-                            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                            const dayOfWeek = days[date.getDay()];
-
-                            const ziCell = event.target.parentElement.parentElement.querySelector('.not-editable');
-                            ziCell.textContent = dayOfWeek;
-
-                            colorDayAndTimeCells(event.target.parentElement.parentElement);
-                        }
-                    }
-                });
-            });
-
-            document.querySelectorAll('.editable').forEach(cell => {
-                cell.addEventListener('input', (event) => {
-                    const id = event.target.getAttribute('data-id');
-                    const field = event.target.getAttribute('data-field');
-                    const value = event.target.textContent.trim();
-
-                    if (!modifiedFields[id]) {
-                        modifiedFields[id] = {};
-                    }
-                    modifiedFields[id][field] = value;
-
-                    if (field === 'OraApel') {
-                        colorDayAndTimeCells(event.target.parentElement);
-                    }
-
-                    const confirmButton = document.querySelector(`button[data-id="${id}"]`);
-                    confirmButton.style.display = 'block';
-                    confirmButton.removeEventListener('click', () => confirmUpdate(id));
-                    confirmButton.addEventListener('click', () => confirmUpdate(id));
-                });
-            });
-
             document.querySelectorAll('tbody tr').forEach(row => {
                 colorDayAndTimeCells(row);
             });
-
-            const validateDate = (date) => {
-                return !isNaN(Date.parse(date));
-            }
-
-            const validateTime = (time) => {
-                const timePattern = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-                return timePattern.test(time);
-            }
-
-            const showError = (message) => {
-                $("#errorMessage").html(message);
-                $("#errorDialog").dialog({
-                    modal: true,
-                    buttons: {
-                        Ok: function () {
-                            $(this).dialog("close");
-                        }
-                    },
-                    close: function () {
-                        $("#confirmDialog").dialog("close"); // Ensure the confirmation dialog is closed
-                        location.reload();
-                    }
-                });
-            }
-
-            const confirmUpdate = (id) => {
-                $("#confirmDialog").dialog({
-                    modal: true,
-                    buttons: {
-                        Yes: async function () {
-                            const fields = modifiedFields[id];
-                            const row = document.querySelector(`tr [data-id="${id}"]`).closest('tr');
-                            const errors = [];
-                            const firma = row.querySelector('[data-field="Firma"]').textContent.trim();
-                            const pctLucru = row.querySelector('[data-field="PctLucru"]').textContent.trim();
-                            const nrTelefon = row.querySelector('[data-field="NrTelefon"]').textContent.trim();
-                            const data = row.querySelector('[data-field="Data"]').value;
-                            const oraApel = row.querySelector('[data-field="OraApel"]').textContent.trim();
-                            const durataApel = row.querySelector('[data-field="DurataApel"]').textContent.trim();
-
-                            if (!firma) errors.push('Firma cannot be empty.');
-                            if (!pctLucru) errors.push('Punct de Lucru cannot be empty.');
-                            if (!nrTelefon) errors.push('Numar Telefon cannot be empty.');
-                            if (!validateDate(data)) errors.push('Invalid Date.');
-                            if (!validateTime(oraApel)) errors.push('Invalid Ora Apel.');
-                            if (!validateTime(durataApel)) errors.push('Invalid Durata Apel.');
-
-                            if (errors.length > 0) {
-                                showError(errors.join('<br>'));
-                                return;
-                            }
-
-                            const modifiedUserName = await updateField(id, fields);
-                            const userNameCell = document.querySelector(`[data-id="${id}"][data-field="ModificatDe"]`);
-                            userNameCell.textContent = modifiedUserName;
-                            delete modifiedFields[id];
-                            $(this).dialog("close");
-                            document.querySelector(`button[data-id="${id}"]`).style.display = 'none';
-                        },
-                        No: function () {
-                            $(this).dialog("close");
-                            resetDayAndTimeCells(document.querySelector(`tr [data-id="${id}"]`).closest('tr'));
-                            location.reload();
-                        }
-                    },
-                    close: function () {
-                        resetDayAndTimeCells(document.querySelector(`tr [data-id="${id}"]`).closest('tr'));
-                        location.reload();
-                    }
-                });
-            };
 
             // Filter Button and Dropdown Logic
             const filterButton = document.getElementById('filterButton');
@@ -486,21 +323,63 @@
                 document.getElementById('startDate').value = '';
                 document.getElementById('endDate').value = '';
             });
-        });
 
-        // Export Entries Logic
-        function exportEntries(format) {
-            const filterFirma = document.getElementById('filterFirma').value;
-            const filterPctLucru = document.getElementById('filterPctLucru').value;
-            const filterNrTelefon = document.getElementById('filterNrTelefon').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            if (format === 'excel') {
-                window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
-            } else if (format === 'pdf') {
-                window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+            // Entry Details Modal Logic
+            document.querySelectorAll('.details-button').forEach(button => {
+                button.addEventListener('click', async function () {
+                    const entryId = this.getAttribute('data-id');
+                    const entryDetails = await fetchEntryDetails(entryId);
+                    document.getElementById('entryDetails').innerHTML = entryDetails;
+                    document.getElementById('modifyEntryButton').setAttribute('data-id', entryId);
+                    document.getElementById('entryDetailsModal').style.display = "block";
+                });
+            });
+
+            document.querySelector('.close').addEventListener('click', function () {
+                document.getElementById('entryDetailsModal').style.display = "none";
+            });
+
+            window.addEventListener('click', function (event) {
+                const modal = document.getElementById('entryDetailsModal');
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            });
+
+            async function fetchEntryDetails(id) {
+                const response = await fetch(`/Helpdesk/GetEntryDetails/${id}`);
+                const data = await response.json();
+                return `
+                                    <table>
+                                        <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
+                                        <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
+                                        <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
+                                        <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
+                                        <tr><td>Data:</td><td>${formatDateTime(data.data)}</td></tr>
+                                        <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
+                                        <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
+                                        <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
+                                        <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
+                                        <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
+                                        <tr><td>Ins Time:</td><td>${formatDateTime(data.insTime)}</td></tr>
+                                        <tr><td>Mod Time:</td><td>${formatDateTime(data.modTime)}</td></tr>
+                                        <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
+                                        <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
+                                    </table>
+                                `;
             }
-        }
+
+            function formatDateTime(dateTime) {
+                if (!dateTime) return '';
+                const date = new Date(dateTime);
+                return date.toISOString().slice(0, 10) + ' ' + date.toTimeString().slice(0, 8);
+            }
+
+            document.getElementById('modifyEntryButton').addEventListener('click', function () {
+                const entryId = this.getAttribute('data-id');
+                window.location.href = `/Helpdesk/ModifyEntry/${entryId}`;
+            });
+        });
     </script>
 </body>
 </html>

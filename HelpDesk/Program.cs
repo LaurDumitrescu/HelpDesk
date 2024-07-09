@@ -73,6 +73,14 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllerRoute(
         name: "viewentries",
         pattern: "{controller=Helpdesk}/{action=ViewEntries}/{id?}");
+    endpoints.MapControllerRoute(
+        name: "getentrydetails",
+        pattern: "Helpdesk/GetEntryDetails/{id}",
+        defaults: new { controller = "Helpdesk", action = "GetEntryDetails" });
+    endpoints.MapControllerRoute(
+        name: "modifyentry",
+        pattern: "Helpdesk/ModifyEntry/{id}",
+        defaults: new { controller = "Helpdesk", action = "ModifyEntry" });
 });
 
 app.Run();

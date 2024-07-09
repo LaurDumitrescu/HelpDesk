@@ -241,6 +241,83 @@ namespace HelpdeskApp.Controllers
             return View("Index");
         }
 
+        public async Task<IActionResult> GetEntryDetails(long id)
+        {
+            var entry = await _context.HelpdeskEntries
+                .Include(e => e.FirmaNrTelefon)
+                .ThenInclude(f => f.FirmaPunctLucru)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entry == null)
+            {
+                return NotFound();
+            }
+
+            var insUser = await _context.Users.FindAsync(entry.InsUserId);
+            var modUser = await _context.Users.FindAsync(entry.ModUserId);
+
+            var details = new
+            {
+                entry.Id,
+                Firma = entry.FirmaNrTelefon.FirmaPunctLucru.Firma,
+                PctLucru = entry.FirmaNrTelefon.FirmaPunctLucru.PctLucru,
+                Priority = entry.FirmaNrTelefon.FirmaPunctLucru.Priority,
+                NrTelefon = entry.FirmaNrTelefon.NrTelefon,
+                entry.Data,
+                entry.Zi,
+                entry.OraApel,
+                entry.DurataApel,
+                entry.Problema,
+                entry.Rezolvare,
+                entry.InsTime,
+                entry.ModTime,
+                InsUserName = insUser?.Name,
+                ModUserName = modUser?.Name
+            };
+
+            return Json(details);
+        }
+
+
+        public async Task<IActionResult> ModifyEntry(long id)
+        {
+            var entry = await _context.HelpdeskEntries
+                .Include(e => e.FirmaNrTelefon)
+                .ThenInclude(f => f.FirmaPunctLucru)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entry == null)
+            {
+                return NotFound();
+            }
+
+            var model = new EntryModel
+            {
+                Id = entry.Id,
+                Firma = entry.FirmaNrTelefon.FirmaPunctLucru.Firma,
+                PctLucru = entry.FirmaNrTelefon.FirmaPunctLucru.PctLucru,
+                NrTelefon = entry.FirmaNrTelefon.NrTelefon,
+                Data = entry.Data,
+                OraApel = entry.OraApel.ToString(@"hh\:mm\:ss"),
+                DurataApel = entry.DurataApel,
+                Problema = entry.Problema,
+                Rezolvare = entry.Rezolvare
+            };
+
+            ViewBag.UserName = await GetUserName();
+            return View(model);
+        }
+
+
+        private async Task<string> GetUserName()
+        {
+            var currentUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Nume == HttpContext.Session.GetString("Username"));
+
+            return currentUser?.Name;
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> UpdateField([FromBody] UpdateFieldRequest request)
         {
@@ -278,6 +355,7 @@ namespace HelpdeskApp.Controllers
 
             string firma = request.Fields.ContainsKey("Firma") ? request.Fields["Firma"] : entry.FirmaNrTelefon.FirmaPunctLucru.Firma;
             string pctLucru = request.Fields.ContainsKey("PctLucru") ? request.Fields["PctLucru"] : entry.FirmaNrTelefon.FirmaPunctLucru.PctLucru;
+            string nrTelefon = request.Fields.ContainsKey("NrTelefon") ? request.Fields["NrTelefon"] : entry.FirmaNrTelefon.NrTelefon;
 
             foreach (var field in request.Fields)
             {
@@ -304,25 +382,7 @@ namespace HelpdeskApp.Controllers
                         {
                             return BadRequest("Numar Telefon cannot be empty.");
                         }
-
-                        var existingNrTelefon = await _context.FirmaNrTelefonEntries
-                            .FirstOrDefaultAsync(f => f.NrTelefon == field.Value && f.ID_firma_punct_lucru == entry.FirmaNrTelefon.ID_firma_punct_lucru);
-
-                        if (existingNrTelefon == null)
-                        {
-                            var newNrTelefon = new FirmaNrTelefon
-                            {
-                                ID_firma_punct_lucru = entry.FirmaNrTelefon.ID_firma_punct_lucru,
-                                NrTelefon = field.Value
-                            };
-                            _context.FirmaNrTelefonEntries.Add(newNrTelefon);
-                            await _context.SaveChangesAsync();
-                            entry.ID_nr_telefon = newNrTelefon.Id;
-                        }
-                        else
-                        {
-                            entry.ID_nr_telefon = existingNrTelefon.Id;
-                        }
+                        nrTelefon = field.Value;
                         break;
 
                     case "Data":
@@ -360,43 +420,40 @@ namespace HelpdeskApp.Controllers
                 }
             }
 
-            if (request.Fields.ContainsKey("Firma") || request.Fields.ContainsKey("PctLucru"))
+            // Check if the updated firma and pctLucru exist
+            var existingFirmaPunctLucru = await _context.FirmaPunctLucruEntries
+                .FirstOrDefaultAsync(f => f.Firma == firma && f.PctLucru == pctLucru);
+
+            if (existingFirmaPunctLucru == null)
             {
-                var existingFirmaPunctLucru = await _context.FirmaPunctLucruEntries
-                    .FirstOrDefaultAsync(f => f.Firma == firma && f.PctLucru == pctLucru);
-
-                if (existingFirmaPunctLucru == null)
+                var newFirmaPunctLucru = new FirmaPunctLucru
                 {
-                    var newFirmaPunctLucru = new FirmaPunctLucru
-                    {
-                        Firma = firma,
-                        PctLucru = pctLucru
-                    };
-                    _context.FirmaPunctLucruEntries.Add(newFirmaPunctLucru);
-                    await _context.SaveChangesAsync();
-                    existingFirmaPunctLucru = newFirmaPunctLucru;
-                }
-
-                var existingNrTel = await _context.FirmaNrTelefonEntries
-                    .FirstOrDefaultAsync(f => f.NrTelefon == entry.FirmaNrTelefon.NrTelefon && f.ID_firma_punct_lucru == existingFirmaPunctLucru.Id);
-
-                if (existingNrTel == null)
-                {
-                    var newNrTel = new FirmaNrTelefon
-                    {
-                        ID_firma_punct_lucru = existingFirmaPunctLucru.Id,
-                        NrTelefon = entry.FirmaNrTelefon.NrTelefon
-                    };
-                    _context.FirmaNrTelefonEntries.Add(newNrTel);
-                    await _context.SaveChangesAsync();
-                    entry.ID_nr_telefon = newNrTel.Id;
-                }
-                else
-                {
-                    entry.ID_nr_telefon = existingNrTel.Id;
-                }
+                    Firma = firma,
+                    PctLucru = pctLucru
+                };
+                _context.FirmaPunctLucruEntries.Add(newFirmaPunctLucru);
+                await _context.SaveChangesAsync();
+                existingFirmaPunctLucru = newFirmaPunctLucru;
             }
 
+            // Check if the nrTelefon exists for the given firma and pctLucru
+            var existingNrTelefon = await _context.FirmaNrTelefonEntries
+                .FirstOrDefaultAsync(f => f.NrTelefon == nrTelefon && f.ID_firma_punct_lucru == existingFirmaPunctLucru.Id);
+
+            if (existingNrTelefon == null)
+            {
+                var newNrTelefon = new FirmaNrTelefon
+                {
+                    ID_firma_punct_lucru = existingFirmaPunctLucru.Id,
+                    NrTelefon = nrTelefon
+                };
+                _context.FirmaNrTelefonEntries.Add(newNrTelefon);
+                await _context.SaveChangesAsync();
+                existingNrTelefon = newNrTelefon;
+            }
+
+            // Update the entry with the ID_nr_telefon
+            entry.ID_nr_telefon = existingNrTelefon.Id;
             entry.ModTime = DateTime.Now;
             entry.ModUserId = currentUser.Id;
 
@@ -408,6 +465,8 @@ namespace HelpdeskApp.Controllers
             var modifiedUserName = currentUser.Nume;
             return Json(new { modifiedUserName });
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetSuggestions(string term, string field, string firma = null, string pctLucru = null)

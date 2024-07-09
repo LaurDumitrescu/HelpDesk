@@ -1,0 +1,242 @@
+﻿@model HelpdeskApp.Models.EntryModel
+
+@{
+    Layout = null;
+    var userName = ViewBag.UserName;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Entry</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/modifyEntry.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+</head>
+<body>
+    @Html.Partial("_Header")
+
+    <div class="page-container">
+        <h2>Modify Entry</h2>
+        <form id="modifyEntryForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="entryId" value="@Model.Id" />
+
+            <div>
+                <label for="Firma">Firma:</label>
+                <input type="text" id="Firma" name="Firma" value="@Model.Firma" />
+            </div>
+            <div>
+                <label for="PctLucru">Punct de Lucru:</label>
+                <input type="text" id="PctLucru" name="PctLucru" value="@Model.PctLucru" />
+            </div>
+            <div>
+                <label for="NrTelefon">Numar Telefon:</label>
+                <input type="text" id="NrTelefon" name="NrTelefon" value="@Model.NrTelefon" />
+            </div>
+            <div>
+                <label for="Data">Data:</label>
+                <input type="date" id="Data" name="Data" value="@Model.Data.ToString("yyyy-MM-dd")" />
+            </div>
+            <div>
+                <label for="OraApel">Ora Apel:</label>
+                <input type="time" id="OraApel" name="OraApel" value="@Model.OraApel" />
+            </div>
+            <div>
+                <label for="DurataApel">Durata Apel:</label>
+                <input type="text" id="DurataApel" name="DurataApel" value="@Model.DurataApel" />
+            </div>
+            <div>
+                <label for="Problema">Problema:</label>
+                <textarea id="Problema" name="Problema" class="expanding">@Model.Problema</textarea>
+            </div>
+            <div>
+                <label for="Rezolvare">Rezolvare:</label>
+                <textarea id="Rezolvare" name="Rezolvare" class="expanding">@Model.Rezolvare</textarea>
+            </div>
+
+            <div class="button-container">
+                <button type="button" id="confirmButton">Confirm</button>
+                <button type="button" id="cancelButton">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="confirmDialog" title="Confirm Update" style="display:none;">
+        <p>Are you sure you want to update this entry?</p>
+    </div>
+
+    <div id="errorDialog" title="Error" style="display:none;">
+        <p id="errorMessage"></p>
+    </div>
+
+    @Html.Partial("_Footer")
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const validateDate = (date) => {
+                return !isNaN(Date.parse(date));
+            }
+
+            const validateDuration = (duration) => {
+                const durationPattern = /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
+                return durationPattern.test(duration);
+            }
+
+            const showError = (message) => {
+                $("#errorMessage").html(message);
+                $("#errorDialog").dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            };
+
+            const confirmUpdate = async () => {
+                const form = document.getElementById('modifyEntryForm');
+                const formData = new FormData(form);
+                const entryId = document.getElementById('entryId').value;
+
+                const data = {};
+                formData.forEach((value, key) => data[key] = value);
+
+                const errors = [];
+                if (!data.Firma) errors.push('Firma cannot be empty.');
+                if (!data.PctLucru) errors.push('Punct de Lucru cannot be empty.');
+                if (!data.NrTelefon) errors.push('Numar Telefon cannot be empty.');
+                if (!validateDate(data.Data)) errors.push('Invalid Date.');
+                if (!validateDuration(data.DurataApel)) errors.push('Invalid Durata Apel.');
+
+                if (errors.length > 0) {
+                    showError(errors.join('<br>'));
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/Helpdesk/UpdateField/${entryId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': form.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ Id: entryId, Fields: data })
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '/Helpdesk/ViewEntries';
+                    } else {
+                        const error = await response.text();
+                        showError('Error: ' + error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError('Error: ' + error.message);
+                }
+            };
+
+            document.getElementById('confirmButton').addEventListener('click', function () {
+                $("#confirmDialog").dialog({
+                    modal: true,
+                    buttons: {
+                        Yes: function () {
+                            $(this).dialog("close");
+                            confirmUpdate();
+                        },
+                        No: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+
+            document.getElementById('cancelButton').addEventListener('click', function () {
+                window.history.back();
+            });
+
+            // Auto-expand textareas as content is added
+            document.querySelectorAll('textarea.expanding').forEach(textarea => {
+                textarea.addEventListener('input', function () {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+                textarea.style.height = (textarea.scrollHeight) + 'px'; // Initialize height
+            });
+
+            // Auto-suggestion and auto-complete for Firma, PctLucru, NrTelefon
+            $("#Firma").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "/Helpdesk/GetSuggestions",
+                        data: { term: request.term, field: "Firma" },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 3,
+                select: function (event, ui) {
+                    var firma = ui.item.value;
+                    $.ajax({
+                        url: "/Helpdesk/GetSingleSuggestion",
+                        data: { firma: firma },
+                        success: function (data) {
+                            if (data.pctLucru) {
+                                $("#PctLucru").val(data.pctLucru);
+                            } else {
+                                $("#PctLucru").val('');
+                            }
+                            if (data.nrTelefon) {
+                                $("#NrTelefon").val(data.nrTelefon);
+                            } else {
+                                $("#NrTelefon").val('');
+                            }
+                        }
+                    });
+                },
+                change: function (event, ui) {
+                    if (!ui.item) {
+                        $("#PctLucru").val('');
+                        $("#NrTelefon").val('');
+                    }
+                }
+            });
+
+            $("#PctLucru").autocomplete({
+                source: function (request, response) {
+                    var firma = $("#Firma").val();
+                    $.ajax({
+                        url: "/Helpdesk/GetSuggestions",
+                        data: { term: request.term, field: "PctLucru", firma: firma },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 3
+            });
+
+            $("#NrTelefon").autocomplete({
+                source: function (request, response) {
+                    var firma = $("#Firma").val();
+                    var pctLucru = $("#PctLucru").val();
+                    $.ajax({
+                        url: "/Helpdesk/GetSuggestions",
+                        data: { term: request.term, field: "NrTelefon", firma: firma, pctLucru: pctLucru },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 3
+            });
+        });
+    </script>
+</body>
+</html>
