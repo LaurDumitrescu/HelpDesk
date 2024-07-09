@@ -1,0 +1,16 @@
+﻿<!-- Views/Shared/_Footer.cshtml -->
+@{
+    var currentTime = DateTime.Now.ToString("HH:mm:ss");
+}
+<footer class="footer">
+    <p>© 2024 - PetroSol HelpDesk 1.7.1 | RO current time: <span id="current-time">@currentTime</span></p>
+</footer>
+
+<script>
+    function updateCurrentTime() {
+        var now = new Date();
+        var currentTime = now.toTimeString().split(' ')[0];
+        document.getElementById('current-time').innerText = currentTime;
+    }
+    setInterval(updateCurrentTime, 1000);
+</script>

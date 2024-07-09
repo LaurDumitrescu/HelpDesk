@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>C:\AppSupport</_PublishTargetUrl>
+    <History>True|2024-06-12T07:09:34.5239269Z;True|2024-06-12T10:00:10.4781727+03:00;True|2024-06-12T09:59:35.4770449+03:00;True|2024-06-12T09:56:59.3931461+03:00;False|2024-06-12T09:56:43.0777136+03:00;True|2024-06-12T09:39:09.4606798+03:00;False|2024-06-12T09:37:30.2105699+03:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DefaultConnection">
+      <Value>Server=PSOLTESTSUPPORT%3bDatabase=HelpDesk%3bUser Id=helpdesk%3bPassword=petrosol%3bTrustServerCertificate=True%3b</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

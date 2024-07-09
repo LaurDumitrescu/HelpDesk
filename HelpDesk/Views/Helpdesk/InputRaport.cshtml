@@ -1,0 +1,47 @@
+﻿@{
+    ViewBag.Title = "Creare Raport Periodic";
+    var userName = ViewBag.UserName;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="~/css/site.css">
+    <link rel="stylesheet" href="~/css/raport.css">
+</head>
+<body>
+    @Html.Partial("_Header")
+
+    <div class="page-container">
+        <h2 class="page-title">Creare Raport Periodic</h2>
+        <form method="post" action="/Helpdesk/GenerateReport" onsubmit="return validateDates()">
+            <div class="input-container">
+                <label for="startDate">Data Start</label>
+                <input type="date" id="startDate" name="startDate" class="raport-input" required>
+            </div>
+            <div class="input-container">
+                <label for="endDate">Data Sfarsit</label>
+                <input type="date" id="endDate" name="endDate" class="raport-input" required>
+            </div>
+            <button type="submit" class="submit-button">Generare Report</button>
+        </form>
+    </div>
+
+    @Html.Partial("_Footer")
+    <script>
+        function validateDates() {
+            var startDate = document.getElementById('startDate').value;
+            var endDate = document.getElementById('endDate').value;
+
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('End Date should be greater than or equal to Start Date');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

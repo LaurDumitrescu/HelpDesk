@@ -1,0 +1,338 @@
+2024-07-08 13:40:50 [Information] Now listening on: http://localhost:5235
+2024-07-08 13:40:50 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 13:40:50 [Information] Hosting environment: Development
+2024-07-08 13:40:50 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 13:40:51 [Warning] Failed to determine the https port for redirect.
+2024-07-08 13:40:55 [Information] Executed DbCommand (79ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 13:40:55 [Information] Executed DbCommand (6ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-08 13:40:55 [Information] Dashboard method called.
+2024-07-08 13:40:56 [Information] Executed DbCommand (4ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 13:40:56 [Information] Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-08 13:40:56 [Information] Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-08 13:40:56 [Information] Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-08 13:40:56 [Information] Dashboard method succeeded: Data retrieved.
+2024-07-08 13:46:08 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null).
+2024-07-08 13:46:08 [Information] Executed DbCommand (6ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 13:46:08 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[entry] AS [e]
+2024-07-08 13:46:08 [Information] Executed DbCommand (19ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT [t].[Id], COALESCE([f0].[firma], N''), COALESCE([f0].[pct_lucru], N''), COALESCE([f].[nr_telefon], N''), [t].[data], COALESCE([t].[zi], N''), [t].[ora_apel], COALESCE([t].[durata_apel], N''), COALESCE([t].[problema], N''), COALESCE([t].[rezolvare], N''), [t].[ins_user_id], [t].[mod_user_id]
+FROM (
+    SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_user_id], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi]
+    FROM [dbo].[entry] AS [e]
+    ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [t].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [t].[data] DESC, [t].[ora_apel] DESC
+2024-07-08 13:46:08 [Information] Executed DbCommand (11ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-07-08 13:46:08 [Information] ViewEntries method succeeded: Retrieved 464 entries.
+2024-07-08 13:46:43 [Information] GetSuggestions method called with parameters: term=MALEXTHOR, field=Firma, firma=null, pctLucru=(null)
+2024-07-08 13:46:43 [Information] Executed DbCommand (13ms) [Parameters=[p0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [h].[firma]
+FROM (
+    SELECT DISTINCT [firma] FROM [HelpDesk].[dbo].[firma_punct_lucru] WHERE [firma] LIKE @p0
+) AS [h]
+2024-07-08 13:46:46 [Information] GetSuggestions method called with parameters: term=ort, field=PctLucru, firma=MALEXTHOR, pctLucru=(null)
+2024-07-08 13:46:46 [Information] Executed DbCommand (8ms) [Parameters=[p0='?' (Size = 4000), p1='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [h].[pct_lucru]
+FROM (
+    SELECT DISTINCT [pct_lucru] FROM [HelpDesk].[dbo].[firma_punct_lucru] WHERE [pct_lucru] LIKE @p0 AND [firma] = @p1
+) AS [h]
+2024-07-08 13:46:50 [Information] GetSuggestions method called with parameters: term=0758902054, field=NrTelefon, firma=MALEXTHOR, pctLucru=(null)
+2024-07-08 13:46:50 [Warning] GetSuggestions method failed: Firma and PctLucru are required for NrTelefon suggestions.
+2024-07-08 13:46:51 [Information] ViewEntries method called with parameters: page=1, filterFirma=MALEXTHOR, filterPctLucru=Ortisoara, filterNrTelefon=0758902054, startDate=(null), endDate=(null).
+2024-07-08 13:46:51 [Information] Executed DbCommand (5ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 13:46:52 [Information] Executed DbCommand (10ms) [Parameters=[@__filterFirma_0_contains='?' (Size = 4000), @__filterPctLucru_1_contains='?' (Size = 4000), @__filterNrTelefon_2_contains='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+WHERE [f0].[firma] LIKE @__filterFirma_0_contains ESCAPE N'\' AND [f0].[pct_lucru] LIKE @__filterPctLucru_1_contains ESCAPE N'\' AND [f].[nr_telefon] LIKE @__filterNrTelefon_2_contains ESCAPE N'\'
+2024-07-08 13:46:52 [Information] Executed DbCommand (17ms) [Parameters=[@__filterFirma_0_contains='?' (Size = 4000), @__filterPctLucru_1_contains='?' (Size = 4000), @__filterNrTelefon_2_contains='?' (Size = 4000), @__p_3='?' (DbType = Int32), @__p_4='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N''), COALESCE([f0].[pct_lucru], N''), COALESCE([f].[nr_telefon], N''), [e].[data], COALESCE([e].[zi], N''), [e].[ora_apel], COALESCE([e].[durata_apel], N''), COALESCE([e].[problema], N''), COALESCE([e].[rezolvare], N''), [e].[ins_user_id], [e].[mod_user_id]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+WHERE [f0].[firma] LIKE @__filterFirma_0_contains ESCAPE N'\' AND [f0].[pct_lucru] LIKE @__filterPctLucru_1_contains ESCAPE N'\' AND [f].[nr_telefon] LIKE @__filterNrTelefon_2_contains ESCAPE N'\'
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+OFFSET @__p_3 ROWS FETCH NEXT @__p_4 ROWS ONLY
+2024-07-08 13:46:52 [Information] Executed DbCommand (7ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-07-08 13:46:52 [Information] ViewEntries method succeeded: Retrieved 8 entries.
+2024-07-08 13:52:37 [Information] Now listening on: http://localhost:5235
+2024-07-08 13:52:37 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 13:52:37 [Information] Hosting environment: Development
+2024-07-08 13:52:37 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 13:52:40 [Warning] Failed to determine the https port for redirect.
+2024-07-08 13:52:41 [Information] Login page requested.
+2024-07-08 13:52:45 [Information] Login attempt for user laur
+2024-07-08 13:52:45 [Information] Validating credentials for user laur.
+2024-07-08 13:52:46 [Information] Executed DbCommand (99ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 13:52:47 [Information] User laur credentials validated successfully.
+2024-07-08 13:52:47 [Information] Executed DbCommand (8ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-08 13:52:47 [Information] User laur successfully logged in.
+2024-07-08 13:52:47 [Information] Dashboard method called.
+2024-07-08 13:52:47 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 13:52:47 [Information] Executed DbCommand (13ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-08 13:52:47 [Information] Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-08 13:52:47 [Information] Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-08 13:52:47 [Information] Dashboard method succeeded: Data retrieved.
+2024-07-08 13:56:17 [Information] Now listening on: http://localhost:5235
+2024-07-08 13:56:17 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 13:56:17 [Information] Hosting environment: Development
+2024-07-08 13:56:17 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 13:56:20 [Warning] Failed to determine the https port for redirect.
+2024-07-08 13:56:21 [Information] Login page requested from IP ::1.
+2024-07-08 13:56:26 [Information] Login attempt for user gabi from IP ::1.
+2024-07-08 13:56:26 [Information] Validating credentials for user gabi from IP ::1.
+2024-07-08 13:56:27 [Information] Executed DbCommand (56ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 13:56:27 [Information] User gabi credentials validated successfully from IP ::1.
+2024-07-08 13:56:27 [Information] Executed DbCommand (28ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-08 13:56:27 [Information] User gabi successfully logged in from IP ::1.
+2024-07-08 13:56:27 [Information] Dashboard method called.
+2024-07-08 13:56:27 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 13:56:28 [Information] Executed DbCommand (98ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-08 13:56:28 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-08 13:56:28 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-08 13:56:28 [Information] Dashboard method succeeded: Data retrieved.
+2024-07-08 13:59:50 [Information] Now listening on: http://localhost:5235
+2024-07-08 13:59:50 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 13:59:50 [Information] Hosting environment: Development
+2024-07-08 13:59:50 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 13:59:50 [Warning] Failed to determine the https port for redirect.
+2024-07-08 13:59:51 [Information] Login page requested from IP ::1.
+2024-07-08 13:59:55 [Information] Login attempt for user laur from IP ::1.
+2024-07-08 13:59:55 [Information] Validating credentials for user laur from IP ::1.
+2024-07-08 13:59:56 [Information] Executed DbCommand (124ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 13:59:57 [Information] User laur credentials validated successfully from IP ::1.
+2024-07-08 14:00:48 [Information] Now listening on: http://localhost:5235
+2024-07-08 14:00:48 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 14:00:48 [Information] Hosting environment: Development
+2024-07-08 14:00:48 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 14:00:51 [Warning] Failed to determine the https port for redirect.
+2024-07-08 14:00:51 [Information] Login page requested from IP ::1.
+2024-07-08 14:00:55 [Information] Login attempt for user laur from IP ::1.
+2024-07-08 14:00:55 [Information] Validating credentials for user laur from IP ::1.
+2024-07-08 14:00:57 [Information] Executed DbCommand (104ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 14:00:57 [Information] User laur credentials validated successfully from IP ::1.
+2024-07-08 14:00:57 [Information] Executed DbCommand (15ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-08 14:00:57 [Information] User laur successfully logged in from IP ::1.
+2024-07-08 14:00:57 [Information] Dashboard method called.
+2024-07-08 14:00:57 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 14:00:57 [Information] Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-08 14:00:58 [Information] Executed DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-08 14:00:58 [Information] Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-08 14:00:58 [Information] Dashboard method succeeded: Data retrieved.
+2024-07-08 14:05:23 [Information] Now listening on: http://localhost:5235
+2024-07-08 14:05:23 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 14:05:23 [Information] Hosting environment: Development
+2024-07-08 14:05:23 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 14:05:26 [Warning] Failed to determine the https port for redirect.
+2024-07-08 14:05:26 [Information] Login page requested from IP ::1.
+2024-07-08 14:05:38 [Information] Login attempt for user laur from IP ::1.
+2024-07-08 14:05:38 [Information] Validating credentials for user laur from IP ::1.
+2024-07-08 14:05:41 [Information] Executed DbCommand (115ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 14:05:41 [Information] User laur credentials validated successfully from IP ::1.
+2024-07-08 14:05:41 [Information] Executed DbCommand (35ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-08 14:05:41 [Information] User laur successfully logged in from IP ::1.
+2024-07-08 14:05:41 [Information] Dashboard method called.
+2024-07-08 14:05:41 [Information] Executed DbCommand (4ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 14:05:42 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-08 14:05:42 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-08 14:05:42 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-08 14:05:42 [Information] Dashboard method succeeded: Data retrieved.
+2024-07-08 14:07:19 [Information] Now listening on: http://localhost:5235
+2024-07-08 14:07:19 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-08 14:07:19 [Information] Hosting environment: Development
+2024-07-08 14:07:19 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-08 14:07:22 [Warning] Failed to determine the https port for redirect.
+2024-07-08 14:07:22 [Information] Login page requested from IP ::1.
+2024-07-08 14:07:35 [Information] Login attempt for user laur from IP ::1.
+2024-07-08 14:07:35 [Information] Validating credentials for user laur from IP ::1.
+2024-07-08 14:07:37 [Information] Executed DbCommand (106ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-08 14:07:38 [Information] User laur credentials validated successfully from IP ::1.
+2024-07-08 14:07:38 [Information] Executed DbCommand (19ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-08 14:07:38 [Information] User laur successfully logged in from IP ::1.
+2024-07-08 14:07:38 [Information] Dashboard method called.
+2024-07-08 14:07:38 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-08 14:07:38 [Information] Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-08 14:07:39 [Information] Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-08 14:07:39 [Information] Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-08 14:07:39 [Information] Dashboard method succeeded: Data retrieved.

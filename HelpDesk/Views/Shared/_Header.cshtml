@@ -1,0 +1,36 @@
+﻿@{
+    var userName = ViewBag.UserName;
+}
+
+<div class="top-nav">
+    <div class="nav-left">
+        <a href="/Helpdesk/Dashboard" class="nav-link">HelpDesk</a>
+    </div>
+    <div class="nav-center">
+        <div class="nav-dropdown">
+            <button class="nav-link dropdown-toggle">Lista</button>
+            <div class="dropdown-content">
+                <a href="/Helpdesk/ViewEntries">Lista Apeluri</a>
+                <a href="/Helpdesk/ListaNumereTelefon">Lista Numere Telefon</a>
+                <a href="/Helpdesk/ListaFirmaPunctLucru">Lista Firme</a>
+            </div>
+        </div>
+        <div class="nav-dropdown">
+            <button class="nav-link dropdown-toggle">Rapoarte</button>
+            <div class="dropdown-content">
+                <a href="/Helpdesk/InputRaport">Raport Periodic</a>
+                <a href="/Helpdesk/ListaFirma">Suport PetroSol Prioritati</a>
+            </div>
+        </div>
+    </div>
+    <div class="nav-right">
+        <div class="user-menu">
+            <span class="user-name">@userName</span>
+            <div class="dropdown-content">
+                <a href="/Account/AddUser">Adaugare User</a>
+                <a href="/Account/ChangePassword">Schimbare Parola</a>
+                <a href="/Account/Logout">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>

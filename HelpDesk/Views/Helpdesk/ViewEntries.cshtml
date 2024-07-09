@@ -1,0 +1,506 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    Layout = null;
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var userName = ViewBag.UserName;
+    var displayPages = 15; // Number of pages to display in the pagination
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Entries</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+</head>
+<body>
+    @Html.Partial("_Header")
+
+    <div class="page-container">
+        <!-- Button Container -->
+        <div class="button-container">
+            <button id="addEntryButton" onclick="location.href='/Helpdesk/Index'">Adaugare Apel</button>
+        </div>
+        <div class="button-container">
+            <button id="filterButton">Filtrare</button>
+            <!-- Export Button -->
+            <div class="export-button">
+                Export
+                <div class="export-options">
+                    <a href="#" onclick="exportEntries('excel')">Excel</a>
+                    <a href="#" onclick="exportEntries('pdf')">PDF</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Dropdown Menu -->
+        <div id="filterDropdown" class="dropdown-content">
+            <div>
+                <label for="filterFirma">Firma:</label>
+                <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma">
+                <div id="firmaSuggestions" class="suggestions"></div>
+            </div>
+            <div>
+                <label for="filterPctLucru">Punct de Lucru:</label>
+                <input type="text" id="filterPctLucru" name="filterPctLucru" value="@ViewBag.FilterPctLucru">
+                <div id="pctLucruSuggestions" class="suggestions"></div>
+            </div>
+            <div>
+                <label for="filterNrTelefon">Numar Telefon:</label>
+                <input type="text" id="filterNrTelefon" name="filterNrTelefon" value="@ViewBag.FilterNrTelefon">
+                <div id="nrTelefonSuggestions" class="suggestions"></div>
+            </div>
+            <div>
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate">
+            </div>
+            <div>
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate">
+            </div>
+            <button id="applyFilterButton">Apply Filter</button>
+            <button id="resetFilterButton">Reset Filter</button>
+        </div>
+
+        <div class="table-container">
+            <form id="csrfForm">
+                @Html.AntiForgeryToken()
+            </form>
+            <table id="entryTable">
+                <thead>
+                    <tr>
+                        <th>Firma</th>
+                        <th>Punct de Lucru</th>
+                        <th>Numar Telefon</th>
+                        <th data-column="Data">Data</th>
+                        <th>Zi</th>
+                        <th>Ora Apel</th>
+                        <th>Durata Apel</th>
+                        <th>Problema</th>
+                        <th>Rezolvare</th>
+                        <th data-column="InseratDe">Inserat De</th>
+                        <th data-column="ModificatDe">Modificat De</th>
+                        <th>Confirm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td contenteditable="true" data-id="@item.Id" data-field="Firma" class="editable">@item.Firma</td>
+                            <td contenteditable="true" data-id="@item.Id" data-field="PctLucru" class="editable">@item.PctLucru</td>
+                            <td contenteditable="true" data-id="@item.Id" data-field="NrTelefon" class="editable">@item.NrTelefon</td>
+                            <td data-column="Data">
+                                <input type="date" value="@item.Data.ToString("yyyy-MM-dd")" data-id="@item.Id" data-field="Data" class="entry-input">
+                            </td>
+                            <td class="not-editable">@item.Zi</td>
+                            <td contenteditable="true" data-id="@item.Id" data-field="OraApel" class="editable">@item.OraApel</td>
+                            <td contenteditable="true" data-id="@item.Id" data-field="DurataApel" class="editable">@item.DurataApel</td>
+                            <td contenteditable="true" data-id="@item.Id" data-field="Problema" class="editable">@item.Problema</td>
+                            <td contenteditable="true" data-id="@item.Id" data-field="Rezolvare" class="editable">@item.Rezolvare</td>
+                            <td data-column="InseratDe" class="not-editable" data-id="@item.Id" data-field="InseratDe">@item.InseratDe</td>
+                            <td data-column="ModificatDe" class="not-editable" data-id="@item.Id" data-field="ModificatDe">@item.ModificatDe</td>
+                            <td>
+                                <button class="confirm-button" data-id="@item.Id" style="display: none;">Confirm</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Pagination controls -->
+            <div class="pagination">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("ViewEntries", new { page = 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">First</a>
+                    <a href="@Url.Action("ViewEntries", new { page = currentPage - 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Previous</a>
+                }
+
+                @{
+                    var startPage = currentPage - (displayPages / 2);
+                    var endPage = currentPage + (displayPages / 2);
+
+                    if (startPage < 1)
+                    {
+                        endPage = endPage - (startPage - 1);
+                        startPage = 1;
+                    }
+
+                    if (endPage > totalPages)
+                    {
+                        startPage = startPage - (endPage - totalPages);
+                        endPage = totalPages;
+                    }
+
+                    if (startPage < 1)
+                    {
+                        startPage = 1;
+                    }
+
+                    if (endPage - startPage + 1 < displayPages)
+                    {
+                        endPage = startPage + displayPages - 1;
+                        if (endPage > totalPages)
+                        {
+                            endPage = totalPages;
+                        }
+                    }
+                }
+
+                @if (startPage > 1)
+                {
+                    <a href="@Url.Action("ViewEntries", new { page = startPage - 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">...</a>
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == currentPage)
+                    {
+                        <span class="page-link active">@i</span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("ViewEntries", new { page = i, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    <a href="@Url.Action("ViewEntries", new { page = endPage + 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">...</a>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a href="@Url.Action("ViewEntries", new { page = currentPage + 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Next</a>
+                    <a href="@Url.Action("ViewEntries", new { page = totalPages, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Last</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmDialog" title="Confirm Update" style="display:none;">
+        <p>Are you sure you want to update this entry?</p>
+    </div>
+
+    <div id="errorDialog" title="Error" style="display:none;">
+        <p id="errorMessage"></p>
+    </div>
+
+    @Html.Partial("_Footer")
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modifiedFields = {};
+
+            const updateField = async (id, fields) => {
+                const csrfToken = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
+                try {
+                    const response = await fetch('/Helpdesk/UpdateField', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ id, fields })
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to update fields');
+                    }
+                    const data = await response.json();
+                    return data.modifiedUserName;
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError(`Error updating fields: ${error.message}`);
+                }
+            };
+
+            const colorDayAndTimeCells = (row) => {
+                const ziCell = row.querySelector('.not-editable');
+                if (ziCell) {
+                    const day = ziCell.textContent.trim();
+                    if (day === 'Saturday' || day === 'Sunday') {
+                        ziCell.style.backgroundColor = 'yellow';
+                    } else {
+                        ziCell.style.backgroundColor = '';
+                    }
+                }
+
+                const oraApelCell = row.querySelector('[data-field="OraApel"]');
+                if (oraApelCell) {
+                    const time = oraApelCell.textContent.trim();
+                    if (time) {
+                        const [hours, minutes, seconds] = time.split(':').map(Number);
+                        if ((hours >= 19 && hours <= 23) || (hours >= 0 && hours < 8)) {
+                            oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
+                            oraApelCell.style.backgroundColor = 'yellow';
+                        } else {
+                            oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
+                            oraApelCell.style.backgroundColor = '';
+                        }
+                    } else {
+                        oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
+                        oraApelCell.style.backgroundColor = '';
+                    }
+                }
+            };
+
+            const resetDayAndTimeCells = (row) => {
+                const oraApelCell = row.querySelector('[data-field="OraApel"]');
+                if (oraApelCell) {
+                    oraApelCell.style.backgroundColor = oraApelCell.dataset.originalColor || '';
+                }
+            };
+
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.addEventListener('change', (event) => {
+                    if (!event.target.closest('.form-container')) {
+                        const id = event.target.getAttribute('data-id');
+                        const field = event.target.getAttribute('data-field');
+                        const value = event.target.value;
+
+                        if (!validateDate(value)) {
+                            showError(`Invalid Date on field: ${field}`);
+                            return;
+                        }
+
+                        if (!modifiedFields[id]) {
+                            modifiedFields[id] = {};
+                        }
+                        modifiedFields[id][field] = value;
+
+                        const confirmButton = document.querySelector(`button[data-id="${id}"]`);
+                        confirmButton.style.display = 'block';
+                        confirmButton.removeEventListener('click', () => confirmUpdate(id));
+                        confirmButton.addEventListener('click', () => confirmUpdate(id));
+
+                        if (field === 'Data') {
+                            const date = new Date(value);
+                            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                            const dayOfWeek = days[date.getDay()];
+
+                            const ziCell = event.target.parentElement.parentElement.querySelector('.not-editable');
+                            ziCell.textContent = dayOfWeek;
+
+                            colorDayAndTimeCells(event.target.parentElement.parentElement);
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.editable').forEach(cell => {
+                cell.addEventListener('input', (event) => {
+                    const id = event.target.getAttribute('data-id');
+                    const field = event.target.getAttribute('data-field');
+                    const value = event.target.textContent.trim();
+
+                    if (!modifiedFields[id]) {
+                        modifiedFields[id] = {};
+                    }
+                    modifiedFields[id][field] = value;
+
+                    if (field === 'OraApel') {
+                        colorDayAndTimeCells(event.target.parentElement);
+                    }
+
+                    const confirmButton = document.querySelector(`button[data-id="${id}"]`);
+                    confirmButton.style.display = 'block';
+                    confirmButton.removeEventListener('click', () => confirmUpdate(id));
+                    confirmButton.addEventListener('click', () => confirmUpdate(id));
+                });
+            });
+
+            document.querySelectorAll('tbody tr').forEach(row => {
+                colorDayAndTimeCells(row);
+            });
+
+            const validateDate = (date) => {
+                return !isNaN(Date.parse(date));
+            }
+
+            const validateTime = (time) => {
+                const timePattern = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+                return timePattern.test(time);
+            }
+
+            const showError = (message) => {
+                $("#errorMessage").html(message);
+                $("#errorDialog").dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog("close");
+                        }
+                    },
+                    close: function () {
+                        $("#confirmDialog").dialog("close"); // Ensure the confirmation dialog is closed
+                        location.reload();
+                    }
+                });
+            }
+
+            const confirmUpdate = (id) => {
+                $("#confirmDialog").dialog({
+                    modal: true,
+                    buttons: {
+                        Yes: async function () {
+                            const fields = modifiedFields[id];
+                            const row = document.querySelector(`tr [data-id="${id}"]`).closest('tr');
+                            const errors = [];
+                            const firma = row.querySelector('[data-field="Firma"]').textContent.trim();
+                            const pctLucru = row.querySelector('[data-field="PctLucru"]').textContent.trim();
+                            const nrTelefon = row.querySelector('[data-field="NrTelefon"]').textContent.trim();
+                            const data = row.querySelector('[data-field="Data"]').value;
+                            const oraApel = row.querySelector('[data-field="OraApel"]').textContent.trim();
+                            const durataApel = row.querySelector('[data-field="DurataApel"]').textContent.trim();
+
+                            if (!firma) errors.push('Firma cannot be empty.');
+                            if (!pctLucru) errors.push('Punct de Lucru cannot be empty.');
+                            if (!nrTelefon) errors.push('Numar Telefon cannot be empty.');
+                            if (!validateDate(data)) errors.push('Invalid Date.');
+                            if (!validateTime(oraApel)) errors.push('Invalid Ora Apel.');
+                            if (!validateTime(durataApel)) errors.push('Invalid Durata Apel.');
+
+                            if (errors.length > 0) {
+                                showError(errors.join('<br>'));
+                                return;
+                            }
+
+                            const modifiedUserName = await updateField(id, fields);
+                            const userNameCell = document.querySelector(`[data-id="${id}"][data-field="ModificatDe"]`);
+                            userNameCell.textContent = modifiedUserName;
+                            delete modifiedFields[id];
+                            $(this).dialog("close");
+                            document.querySelector(`button[data-id="${id}"]`).style.display = 'none';
+                        },
+                        No: function () {
+                            $(this).dialog("close");
+                            resetDayAndTimeCells(document.querySelector(`tr [data-id="${id}"]`).closest('tr'));
+                            location.reload();
+                        }
+                    },
+                    close: function () {
+                        resetDayAndTimeCells(document.querySelector(`tr [data-id="${id}"]`).closest('tr'));
+                        location.reload();
+                    }
+                });
+            };
+
+            // Filter Button and Dropdown Logic
+            const filterButton = document.getElementById('filterButton');
+            const filterDropdown = document.getElementById('filterDropdown');
+            filterButton.addEventListener('click', () => {
+                filterDropdown.classList.toggle('visible');
+            });
+
+            // Fetch Suggestions Logic
+            const fetchSuggestionsForFilter = async (term, field, firma = null) => {
+                const response = await fetch(`/Helpdesk/GetSuggestions?term=${term}&field=${field}&firma=${firma}`);
+                const suggestions = await response.json();
+                return suggestions;
+            };
+
+            // Handle Firma Suggestions for Filter
+            const filterFirmaInput = document.getElementById('filterFirma');
+            const firmaSuggestionsDiv = document.getElementById('firmaSuggestions');
+            filterFirmaInput.addEventListener('input', async () => {
+                const term = filterFirmaInput.value;
+                if (term.length >= 3) {
+                    const suggestions = await fetchSuggestionsForFilter(term, 'Firma');
+                    firmaSuggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
+                    // Add click event listeners to suggestions
+                    firmaSuggestionsDiv.querySelectorAll('div').forEach(suggestion => {
+                        suggestion.addEventListener('click', () => {
+                            filterFirmaInput.value = suggestion.textContent;
+                            firmaSuggestionsDiv.innerHTML = '';
+                        });
+                    });
+                } else {
+                    firmaSuggestionsDiv.innerHTML = '';
+                }
+            });
+
+            // Handle Punct de Lucru Suggestions for Filter
+            const filterPctLucruInput = document.getElementById('filterPctLucru');
+            const pctLucruSuggestionsDiv = document.getElementById('pctLucruSuggestions');
+            filterPctLucruInput.addEventListener('input', async () => {
+                const term = filterPctLucruInput.value;
+                const firma = filterFirmaInput.value;
+                if (term.length >= 3) {
+                    const suggestions = await fetchSuggestionsForFilter(term, 'PctLucru', firma);
+                    pctLucruSuggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
+                    // Add click event listeners to suggestions
+                    pctLucruSuggestionsDiv.querySelectorAll('div').forEach(suggestion => {
+                        suggestion.addEventListener('click', () => {
+                            filterPctLucruInput.value = suggestion.textContent;
+                            pctLucruSuggestionsDiv.innerHTML = '';
+                        });
+                    });
+                } else {
+                    pctLucruSuggestionsDiv.innerHTML = '';
+                }
+            });
+
+            // Handle Numar Telefon Suggestions for Filter
+            const filterNrTelefonInput = document.getElementById('filterNrTelefon');
+            const nrTelefonSuggestionsDiv = document.getElementById('nrTelefonSuggestions');
+            filterNrTelefonInput.addEventListener('input', async () => {
+                const term = filterNrTelefonInput.value;
+                const firma = filterFirmaInput.value;
+                if (term.length >= 3) {
+                    const suggestions = await fetchSuggestionsForFilter(term, 'NrTelefon', firma);
+                    nrTelefonSuggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
+                    // Add click event listeners to suggestions
+                    nrTelefonSuggestionsDiv.querySelectorAll('div').forEach(suggestion => {
+                        suggestion.addEventListener('click', () => {
+                            filterNrTelefonInput.value = suggestion.textContent;
+                            nrTelefonSuggestionsDiv.innerHTML = '';
+                        });
+                    });
+                } else {
+                    nrTelefonSuggestionsDiv.innerHTML = '';
+                }
+            });
+
+            // Apply Filter Logic
+            const applyFilterButton = document.getElementById('applyFilterButton');
+            applyFilterButton.addEventListener('click', () => {
+                const filterFirma = filterFirmaInput.value;
+                const filterPctLucru = filterPctLucruInput.value;
+                const filterNrTelefon = filterNrTelefonInput.value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                window.location.href = `/Helpdesk/ViewEntries?page=1&filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+            });
+
+            // Reset Filter Logic
+            const resetFilterButton = document.getElementById('resetFilterButton');
+            resetFilterButton.addEventListener('click', () => {
+                filterFirmaInput.value = '';
+                filterPctLucruInput.value = '';
+                filterNrTelefonInput.value = '';
+                document.getElementById('startDate').value = '';
+                document.getElementById('endDate').value = '';
+            });
+        });
+
+        // Export Entries Logic
+        function exportEntries(format) {
+            const filterFirma = document.getElementById('filterFirma').value;
+            const filterPctLucru = document.getElementById('filterPctLucru').value;
+            const filterNrTelefon = document.getElementById('filterNrTelefon').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            if (format === 'excel') {
+                window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+            } else if (format === 'pdf') {
+                window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+            }
+        }
+    </script>
+</body>
+</html>

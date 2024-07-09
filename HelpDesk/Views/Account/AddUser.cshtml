@@ -1,0 +1,38 @@
+﻿@model HelpdeskApp.Models.AddUserViewModel
+
+@{
+    Layout = null;
+    var userName = ViewBag.UserName;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    @Html.Partial("_Header")
+    <div class="login-container">
+        <form asp-action="AddUser" method="post">
+            <div class="input-container">
+                <label for="Username">Username:</label>
+                <input type="text" id="Username" name="Username" class="entry-input">
+            </div>
+            <div class="input-container">
+                <label for="Password">Parola:</label>
+                <input type="password" id="Password" name="Password" class="entry-input">
+            </div>
+            <div class="input-container">
+                <label for="Name">Nume Afisat:</label>
+                <input type="text" id="Name" name="Name" class="entry-input">
+            </div>
+            <button type="submit" class="login-button">Adauga</button>
+        </form>
+    </div>
+
+    @Html.Partial("_Footer")
+</body>
+</html>

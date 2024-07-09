@@ -1,0 +1,338 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    Layout = null;
+    var filterFirma = ViewBag.FilterFirma as string ?? "";
+    var filterPctLucru = ViewBag.FilterPctLucru as string ?? "";
+    var filterNrTelefon = ViewBag.FilterNrTelefon as string ?? "";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var userName = ViewBag.UserName;
+    var displayPages = 15; // Number of pages to display in the pagination
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Numere Telefon</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/custom-lista-numere.css" /> <!-- Link to the custom CSS file -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+</head>
+<body>
+    @Html.Partial("_Header")
+
+    <div class="lista-numere-custom-page-container">
+        <!-- Filter Button and Dropdown Menu -->
+        <div class="lista-numere-custom-button-container">
+            <button id="lista-numere-custom-filter-button">Filtrare</button>
+            <button class="lista-numere-custom-export-button" onclick="exportToExcel()">Export</button>
+        </div>
+        <div id="lista-numere-custom-filter-dropdown" class="lista-numere-dropdown-content @ViewBag.FilterVisible">
+            <div>
+                <label for="lista-numere-filter-firma">Firma:</label>
+                <input type="text" id="lista-numere-filter-firma" name="filterFirma" value="@filterFirma">
+                <div id="firmaSuggestions" class="suggestions"></div>
+            </div>
+            <div>
+                <label for="lista-numere-filter-pctlucru">Punct de Lucru:</label>
+                <input type="text" id="lista-numere-filter-pctlucru" name="filterPctLucru" value="@filterPctLucru">
+                <div id="pctLucruSuggestions" class="suggestions"></div>
+            </div>
+            <div>
+                <label for="lista-numere-filter-nrtelefon">Numar Telefon:</label>
+                <input type="text" id="lista-numere-filter-nrtelefon" name="filterNrTelefon" value="@filterNrTelefon">
+                <div id="nrTelefonSuggestions" class="suggestions"></div>
+            </div>
+            <div class="lista-numere-custom-filter-buttons">
+                <button id="lista-numere-custom-apply-filter-button">Apply Filter</button>
+                <button id="lista-numere-custom-reset-filter-button">Reset Filter</button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="lista-numere-custom-table-container">
+            <table id="lista-numere-custom-telefon-table">
+                <thead>
+                    <tr>
+                        <th>Firma</th>
+                        <th>Punct de Lucru</th>
+                        <th>Numar Telefon</th>
+                        <th class="action-column-custom">Actiuni</th> <!-- Adjust the column size -->
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Firma</td>
+                            <td>@item.PctLucru</td>
+                            <td>@item.NrTelefon</td>
+                            <td class="action-column-custom">
+                                <i class="fas fa-times delete-icon-custom" data-id="@item.Id"></i> <!-- Add delete icon -->
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Pagination controls -->
+            <div class="pagination">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("ListaNumereTelefon", new { page = 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">First</a>
+                    <a href="@Url.Action("ListaNumereTelefon", new { page = currentPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Previous</a>
+                }
+
+                @{
+                    var startPage = currentPage - (displayPages / 2);
+                    var endPage = currentPage + (displayPages / 2);
+
+                    if (startPage < 1)
+                    {
+                        endPage = endPage - (startPage - 1);
+                        startPage = 1;
+                    }
+
+                    if (endPage > totalPages)
+                    {
+                        startPage = startPage - (endPage - totalPages);
+                        endPage = totalPages;
+                    }
+
+                    if (startPage < 1)
+                    {
+                        startPage = 1;
+                    }
+
+                    if (endPage - startPage + 1 < displayPages)
+                    {
+                        endPage = startPage + displayPages - 1;
+                        if (endPage > totalPages)
+                        {
+                            endPage = totalPages;
+                        }
+                    }
+                }
+
+                @if (startPage > 1)
+                {
+                    <a href="@Url.Action("ListaNumereTelefon", new { page = startPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">...</a>
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == currentPage)
+                    {
+                        <span class="page-link active">@i</span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("ListaNumereTelefon", new { page = i, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    <a href="@Url.Action("ListaNumereTelefon", new { page = endPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">...</a>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a href="@Url.Action("ListaNumereTelefon", new { page = currentPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Next</a>
+                    <a href="@Url.Action("ListaNumereTelefon", new { page = totalPages, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Last</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation dialog -->
+    <div id="delete-confirmation-dialog" title="Confirmare Stergere" style="display:none;">
+        <p>Esti sigur ca vrei sa stergi numarul de telefon? Aceasta actiune este ireversibila.</p>
+    </div>
+
+    <!-- Error dialog -->
+    <div id="error-message-dialog" title="Eroare" style="display:none;">
+        <p>A aparut o eroare. Te rugam sa incerci din nou.</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const filterButton = $('#lista-numere-custom-filter-button');
+            const filterDropdown = $('#lista-numere-custom-filter-dropdown');
+            const applyFilterButton = $('#lista-numere-custom-apply-filter-button');
+            const resetFilterButton = $('#lista-numere-custom-reset-filter-button');
+
+            filterButton.click(function () {
+                filterDropdown.toggleClass('visible');
+            });
+
+            applyFilterButton.click(function () {
+                const filterFirma = $('#lista-numere-filter-firma').val();
+                const filterPctLucru = $('#lista-numere-filter-pctlucru').val();
+                const filterNrTelefon = $('#lista-numere-filter-nrtelefon').val();
+                const url = `@Url.Action("ListaNumereTelefon", "Helpdesk")?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}`;
+                window.location.href = url;
+            });
+
+            resetFilterButton.click(function () {
+                $('#lista-numere-filter-firma').val('');
+                $('#lista-numere-filter-pctlucru').val('');
+                $('#lista-numere-filter-nrtelefon').val('');
+            });
+
+            $('#lista-numere-filter-firma').on('input', function () {
+                const term = $(this).val();
+                if (term.length >= 3) {
+                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'Firma' }, function (data) {
+                        let suggestions = '';
+                        data.forEach(firma => {
+                            suggestions += `<div class="suggestion-item">${firma}</div>`;
+                        });
+                        $('#firmaSuggestions').html(suggestions).show();
+                    });
+                } else {
+                    $('#firmaSuggestions').hide();
+                }
+            });
+
+            $('#firmaSuggestions').on('click', '.suggestion-item', function () {
+                const selectedFirma = $(this).text();
+                $('#lista-numere-filter-firma').val(selectedFirma);
+                $('#firmaSuggestions').hide();
+                // Fetch and show PctLucru suggestions based on selected Firma
+                $('#lista-numere-filter-pctlucru').val('');
+                $('#lista-numere-filter-nrtelefon').val('');
+            });
+
+            $('#lista-numere-filter-pctlucru').on('input', function () {
+                const term = $(this).val();
+                const firma = $('#lista-numere-filter-firma').val();
+                if (term.length >= 3 && firma) {
+                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'PctLucru', firma: firma }, function (data) {
+                        let suggestions = '';
+                        data.forEach(pctLucru => {
+                            suggestions += `<div class="suggestion-item">${pctLucru}</div>`;
+                        });
+                        $('#pctLucruSuggestions').html(suggestions).show();
+                    });
+                } else {
+                    $('#pctLucruSuggestions').hide();
+                }
+            });
+
+            $('#pctLucruSuggestions').on('click', '.suggestion-item', function () {
+                const selectedPctLucru = $(this).text();
+                $('#lista-numere-filter-pctlucru').val(selectedPctLucru);
+                $('#pctLucruSuggestions').hide();
+                // Fetch and show NrTelefon suggestions based on selected Firma and PctLucru
+                $('#lista-numere-filter-nrtelefon').val('');
+            });
+
+            $('#lista-numere-filter-nrtelefon').on('input', function () {
+                const term = $(this).val();
+                const firma = $('#lista-numere-filter-firma').val();
+                if (term.length >= 3 && firma) {
+                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'NrTelefon', firma: firma }, function (data) {
+                        let suggestions = '';
+                        data.forEach(nrTelefon => {
+                            suggestions += `<div class="suggestion-item">${nrTelefon}</div>`;
+                        });
+                        $('#nrTelefonSuggestions').html(suggestions).show();
+                    });
+                } else {
+                    $('#nrTelefonSuggestions').hide();
+                }
+            });
+
+            $('#nrTelefonSuggestions').on('click', '.suggestion-item', function () {
+                const selectedNrTelefon = $(this).text();
+                $('#lista-numere-filter-nrtelefon').val(selectedNrTelefon);
+                $('#nrTelefonSuggestions').hide();
+            });
+
+            // Delete icon functionality
+            $('.delete-icon-custom').click(function () {
+                const id = $(this).data('id');
+                $("#delete-confirmation-dialog").data('id', id).dialog('open');
+            });
+
+            $("#delete-confirmation-dialog").dialog({
+                autoOpen: false,
+                modal: true,
+                buttons: {
+                    "Yes": function () {
+                        const id = $(this).data('id');
+                        $.ajax({
+                            url: '@Url.Action("DeleteFirmaNrTelefon", "Helpdesk")',
+                            type: 'POST',
+                            data: { id: id },
+                            success: function (response) {
+                                if (response.success) {
+                                    location.reload();
+                                } else {
+                                    $("#error-message-dialog").dialog("open");
+                                }
+                            },
+                            error: function () {
+                                $("#error-message-dialog").dialog("open");
+                            }
+                        });
+                        $(this).dialog("close");
+                    },
+                    "No": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+
+            $("#error-message-dialog").dialog({
+                autoOpen: false,
+                modal: true,
+                buttons: {
+                    "OK": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+
+        function exportToExcel() {
+            const rows = Array.from(document.querySelectorAll('#lista-numere-custom-telefon-table tbody tr')).map(row => {
+                return {
+                    Firma: row.cells[0].textContent.trim(),
+                    PctLucru: row.cells[1].textContent.trim(),
+                    NrTelefon: row.cells[2].textContent.trim()
+                };
+            });
+
+            const data = { rows: rows };
+
+            fetch('@Url.Action("ExportFilteredEntriesToExcel", "Helpdesk")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '@Html.AntiForgeryToken()'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'FilteredEntries.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                })
+                .catch(error => console.error('Error exporting to Excel:', error));
+        }
+    </script>
+</body>
+</html>

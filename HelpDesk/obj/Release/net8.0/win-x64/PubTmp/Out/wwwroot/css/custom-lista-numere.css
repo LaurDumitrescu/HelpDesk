@@ -1,0 +1,179 @@
+﻿/* Page Container */
+.lista-numere-custom-page-container {
+    width: 95%; /* Adjusted for better responsiveness */
+    max-width: 1000px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    margin: 100px auto 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Button Container */
+.lista-numere-custom-button-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    gap: 10px; /* Add gap between buttons */
+    position: relative; /* Make this container relative */
+    margin-bottom: 20px;
+}
+
+#lista-numere-custom-filter-button, .lista-numere-custom-export-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 16px;
+}
+
+    #lista-numere-custom-filter-button:hover, .lista-numere-custom-export-button:hover {
+        background-color: #45a049;
+    }
+
+#lista-numere-custom-filter-dropdown {
+    display: none;
+    background-color: white;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    padding: 12px 16px;
+    z-index: 1;
+    width: 100%; /* Adjust width to cover both buttons */
+    position: relative; /* Position relative to push down the table */
+    margin-top: 15px;
+}
+
+    #lista-numere-custom-filter-dropdown.visible {
+        display: block;
+    }
+
+.lista-numere-custom-filter-buttons {
+    display: flex;
+    gap: 10px; /* Add gap between buttons */
+}
+
+#lista-numere-custom-apply-filter-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+    #lista-numere-custom-apply-filter-button:hover {
+        background-color: #45a049;
+    }
+
+#lista-numere-custom-reset-filter-button {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+    #lista-numere-custom-reset-filter-button:hover {
+        background-color: #d32f2f;
+    }
+
+.lista-numere-custom-export-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 16px;
+    position: relative;
+}
+
+    .lista-numere-custom-export-button:hover {
+        background-color: #45a049;
+    }
+
+.lista-numere-custom-export-options {
+    display: none;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    padding: 12px 16px;
+    z-index: 2;
+    top: 100%;
+    left: 0;
+}
+
+    .lista-numere-custom-export-options a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+        .lista-numere-custom-export-options a:hover {
+            background-color: #ddd;
+        }
+
+.lista-numere-custom-export-button:hover .lista-numere-custom-export-options {
+    display: block;
+}
+
+/* Table Container */
+.lista-numere-custom-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#lista-numere-custom-telefon-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0 auto;
+    table-layout: fixed;
+}
+
+    #lista-numere-custom-telefon-table th, #lista-numere-custom-telefon-table td {
+        border: 1px solid #dddddd;
+        padding: 10px;
+        word-wrap: break-word;
+        font-size: 14px;
+        vertical-align: middle; /* Ensure vertical alignment in the middle */
+    }
+
+    #lista-numere-custom-telefon-table th {
+        background-color: black;
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+    #lista-numere-custom-telefon-table td {
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        padding: 10px;
+    }
+
+.action-column-custom {
+    width: 60px; /* Adjust width as needed */
+    text-align: center;
+    vertical-align: middle; /* Ensure vertical alignment in the middle */
+}
+
+.delete-icon-custom {
+    cursor: pointer;
+    color: red;
+    font-size: 20px; /* Adjust font size to your preference */
+}
+
+    .delete-icon-custom:hover {
+        color: darkred;
+    }

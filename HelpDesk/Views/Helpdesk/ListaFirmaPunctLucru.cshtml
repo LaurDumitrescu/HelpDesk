@@ -1,0 +1,208 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    Layout = null;
+    var filterFirma = ViewBag.FilterFirma as string ?? "";
+    var filterPctLucru = ViewBag.FilterPctLucru as string ?? "";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+    var userName = ViewBag.UserName;
+    var displayPages = 15; // Number of pages to display in the pagination
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Firma Punct de Lucru</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+</head>
+<body>
+    @Html.Partial("_Header")
+
+    <div class="lista-firma-page-container">
+        <!-- Filter Button and Dropdown Menu -->
+        <div class="lista-firma-button-container">
+            <button id="lista-firma-filter-button">Filtrare</button>
+        </div>
+        <div id="lista-firma-filter-dropdown" class="lista-firma-dropdown-content @ViewBag.FilterVisible">
+            <div>
+                <label for="lista-firma-filter-firma">Firma:</label>
+                <input type="text" id="lista-firma-filter-firma" name="filterFirma" value="@filterFirma">
+                <div id="firmaSuggestions" class="suggestions"></div>
+            </div>
+            <div>
+                <label for="lista-firma-filter-pctlucru">Punct de Lucru:</label>
+                <input type="text" id="lista-firma-filter-pctlucru" name="filterPctLucru" value="@filterPctLucru">
+                <div id="pctLucruSuggestions" class="suggestions"></div>
+            </div>
+            <div class="lista-firma-filter-buttons">
+                <button id="lista-firma-apply-filter-button">Apply Filter</button>
+                <button id="lista-firma-reset-filter-button">Reset Filter</button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="lista-firma-table-container">
+            <table id="lista-firma-table">
+                <thead>
+                    <tr>
+                        <th>Firma</th>
+                        <th>Punct de Lucru</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Firma</td>
+                            <td>@item.PctLucru</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Pagination controls -->
+            <div class="pagination">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("ListaFirmaPunctLucru", new { page = 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">First</a>
+                    <a href="@Url.Action("ListaFirmaPunctLucru", new { page = currentPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">Previous</a>
+                }
+
+                @{
+                    var startPage = currentPage - (displayPages / 2);
+                    var endPage = currentPage + (displayPages / 2);
+
+                    if (startPage < 1)
+                    {
+                        endPage = endPage - (startPage - 1);
+                        startPage = 1;
+                    }
+
+                    if (endPage > totalPages)
+                    {
+                        startPage = startPage - (endPage - totalPages);
+                        endPage = totalPages;
+                    }
+
+                    if (startPage < 1)
+                    {
+                        startPage = 1;
+                    }
+
+                    if (endPage - startPage + 1 < displayPages)
+                    {
+                        endPage = startPage + displayPages - 1;
+                        if (endPage > totalPages)
+                        {
+                            endPage = totalPages;
+                        }
+                    }
+                }
+
+                @if (startPage > 1)
+                {
+                    <a href="@Url.Action("ListaFirmaPunctLucru", new { page = startPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">...</a>
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    if (i == currentPage)
+                    {
+                        <span class="page-link active">@i</span>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("ListaFirmaPunctLucru", new { page = i, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">@i</a>
+                    }
+                }
+
+                @if (endPage < totalPages)
+                {
+                    <a href="@Url.Action("ListaFirmaPunctLucru", new { page = endPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">...</a>
+                }
+
+                @if (currentPage < totalPages)
+                {
+                    <a href="@Url.Action("ListaFirmaPunctLucru", new { page = currentPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">Next</a>
+                    <a href="@Url.Action("ListaFirmaPunctLucru", new { page = totalPages, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">Last</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const filterButton = $('#lista-firma-filter-button');
+            const filterDropdown = $('#lista-firma-filter-dropdown');
+            const applyFilterButton = $('#lista-firma-apply-filter-button');
+            const resetFilterButton = $('#lista-firma-reset-filter-button');
+
+            filterButton.click(function () {
+                filterDropdown.toggleClass('visible');
+            });
+
+            applyFilterButton.click(function () {
+                const filterFirma = $('#lista-firma-filter-firma').val();
+                const filterPctLucru = $('#lista-firma-filter-pctlucru').val();
+                const url = `@Url.Action("ListaFirmaPunctLucru", "Helpdesk")?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}`;
+                window.location.href = url;
+            });
+
+            resetFilterButton.click(function () {
+                $('#lista-firma-filter-firma').val('');
+                $('#lista-firma-filter-pctlucru').val('');
+            });
+
+            $('#lista-firma-filter-firma').on('input', function () {
+                const term = $(this).val();
+                if (term.length >= 3) {
+                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'Firma' }, function (data) {
+                        let suggestions = '';
+                        data.forEach(firma => {
+                            suggestions += `<div class="suggestion-item">${firma}</div>`;
+                        });
+                        $('#firmaSuggestions').html(suggestions).show();
+                    });
+                } else {
+                    $('#firmaSuggestions').hide();
+                }
+            });
+
+            $('#firmaSuggestions').on('click', '.suggestion-item', function () {
+                const selectedFirma = $(this).text();
+                $('#lista-firma-filter-firma').val(selectedFirma);
+                $('#firmaSuggestions').hide();
+                // Fetch and show PctLucru suggestions based on selected Firma
+                $('#lista-firma-filter-pctlucru').val('');
+            });
+
+            $('#lista-firma-filter-pctlucru').on('input', function () {
+                const term = $(this).val();
+                const firma = $('#lista-firma-filter-firma').val();
+                if (term.length >= 3 && firma) {
+                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'PctLucru', firma: firma }, function (data) {
+                        let suggestions = '';
+                        data.forEach(pctLucru => {
+                            suggestions += `<div class="suggestion-item">${pctLucru}</div>`;
+                        });
+                        $('#pctLucruSuggestions').html(suggestions).show();
+                    });
+                } else {
+                    $('#pctLucruSuggestions').hide();
+                }
+            });
+
+            $('#pctLucruSuggestions').on('click', '.suggestion-item', function () {
+                const selectedPctLucru = $(this).text();
+                $('#lista-firma-filter-pctlucru').val(selectedPctLucru);
+                $('#pctLucruSuggestions').hide();
+            });
+        });
+    </script>
+</body>
+</html>

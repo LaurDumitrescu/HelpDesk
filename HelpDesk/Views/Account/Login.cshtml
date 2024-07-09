@@ -1,0 +1,36 @@
+﻿@model HelpdeskApp.Models.LoginViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+   
+</head>
+<body>
+    <div class="login-container">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="login-error-message">@TempData["ErrorMessage"]</div>
+        }
+        <form asp-action="Login" method="post">
+            <div class="input-container">
+                <label for="Username">Username:</label>
+                <input type="text" id="Username" name="Username" class="entry-input">
+            </div>
+            <div class="input-container">
+                <label for="Password">Parola:</label>
+                <input type="password" id="Password" name="Password" class="entry-input">
+            </div>
+            <button type="submit" class="login-button">Login</button>
+        </form>
+    </div>
+    @Html.Partial("_Footer")
+</body>
+</html>
