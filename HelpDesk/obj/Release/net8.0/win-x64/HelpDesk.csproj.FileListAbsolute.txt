@@ -391,3 +391,4 @@ C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\win-x64\itextsha
 C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\win-x64\Microsoft.IO.RecyclableMemoryStream.dll
 C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\win-x64\MathNet.Numerics.dll
 C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\win-x64\Newtonsoft.Json.dll
+C:\Users\User\source\repos\HelpDesk\HelpDesk\obj\Release\net8.0\win-x64\HelpDesk.sourcelink.json

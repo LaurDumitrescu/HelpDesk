@@ -567,13 +567,6 @@ namespace HelpdeskApp.Controllers
             {
                 var worksheet = package.Workbook.Worksheets.Add("Entries");
 
-                // Style the header
-                var headerCells = worksheet.Cells["A1:I1"];
-                headerCells.Style.Font.Bold = true;
-                headerCells.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                headerCells.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
-                headerCells.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
-
                 worksheet.Cells["A1"].Value = "Firma";
                 worksheet.Cells["B1"].Value = "Punct de Lucru";
                 worksheet.Cells["C1"].Value = "Numar Telefon";
@@ -583,6 +576,12 @@ namespace HelpdeskApp.Controllers
                 worksheet.Cells["G1"].Value = "Durata Apel";
                 worksheet.Cells["H1"].Value = "Problema";
                 worksheet.Cells["I1"].Value = "Rezolvare";
+
+                var headerCells = worksheet.Cells["A1:I1"];
+                headerCells.Style.Font.Bold = true;
+                headerCells.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                headerCells.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                headerCells.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
 
                 int row = 2;
                 foreach (var entry in entries)
@@ -596,10 +595,6 @@ namespace HelpdeskApp.Controllers
                     worksheet.Cells[row, 7].Value = TimeSpan.TryParse(entry.DurataApel, out var duration) ? duration.ToString(@"hh\:mm\:ss") : entry.DurataApel;
                     worksheet.Cells[row, 8].Value = entry.Problema;
                     worksheet.Cells[row, 9].Value = entry.Rezolvare;
-
-                    // Disable text wrapping and adjust row height
-                    worksheet.Cells[row, 1, row, 9].Style.WrapText = false;
-                    worksheet.Row(row).CustomHeight = true;
                     row++;
                 }
 
@@ -609,8 +604,7 @@ namespace HelpdeskApp.Controllers
                 dataCells.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
                 dataCells.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
 
-                // Auto-fit columns and set a minimum width
-                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns(20);
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
                 var stream = new MemoryStream();
                 package.SaveAs(stream);
@@ -620,6 +614,7 @@ namespace HelpdeskApp.Controllers
                 return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Entries.xlsx");
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ExportToPdf(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate)
@@ -738,6 +733,7 @@ namespace HelpdeskApp.Controllers
                 return File(content, "application/pdf", "Entries.pdf");
             }
         }
+
 
         public async Task<IActionResult> Dashboard()
         {

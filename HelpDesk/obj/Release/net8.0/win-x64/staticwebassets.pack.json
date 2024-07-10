@@ -13,12 +13,20 @@
       "PackagePath": "staticwebassets\\css\\firmaList.css"
     },
     {
+      "Id": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\modifyEntry.css",
+      "PackagePath": "staticwebassets\\css\\modifyEntry.css"
+    },
+    {
       "Id": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\raport.css",
       "PackagePath": "staticwebassets\\css\\raport.css"
     },
     {
       "Id": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\viewentries.css",
+      "PackagePath": "staticwebassets\\css\\viewentries.css"
     },
     {
       "Id": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\favicon.ico",

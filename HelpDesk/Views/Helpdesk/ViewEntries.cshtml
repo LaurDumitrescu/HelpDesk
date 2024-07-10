@@ -350,23 +350,23 @@
                 const response = await fetch(`/Helpdesk/GetEntryDetails/${id}`);
                 const data = await response.json();
                 return `
-                                    <table>
-                                        <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
-                                        <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
-                                        <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
-                                        <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
-                                        <tr><td>Data:</td><td>${formatDateTime(data.data)}</td></tr>
-                                        <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
-                                        <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
-                                        <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
-                                        <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
-                                        <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
-                                        <tr><td>Ins Time:</td><td>${formatDateTime(data.insTime)}</td></tr>
-                                        <tr><td>Mod Time:</td><td>${formatDateTime(data.modTime)}</td></tr>
-                                        <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
-                                        <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
-                                    </table>
-                                `;
+                                            <table>
+                                                <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
+                                                <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
+                                                <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
+                                                <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
+                                                <tr><td>Data:</td><td>${formatDateTime(data.data)}</td></tr>
+                                                <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
+                                                <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
+                                                <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
+                                                <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
+                                                <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
+                                                <tr><td>Ins Time:</td><td>${formatDateTime(data.insTime)}</td></tr>
+                                                <tr><td>Mod Time:</td><td>${formatDateTime(data.modTime)}</td></tr>
+                                                <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
+                                                <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
+                                            </table>
+                                        `;
             }
 
             function formatDateTime(dateTime) {
@@ -379,6 +379,20 @@
                 const entryId = this.getAttribute('data-id');
                 window.location.href = `/Helpdesk/ModifyEntry/${entryId}`;
             });
+
+            window.exportEntries = function (format) {
+                const filterFirma = document.getElementById('filterFirma').value;
+                const filterPctLucru = document.getElementById('filterPctLucru').value;
+                const filterNrTelefon = document.getElementById('filterNrTelefon').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                if (format === 'excel') {
+                    window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+                } else if (format === 'pdf') {
+                    window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+                }
+            };
         });
     </script>
 </body>

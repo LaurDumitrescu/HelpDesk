@@ -84,3 +84,4 @@ C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\runtimes\win\lib
 C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\runtimes\win\lib\net7.0\System.Drawing.Common.dll
 C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\MathNet.Numerics.dll
 C:\Users\User\source\repos\HelpDesk\HelpDesk\bin\Release\net8.0\Newtonsoft.Json.dll
+C:\Users\User\source\repos\HelpDesk\HelpDesk\obj\Release\net8.0\HelpDesk.sourcelink.json

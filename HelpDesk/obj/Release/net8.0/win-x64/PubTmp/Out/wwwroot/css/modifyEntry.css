@@ -1,0 +1,112 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.page-container {
+    width: 95%;
+    max-width: 800px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    margin: 70px auto 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+form div {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+label {
+    font-weight: bold;
+    margin-right: 10px;
+    width: 150px;
+    flex-shrink: 0;
+}
+
+input[type="text"], input[type="date"], input[type="time"], textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-grow: 1;
+}
+
+textarea {
+    height: auto;
+    resize: none;
+    min-height: 100px; /* Minimum height to start with */
+}
+
+    textarea:focus {
+        height: auto;
+    }
+
+    textarea::-webkit-scrollbar {
+        width: 0px; /* Remove scrollbar space */
+        background: transparent; /* Optional: just make scrollbar invisible */
+    }
+
+textarea {
+    overflow: hidden; /* Hide the scrollbar for other browsers */
+}
+
+    textarea.expanding {
+        overflow: hidden;
+        word-wrap: break-word;
+    }
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    border: none;
+}
+
+#confirmButton {
+    background-color: #4CAF50;
+    color: white;
+}
+
+    #confirmButton:hover {
+        background-color: #45a049;
+    }
+
+#cancelButton {
+    background-color: #f44336;
+    color: white;
+}
+
+    #cancelButton:hover {
+        background-color: #d32f2f;
+    }

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "nwJ3TrslvU5Llkaq/tQGtFlNlF5zx4wcQg0VNSnWSjk=",
+  "Hash": "bVJXEQeLrxlgApMjQMk63e0MZIhdBXLQDtnpcofd3xE=",
   "Source": "HelpDesk",
   "BasePath": "_content/HelpDesk",
   "Mode": "Default",
@@ -1233,6 +1233,25 @@
       "OriginalItemSpec": "wwwroot\\css\\firmaList.css"
     },
     {
+      "Identity": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\modifyEntry.css",
+      "SourceId": "HelpDesk",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\",
+      "BasePath": "_content/HelpDesk",
+      "RelativePath": "css/modifyEntry.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\modifyEntry.css"
+    },
+    {
       "Identity": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\raport.css",
       "SourceId": "HelpDesk",
       "SourceType": "Discovered",
@@ -1269,6 +1288,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
+    },
+    {
+      "Identity": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\css\\viewentries.css",
+      "SourceId": "HelpDesk",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\",
+      "BasePath": "_content/HelpDesk",
+      "RelativePath": "css/viewentries.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\viewentries.css"
     },
     {
       "Identity": "C:\\Users\\User\\source\\repos\\HelpDesk\\HelpDesk\\wwwroot\\favicon.ico",
