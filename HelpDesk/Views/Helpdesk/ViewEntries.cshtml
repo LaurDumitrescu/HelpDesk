@@ -94,7 +94,7 @@
                             <td>@item.PctLucru</td>
                             <td>@item.NrTelefon</td>
                             <td data-column="Data">
-                                <input type="date" value="@item.Data.ToString("yyyy-MM-dd")" data-id="@item.Id" data-field="Data" class="entry-input" disabled>
+                                <input type="date" value="@item.Data" data-id="@item.Id" data-field="Data" class="entry-input" disabled>
                             </td>
                             <td class="not-editable">@item.Zi</td>
                             <td data-field="OraApel">@item.OraApel</td>
@@ -106,6 +106,7 @@
                             </td>
                         </tr>
                     }
+
                 </tbody>
             </table>
 
@@ -350,29 +351,38 @@
                 const response = await fetch(`/Helpdesk/GetEntryDetails/${id}`);
                 const data = await response.json();
                 return `
-                                            <table>
-                                                <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
-                                                <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
-                                                <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
-                                                <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
-                                                <tr><td>Data:</td><td>${formatDateTime(data.data)}</td></tr>
-                                                <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
-                                                <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
-                                                <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
-                                                <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
-                                                <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
-                                                <tr><td>Ins Time:</td><td>${formatDateTime(data.insTime)}</td></tr>
-                                                <tr><td>Mod Time:</td><td>${formatDateTime(data.modTime)}</td></tr>
-                                                <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
-                                                <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
-                                            </table>
-                                        `;
+                        <table>
+                            <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
+                            <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
+                            <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
+                            <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
+                            <tr><td>Data:</td><td>${formatDateToMMDDYYYY(data.data)}</td></tr>
+                            <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
+                            <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
+                            <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
+                            <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
+                            <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
+                            <tr><td>Ins Time:</td><td>${formatDateTimeToLocal(data.insTime)}</td></tr>
+                            <tr><td>Mod Time:</td><td>${formatDateTimeToLocal(data.modTime)}</td></tr>
+                            <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
+                            <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
+                        </table>
+                    `;
             }
 
-            function formatDateTime(dateTime) {
+            function formatDateToMMDDYYYY(dateTime) {
                 if (!dateTime) return '';
                 const date = new Date(dateTime);
-                return date.toISOString().slice(0, 10) + ' ' + date.toTimeString().slice(0, 8);
+                const month = ("0" + (date.getMonth() + 1)).slice(-2);
+                const day = ("0" + date.getDate()).slice(-2);
+                const year = date.getFullYear();
+                return `${month}-${day}-${year}`;
+            }
+
+            function formatDateTimeToLocal(dateTime) {
+                if (!dateTime) return '';
+                const date = new Date(dateTime);
+                return date.toLocaleString();
             }
 
             document.getElementById('modifyEntryButton').addEventListener('click', function () {

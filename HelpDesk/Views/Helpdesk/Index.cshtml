@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
     @Html.Partial("_Header")
-
 
     <div class="page-container">
         @if (ViewBag.SuccessMessage != null)
@@ -43,12 +43,12 @@
                     </div>
                     <div class="input-container">
                         <label for="OraApel">Ora Apel<span class="required">*</span>:</label>
-                        <input type="time" id="OraApel" name="OraApel" class="entry-input">
+                        <input type="text" id="OraApel" name="OraApel" class="entry-input" maxlength="5">
                     </div>
                 </div>
                 <div class="input-container">
                     <label for="DurataApel">Durata Apel<span class="required">*</span>:</label>
-                    <input type="text" id="DurataApel" name="DurataApel" class="entry-input">
+                    <input type="text" id="DurataApel" name="DurataApel" class="entry-input" maxlength="8">
                 </div>
                 <div class="input-container">
                     <label for="Problema">Problema:</label>
@@ -71,11 +71,20 @@
     @Html.Partial("_Footer")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         $(document).ready(function () {
-            var currentDate = new Date().toISOString().split('T')[0];
-            document.getElementById("Data").value = currentDate;
-            updateDayOfWeek({ value: currentDate });
+            // Function to set the current date in the date input field
+            function setCurrentDate() {
+                var now = new Date();
+                // Adjust to the local time zone
+                var currentDate = now.toISOString().split('T')[0];
+                document.getElementById("Data").value = currentDate;
+                updateDayOfWeek({ value: currentDate });
+            }
+
+            // Call the function to set the current date
+            setCurrentDate();
 
             $("#Firma").autocomplete({
                 source: function (request, response) {
@@ -143,6 +152,313 @@
                 },
                 minLength: 3
             });
+
+            // Initialize flatpickr for Ora Apel
+            flatpickr("#OraApel", {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                time_24hr: true,
+                defaultHour: 0,
+                defaultMinute: 0,
+                allowInput: true // Allow manual input
+            });
+
+            // Add event listener for input field to automatically add colon and switch to minutes
+            var oraApelInput = document.getElementById("OraApel");
+            oraApelInput.addEventListener("input", function (e) {
+                var input = e.target;
+                var value = input.value.replace(/[^0-9:]/g, ''); // Allow only digits and colon
+
+                if (value.length === 2 && !value.includes(":")) {
+                    input.value = value + ":";
+                } else if (value.length > 5) {
+                    input.value = value.slice(0, 5);
+                }
+            });
+
+            // Handle backspace to delete characters correctly
+            oraApelInput.addEventListener("keydown", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                if (e.key === "Backspace") {
+                    if (value.endsWith(":")) {
+                        input.value = value.slice(0, -1);
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            // Switch between HH and MM with Tab and move to the next field if Tab is pressed after MM
+            oraApelInput.addEventListener("keydown", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                if (e.key === "Tab") {
+                    if (value === "") {
+                        // Move to the next field if the input is blank
+                        input.blur();
+                        var formElements = document.querySelectorAll("input, button, select, textarea");
+                        for (var i = 0; i < formElements.length; i++) {
+                            if (formElements[i] === input) {
+                                formElements[i + 1].focus();
+                                break;
+                            }
+                        }
+                    } else if (value.includes(":")) {
+                        if (input.selectionStart === 0) {
+                            // Highlight the HH part
+                            setTimeout(function () {
+                                input.setSelectionRange(0, value.indexOf(":"));
+                            }, 0);
+                        } else if (input.selectionStart <= value.indexOf(":")) {
+                            // Highlight the MM part
+                            setTimeout(function () {
+                                input.setSelectionRange(value.indexOf(":") + 1, value.indexOf(":") + 3);
+                            }, 0);
+                        } else if (input.selectionStart > value.indexOf(":") + 1) {
+                            // Move to the next field
+                            input.blur();
+                            var formElements = document.querySelectorAll("input, button, select, textarea");
+                            for (var i = 0; i < formElements.length; i++) {
+                                if (formElements[i] === input) {
+                                    formElements[i + 1].focus();
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // Move cursor to HH part
+                        setTimeout(function () {
+                            input.setSelectionRange(0, value.length);
+                        }, 0);
+                    }
+                    e.preventDefault();
+                }
+            });
+
+            oraApelInput.addEventListener("blur", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                // Validate HH and MM ranges
+                if (value.includes(":")) {
+                    var parts = value.split(":");
+                    var hh = parseInt(parts[0], 10);
+                    var mm = parseInt(parts[1], 10);
+
+                    if (isNaN(hh) || hh < 0 || hh > 23) {
+                        input.value = "00:" + parts[1];
+                    }
+                    if (isNaN(mm) || mm < 0 || mm > 59) {
+                        input.value = parts[0] + ":00";
+                    }
+                }
+            });
+
+            // Additional input validation for manual typing
+            oraApelInput.addEventListener("input", function (e) {
+                var input = e.target;
+                var value = input.value.replace(/[^0-9:]/g, ''); // Allow only digits and colon
+
+                if (value.includes(":")) {
+                    var parts = value.split(":");
+                    if (parts.length === 2) {
+                        var hh = parts[0];
+                        var mm = parts[1];
+
+                        if (hh.length > 2) hh = hh.slice(0, 2);
+                        if (mm.length > 2) mm = mm.slice(0, 2);
+
+                        // Ensure valid HH and MM ranges
+                        if (parseInt(hh, 10) > 23) hh = "23";
+                        if (parseInt(mm, 10) > 59) mm = "59";
+
+                        input.value = hh + ":" + mm;
+                    }
+                } else {
+                    if (value.length > 2) value = value.slice(0, 2);
+                    input.value = value;
+                }
+            });
+
+            // Automatically jump from HH to MM when Tab is pressed and input is complete
+            oraApelInput.addEventListener("keydown", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                if (e.key === "Tab" && value.includes(":")) {
+                    if (input.selectionStart <= value.indexOf(":")) {
+                        setTimeout(function () {
+                            input.setSelectionRange(value.indexOf(":") + 1, value.indexOf(":") + 3);
+                        }, 0);
+                    } else {
+                        setTimeout(function () {
+                            input.setSelectionRange(0, value.indexOf(":"));
+                        }, 0);
+                    }
+                    e.preventDefault();
+                }
+            });
+
+            // Add similar logic for DurataApel (HH:MM:SS)
+            var durataApelInput = document.getElementById("DurataApel");
+            durataApelInput.addEventListener("input", function (e) {
+                var input = e.target;
+                var value = input.value.replace(/[^0-9:]/g, ''); // Allow only digits and colons
+
+                if (value.length === 2 && !value.includes(":")) {
+                    input.value = value + ":";
+                } else if (value.length === 5 && value.split(":").length === 2) {
+                    input.value = value + ":";
+                } else if (value.length > 8) {
+                    input.value = value.slice(0, 8);
+                }
+            });
+
+            // Handle backspace to delete characters correctly
+            durataApelInput.addEventListener("keydown", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                if (e.key === "Backspace") {
+                    if (value.endsWith(":")) {
+                        input.value = value.slice(0, -1);
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            // Switch between HH, MM, and SS with Tab and move to the next field if Tab is pressed after SS
+            durataApelInput.addEventListener("keydown", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                if (e.key === "Tab") {
+                    if (value === "") {
+                        // Move to the next field if the input is blank
+                        input.blur();
+                        var formElements = document.querySelectorAll("input, button, select, textarea");
+                        for (var i = 0; i < formElements.length; i++) {
+                            if (formElements[i] === input) {
+                                formElements[i + 1].focus();
+                                break;
+                            }
+                        }
+                    } else if (value.includes(":")) {
+                        var parts = value.split(":");
+                        if (input.selectionStart === 0) {
+                            // Highlight the HH part
+                            setTimeout(function () {
+                                input.setSelectionRange(0, parts[0].length);
+                            }, 0);
+                        } else if (input.selectionStart <= parts[0].length + 1) {
+                            // Highlight the MM part
+                            setTimeout(function () {
+                                input.setSelectionRange(parts[0].length + 1, parts[0].length + 1 + parts[1].length);
+                            }, 0);
+                        } else if (input.selectionStart <= parts[0].length + 1 + parts[1].length + 1) {
+                            // Highlight the SS part
+                            setTimeout(function () {
+                                input.setSelectionRange(parts[0].length + 1 + parts[1].length + 1, parts[0].length + 1 + parts[1].length + 1 + parts[2].length);
+                            }, 0);
+                        } else if (input.selectionStart >= value.length) {
+                            // Move to the next field
+                            input.blur();
+                            var formElements = document.querySelectorAll("input, button, select, textarea");
+                            for (var i = 0; i < formElements.length; i++) {
+                                if (formElements[i] === input) {
+                                    formElements[i + 1].focus();
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // Move cursor to HH part
+                        setTimeout(function () {
+                            input.setSelectionRange(0, value.length);
+                        }, 0);
+                    }
+                    e.preventDefault();
+                }
+            });
+
+            durataApelInput.addEventListener("blur", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                // Validate HH, MM, and SS ranges
+                if (value.includes(":")) {
+                    var parts = value.split(":");
+                    var hh = parseInt(parts[0], 10);
+                    var mm = parseInt(parts[1], 10);
+                    var ss = parseInt(parts[2], 10);
+
+                    if (isNaN(hh) || hh < 0 || hh > 23) {
+                        input.value = "00:" + parts[1] + ":" + parts[2];
+                    }
+                    if (isNaN(mm) || mm < 0 || mm > 59) {
+                        input.value = parts[0] + ":00:" + parts[2];
+                    }
+                    if (isNaN(ss) || ss < 0 || ss > 59) {
+                        input.value = parts[0] + ":" + parts[1] + ":00";
+                    }
+                }
+            });
+
+            // Additional input validation for manual typing
+            durataApelInput.addEventListener("input", function (e) {
+                var input = e.target;
+                var value = input.value.replace(/[^0-9:]/g, ''); // Allow only digits and colons
+
+                if (value.includes(":")) {
+                    var parts = value.split(":");
+                    if (parts.length === 3) {
+                        var hh = parts[0];
+                        var mm = parts[1];
+                        var ss = parts[2];
+
+                        if (hh.length > 2) hh = hh.slice(0, 2);
+                        if (mm.length > 2) mm = mm.slice(0, 2);
+                        if (ss.length > 2) ss = ss.slice(0, 2);
+
+                        // Ensure valid HH, MM, and SS ranges
+                        if (parseInt(hh, 10) > 23) hh = "23";
+                        if (parseInt(mm, 10) > 59) mm = "59";
+                        if (parseInt(ss, 10) > 59) ss = "59";
+
+                        input.value = hh + ":" + mm + ":" + ss;
+                    }
+                } else {
+                    if (value.length > 2) value = value.slice(0, 2);
+                    input.value = value;
+                }
+            });
+
+            // Automatically jump from HH to MM and MM to SS when Tab is pressed and input is complete
+            durataApelInput.addEventListener("keydown", function (e) {
+                var input = e.target;
+                var value = input.value;
+
+                if (e.key === "Tab" && value.includes(":")) {
+                    var parts = value.split(":");
+                    if (input.selectionStart <= parts[0].length) {
+                        setTimeout(function () {
+                            input.setSelectionRange(parts[0].length + 1, parts[0].length + 1 + parts[1].length);
+                        }, 0);
+                    } else if (input.selectionStart <= parts[0].length + 1 + parts[1].length) {
+                        setTimeout(function () {
+                            input.setSelectionRange(parts[0].length + 1 + parts[1].length + 1, parts[0].length + 1 + parts[1].length + 1 + parts[2].length);
+                        }, 0);
+                    } else {
+                        setTimeout(function () {
+                            input.setSelectionRange(0, parts[0].length);
+                        }, 0);
+                    }
+                    e.preventDefault();
+                }
+            });
         });
 
         function updateDayOfWeek(input) {
@@ -194,7 +510,6 @@
                 }
             });
         }
-
     </script>
 </body>
 </html>

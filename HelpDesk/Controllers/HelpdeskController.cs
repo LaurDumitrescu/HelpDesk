@@ -103,7 +103,7 @@ namespace HelpdeskApp.Controllers
                     Firma = e.FirmaNrTelefon.FirmaPunctLucru.Firma ?? "",
                     PctLucru = e.FirmaNrTelefon.FirmaPunctLucru.PctLucru ?? "",
                     NrTelefon = e.FirmaNrTelefon.NrTelefon ?? "",
-                    Data = e.Data,
+                    Data = e.Data.ToString("yyyy-MM-dd"), // Ensure Data is formatted as a string
                     Zi = e.Zi ?? "",
                     OraApel = e.OraApel.ToString(@"hh\:mm\:ss") ?? "",
                     DurataApel = e.DurataApel ?? "",
@@ -150,6 +150,7 @@ namespace HelpdeskApp.Controllers
 
             return View(result);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(string Firma, string PctLucru, string NrTelefon, DateTime Data, string Zi, string OraApel, string DurataApel, string Problema, string Rezolvare)
