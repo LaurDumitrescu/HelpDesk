@@ -194,114 +194,104 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const colorDayAndTimeCells = (row) => {
-                const ziCell = row.querySelector('.not-editable');
-                if (ziCell) {
-                    const day = ziCell.textContent.trim();
-                    if (day === 'Saturday' || day === 'Sunday') {
-                        ziCell.style.backgroundColor = 'yellow';
-                    } else {
-                        ziCell.style.backgroundColor = '';
-                    }
+    const colorDayAndTimeCells = (row) => {
+        const ziCell = row.querySelector('.not-editable');
+        if (ziCell) {
+            const day = ziCell.textContent.trim();
+            if (day === 'Saturday' || day === 'Sunday') {
+                ziCell.style.backgroundColor = 'yellow';
+            } else {
+                ziCell.style.backgroundColor = '';
+            }
+        }
+
+        const oraApelCell = row.querySelector('[data-field="OraApel"]');
+        if (oraApelCell) {
+            const time = oraApelCell.textContent.trim();
+            if (time) {
+                const [hours, minutes] = time.split(':').map(Number);
+                if ((hours >= 19 && hours <= 23) || (hours >= 0 && hours < 8)) {
+                    oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
+                    oraApelCell.style.backgroundColor = 'yellow';
+                } else {
+                    oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
+                    oraApelCell.style.backgroundColor = '';
                 }
+            } else {
+                oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
+                oraApelCell.style.backgroundColor = '';
+            }
+        }
+    };
 
-                const oraApelCell = row.querySelector('[data-field="OraApel"]');
-                if (oraApelCell) {
-                    const time = oraApelCell.textContent.trim();
-                    if (time) {
-                        const [hours, minutes] = time.split(':').map(Number);
-                        if ((hours >= 19 && hours <= 23) || (hours >= 0 && hours < 8)) {
-                            oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
-                            oraApelCell.style.backgroundColor = 'yellow';
-                        } else {
-                            oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
-                            oraApelCell.style.backgroundColor = '';
-                        }
-                    } else {
-                        oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
-                        oraApelCell.style.backgroundColor = '';
-                    }
+    document.querySelectorAll('tbody tr').forEach(row => {
+        colorDayAndTimeCells(row);
+    });
+
+    // Filter Button and Dropdown Logic
+    const filterButton = document.getElementById('filterButton');
+    const filterDropdown = document.getElementById('filterDropdown');
+    filterButton.addEventListener('click', () => {
+        filterDropdown.classList.toggle('visible');
+    });
+
+            const fetchSuggestionsForFilter = async (term, field, firma = null, pctLucru = null) => {
+                const params = new URLSearchParams({ term, field });
+                if (firma) {
+                    params.append('firma', firma);
                 }
-            };
-
-            document.querySelectorAll('tbody tr').forEach(row => {
-                colorDayAndTimeCells(row);
-            });
-
-            // Filter Button and Dropdown Logic
-            const filterButton = document.getElementById('filterButton');
-            const filterDropdown = document.getElementById('filterDropdown');
-            filterButton.addEventListener('click', () => {
-                filterDropdown.classList.toggle('visible');
-            });
-
-            // Fetch Suggestions Logic
-            const fetchSuggestionsForFilter = async (term, field, firma = null) => {
-                const response = await fetch(`/Helpdesk/GetSuggestions?term=${term}&field=${field}&firma=${firma}`);
+                if (pctLucru) {
+                    params.append('pctLucru', pctLucru);
+                }
+                const response = await fetch(`/Helpdesk/GetSuggestions?${params.toString()}`);
                 const suggestions = await response.json();
                 return suggestions;
+            };
+
+            const handleSuggestions = (inputElement, suggestionsDiv, field, additionalParams = {}) => {
+                inputElement.addEventListener('input', async () => {
+                    const term = inputElement.value;
+                    if (term.length >= 3) {
+                        const suggestions = await fetchSuggestionsForFilter(term, field, additionalParams.firma, additionalParams.pctLucru);
+                        suggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
+                        suggestionsDiv.querySelectorAll('div').forEach(suggestion => {
+                            suggestion.addEventListener('click', () => {
+                                inputElement.value = suggestion.textContent;
+                                suggestionsDiv.innerHTML = '';
+                            });
+                        });
+                    } else {
+                        suggestionsDiv.innerHTML = '';
+                    }
+                });
             };
 
             // Handle Firma Suggestions for Filter
             const filterFirmaInput = document.getElementById('filterFirma');
             const firmaSuggestionsDiv = document.getElementById('firmaSuggestions');
-            filterFirmaInput.addEventListener('input', async () => {
-                const term = filterFirmaInput.value;
-                if (term.length >= 3) {
-                    const suggestions = await fetchSuggestionsForFilter(term, 'Firma');
-                    firmaSuggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
-                    // Add click event listeners to suggestions
-                    firmaSuggestionsDiv.querySelectorAll('div').forEach(suggestion => {
-                        suggestion.addEventListener('click', () => {
-                            filterFirmaInput.value = suggestion.textContent;
-                            firmaSuggestionsDiv.innerHTML = '';
-                        });
-                    });
-                } else {
-                    firmaSuggestionsDiv.innerHTML = '';
-                }
-            });
+            handleSuggestions(filterFirmaInput, firmaSuggestionsDiv, 'Firma');
 
             // Handle Punct de Lucru Suggestions for Filter
             const filterPctLucruInput = document.getElementById('filterPctLucru');
             const pctLucruSuggestionsDiv = document.getElementById('pctLucruSuggestions');
-            filterPctLucruInput.addEventListener('input', async () => {
-                const term = filterPctLucruInput.value;
-                const firma = filterFirmaInput.value;
-                if (term.length >= 3) {
-                    const suggestions = await fetchSuggestionsForFilter(term, 'PctLucru', firma);
-                    pctLucruSuggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
-                    // Add click event listeners to suggestions
-                    pctLucruSuggestionsDiv.querySelectorAll('div').forEach(suggestion => {
-                        suggestion.addEventListener('click', () => {
-                            filterPctLucruInput.value = suggestion.textContent;
-                            pctLucruSuggestionsDiv.innerHTML = '';
-                        });
-                    });
-                } else {
-                    pctLucruSuggestionsDiv.innerHTML = '';
-                }
+            filterFirmaInput.addEventListener('input', () => {
+                handleSuggestions(filterPctLucruInput, pctLucruSuggestionsDiv, 'PctLucru', { firma: filterFirmaInput.value });
+            });
+            filterPctLucruInput.addEventListener('input', () => {
+                handleSuggestions(filterPctLucruInput, pctLucruSuggestionsDiv, 'PctLucru', { firma: filterFirmaInput.value });
             });
 
             // Handle Numar Telefon Suggestions for Filter
             const filterNrTelefonInput = document.getElementById('filterNrTelefon');
             const nrTelefonSuggestionsDiv = document.getElementById('nrTelefonSuggestions');
-            filterNrTelefonInput.addEventListener('input', async () => {
-                const term = filterNrTelefonInput.value;
-                const firma = filterFirmaInput.value;
-                if (term.length >= 3) {
-                    const suggestions = await fetchSuggestionsForFilter(term, 'NrTelefon', firma);
-                    nrTelefonSuggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
-                    // Add click event listeners to suggestions
-                    nrTelefonSuggestionsDiv.querySelectorAll('div').forEach(suggestion => {
-                        suggestion.addEventListener('click', () => {
-                            filterNrTelefonInput.value = suggestion.textContent;
-                            nrTelefonSuggestionsDiv.innerHTML = '';
-                        });
-                    });
-                } else {
-                    nrTelefonSuggestionsDiv.innerHTML = '';
-                }
+            filterFirmaInput.addEventListener('input', () => {
+                handleSuggestions(filterNrTelefonInput, nrTelefonSuggestionsDiv, 'NrTelefon', { firma: filterFirmaInput.value, pctLucru: filterPctLucruInput.value });
+            });
+            filterPctLucruInput.addEventListener('input', () => {
+                handleSuggestions(filterNrTelefonInput, nrTelefonSuggestionsDiv, 'NrTelefon', { firma: filterFirmaInput.value, pctLucru: filterPctLucruInput.value });
+            });
+            filterNrTelefonInput.addEventListener('input', () => {
+                handleSuggestions(filterNrTelefonInput, nrTelefonSuggestionsDiv, 'NrTelefon', { firma: filterFirmaInput.value, pctLucru: filterPctLucruInput.value });
             });
 
             // Apply Filter Logic
@@ -325,85 +315,86 @@
                 document.getElementById('endDate').value = '';
             });
 
-            // Entry Details Modal Logic
-            document.querySelectorAll('.details-button').forEach(button => {
-                button.addEventListener('click', async function () {
-                    const entryId = this.getAttribute('data-id');
-                    const entryDetails = await fetchEntryDetails(entryId);
-                    document.getElementById('entryDetails').innerHTML = entryDetails;
-                    document.getElementById('modifyEntryButton').setAttribute('data-id', entryId);
-                    document.getElementById('entryDetailsModal').style.display = "block";
-                });
-            });
-
-            document.querySelector('.close').addEventListener('click', function () {
-                document.getElementById('entryDetailsModal').style.display = "none";
-            });
-
-            window.addEventListener('click', function (event) {
-                const modal = document.getElementById('entryDetailsModal');
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            });
-
-            async function fetchEntryDetails(id) {
-                const response = await fetch(`/Helpdesk/GetEntryDetails/${id}`);
-                const data = await response.json();
-                return `
-                        <table>
-                            <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
-                            <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
-                            <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
-                            <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
-                            <tr><td>Data:</td><td>${formatDateToMMDDYYYY(data.data)}</td></tr>
-                            <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
-                            <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
-                            <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
-                            <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
-                            <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
-                            <tr><td>Ins Time:</td><td>${formatDateTimeToLocal(data.insTime)}</td></tr>
-                            <tr><td>Mod Time:</td><td>${formatDateTimeToLocal(data.modTime)}</td></tr>
-                            <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
-                            <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
-                        </table>
-                    `;
-            }
-
-            function formatDateToMMDDYYYY(dateTime) {
-                if (!dateTime) return '';
-                const date = new Date(dateTime);
-                const month = ("0" + (date.getMonth() + 1)).slice(-2);
-                const day = ("0" + date.getDate()).slice(-2);
-                const year = date.getFullYear();
-                return `${month}-${day}-${year}`;
-            }
-
-            function formatDateTimeToLocal(dateTime) {
-                if (!dateTime) return '';
-                const date = new Date(dateTime);
-                return date.toLocaleString();
-            }
-
-            document.getElementById('modifyEntryButton').addEventListener('click', function () {
-                const entryId = this.getAttribute('data-id');
-                window.location.href = `/Helpdesk/ModifyEntry/${entryId}`;
-            });
-
-            window.exportEntries = function (format) {
-                const filterFirma = document.getElementById('filterFirma').value;
-                const filterPctLucru = document.getElementById('filterPctLucru').value;
-                const filterNrTelefon = document.getElementById('filterNrTelefon').value;
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-
-                if (format === 'excel') {
-                    window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
-                } else if (format === 'pdf') {
-                    window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
-                }
-            };
+    // Entry Details Modal Logic
+    document.querySelectorAll('.details-button').forEach(button => {
+        button.addEventListener('click', async function () {
+            const entryId = this.getAttribute('data-id');
+            const entryDetails = await fetchEntryDetails(entryId);
+            document.getElementById('entryDetails').innerHTML = entryDetails;
+            document.getElementById('modifyEntryButton').setAttribute('data-id', entryId);
+            document.getElementById('entryDetailsModal').style.display = "block";
         });
+    });
+
+    document.querySelector('.close').addEventListener('click', function () {
+        document.getElementById('entryDetailsModal').style.display = "none";
+    });
+
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById('entryDetailsModal');
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    });
+
+    async function fetchEntryDetails(id) {
+        const response = await fetch(`/Helpdesk/GetEntryDetails/${id}`);
+        const data = await response.json();
+        return `
+                <table>
+                    <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
+                    <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
+                    <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
+                    <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
+                    <tr><td>Data:</td><td>${formatDateToMMDDYYYY(data.data)}</td></tr>
+                    <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
+                    <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
+                    <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
+                    <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
+                    <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
+                    <tr><td>Ins Time:</td><td>${formatDateTimeToLocal(data.insTime)}</td></tr>
+                    <tr><td>Mod Time:</td><td>${formatDateTimeToLocal(data.modTime)}</td></tr>
+                    <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
+                    <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
+                </table>
+            `;
+    }
+
+    function formatDateToMMDDYYYY(dateTime) {
+        if (!dateTime) return '';
+        const date = new Date(dateTime);
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+        const day = ("0" + date.getDate()).slice(-2);
+        const year = date.getFullYear();
+        return `${month}-${day}-${year}`;
+    }
+
+    function formatDateTimeToLocal(dateTime) {
+        if (!dateTime) return '';
+        const date = new Date(dateTime);
+        return date.toLocaleString();
+    }
+
+    document.getElementById('modifyEntryButton').addEventListener('click', function () {
+        const entryId = this.getAttribute('data-id');
+        window.location.href = `/Helpdesk/ModifyEntry/${entryId}`;
+    });
+
+    window.exportEntries = function (format) {
+        const filterFirma = document.getElementById('filterFirma').value;
+        const filterPctLucru = document.getElementById('filterPctLucru').value;
+        const filterNrTelefon = document.getElementById('filterNrTelefon').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (format === 'excel') {
+            window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+        } else if (format === 'pdf') {
+            window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+        }
+    };
+});
+
     </script>
 </body>
 </html>

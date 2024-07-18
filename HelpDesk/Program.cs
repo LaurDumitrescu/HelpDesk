@@ -18,7 +18,7 @@ builder.Services.AddDbContext<HelpdeskContext>(options =>
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromHours(3); // Set session timeout to 3 hours
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -29,7 +29,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Match session timeout
+        options.ExpireTimeSpan = TimeSpan.FromHours(3); // Match session timeout to 3 hours
         options.SlidingExpiration = true;
     });
 

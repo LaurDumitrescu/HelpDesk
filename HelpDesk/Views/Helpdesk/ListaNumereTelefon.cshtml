@@ -237,8 +237,9 @@
             $('#lista-numere-filter-nrtelefon').on('input', function () {
                 const term = $(this).val();
                 const firma = $('#lista-numere-filter-firma').val();
-                if (term.length >= 3 && firma) {
-                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'NrTelefon', firma: firma }, function (data) {
+                const pctLucru = $('#lista-numere-filter-pctlucru').val();
+                if (term.length >= 3 && firma && pctLucru) {
+                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'NrTelefon', firma: firma, pctLucru: pctLucru }, function (data) {
                         let suggestions = '';
                         data.forEach(nrTelefon => {
                             suggestions += `<div class="suggestion-item">${nrTelefon}</div>`;

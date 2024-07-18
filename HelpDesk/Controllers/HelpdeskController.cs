@@ -523,6 +523,7 @@ namespace HelpdeskApp.Controllers
             return BadRequest("Invalid field");
         }
 
+
         [HttpGet]
         public async Task<IActionResult> ExportToExcel(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate)
         {
