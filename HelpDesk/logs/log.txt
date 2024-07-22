@@ -32875,3 +32875,47 @@ WHERE [u].[Id] IN (
     FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
 )
 2024-07-22 10:19:26 [Information] ViewEntries method succeeded: Retrieved 472 entries.
+2024-07-22 10:26:47 [Information] Now listening on: http://localhost:5235
+2024-07-22 10:26:47 [Information] Application started. Press Ctrl+C to shut down.
+2024-07-22 10:26:47 [Information] Hosting environment: Development
+2024-07-22 10:26:47 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-07-22 10:26:50 [Warning] Failed to determine the https port for redirect.
+2024-07-22 10:26:50 [Information] Login page requested from IP ::1.
+2024-07-22 10:26:56 [Information] Login attempt for user laur from IP ::1.
+2024-07-22 10:26:56 [Information] Validating credentials for user laur from IP ::1.
+2024-07-22 10:26:57 [Information] Executed DbCommand (41ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-07-22 10:26:57 [Information] User laur credentials validated successfully from IP ::1.
+2024-07-22 10:26:57 [Information] Executed DbCommand (8ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-07-22 10:26:57 [Information] User laur successfully logged in from IP ::1.
+2024-07-22 10:26:57 [Information] Dashboard method called.
+2024-07-22 10:26:57 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-07-22 10:26:57 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-07-22 10:26:57 [Information] Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-07-22 10:26:57 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-07-22 10:26:57 [Information] Dashboard method succeeded: Data retrieved.
