@@ -11,7 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="~/css/site.css" />
-   
 </head>
 <body>
     <div class="login-container">
@@ -19,7 +18,7 @@
         {
             <div class="login-error-message">@TempData["ErrorMessage"]</div>
         }
-        <form asp-action="Login" method="post">
+        <form asp-action="Login" method="post" id="loginForm">
             <div class="input-container">
                 <label for="Username">Username:</label>
                 <input type="text" id="Username" name="Username" class="entry-input">
@@ -32,5 +31,17 @@
         </form>
     </div>
     @Html.Partial("_Footer")
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            loginForm.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    loginForm.submit();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

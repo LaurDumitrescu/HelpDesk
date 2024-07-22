@@ -523,6 +523,26 @@ namespace HelpdeskApp.Controllers
             return BadRequest("Invalid field");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetNumarTelefonSuggestions(string term)
+        {
+            _logger.LogInformation("GetNumarTelefonSuggestions method called with parameters: term={Term}", term);
+
+            if (string.IsNullOrWhiteSpace(term))
+            {
+                _logger.LogWarning("GetNumarTelefonSuggestions method failed: Invalid input.");
+                return BadRequest("Invalid input");
+            }
+
+            var suggestions = await _context.FirmaNrTelefonEntries
+                .Where(f => f.NrTelefon.Contains(term))
+                .Select(f => f.NrTelefon)
+                .Distinct()
+                .ToListAsync();
+
+            _logger.LogInformation("GetNumarTelefonSuggestions method succeeded: {Count} suggestions found.", suggestions.Count);
+            return Json(suggestions);
+        }
 
         [HttpGet]
         public async Task<IActionResult> ExportToExcel(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate)

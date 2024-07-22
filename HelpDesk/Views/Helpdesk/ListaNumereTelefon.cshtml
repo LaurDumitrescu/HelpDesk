@@ -172,13 +172,15 @@
                 filterDropdown.toggleClass('visible');
             });
 
-            applyFilterButton.click(function () {
+            const applyFilter = () => {
                 const filterFirma = $('#lista-numere-filter-firma').val();
                 const filterPctLucru = $('#lista-numere-filter-pctlucru').val();
                 const filterNrTelefon = $('#lista-numere-filter-nrtelefon').val();
                 const url = `@Url.Action("ListaNumereTelefon", "Helpdesk")?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}`;
                 window.location.href = url;
-            });
+            };
+
+            applyFilterButton.click(applyFilter);
 
             resetFilterButton.click(function () {
                 $('#lista-numere-filter-firma').val('');
@@ -186,75 +188,57 @@
                 $('#lista-numere-filter-nrtelefon').val('');
             });
 
-            $('#lista-numere-filter-firma').on('input', function () {
-                const term = $(this).val();
-                if (term.length >= 3) {
-                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'Firma' }, function (data) {
-                        let suggestions = '';
-                        data.forEach(firma => {
-                            suggestions += `<div class="suggestion-item">${firma}</div>`;
-                        });
-                        $('#firmaSuggestions').html(suggestions).show();
-                    });
-                } else {
-                    $('#firmaSuggestions').hide();
+            const fetchSuggestionsForFilter = async (term, field, firma = null, pctLucru = null) => {
+                const params = new URLSearchParams({ term, field });
+                if (firma) {
+                    params.append('firma', firma);
                 }
-            });
+                if (pctLucru) {
+                    params.append('pctLucru', pctLucru);
+                }
+                const response = await fetch(`/Helpdesk/GetSuggestions?${params.toString()}`);
+                const suggestions = await response.json();
+                return suggestions;
+            };
 
-            $('#firmaSuggestions').on('click', '.suggestion-item', function () {
-                const selectedFirma = $(this).text();
-                $('#lista-numere-filter-firma').val(selectedFirma);
-                $('#firmaSuggestions').hide();
-                // Fetch and show PctLucru suggestions based on selected Firma
-                $('#lista-numere-filter-pctlucru').val('');
-                $('#lista-numere-filter-nrtelefon').val('');
+            const fetchNumarTelefonSuggestions = async (term) => {
+                const response = await fetch(`/Helpdesk/GetNumarTelefonSuggestions?term=${encodeURIComponent(term)}`);
+                const suggestions = await response.json();
+                return suggestions;
+            };
+
+            const handleSuggestions = (inputElement, suggestionsDiv, fetchUrl) => {
+                inputElement.on('input', async function () {
+                    const term = $(this).val();
+                    if (term.length >= 3) {
+                        const suggestions = await fetchUrl(term);
+                        suggestionsDiv.html(suggestions.map(s => `<div>${s}</div>`).join('')).show();
+                        suggestionsDiv.find('div').click(function () {
+                            inputElement.val($(this).text());
+                            suggestionsDiv.hide();
+                        });
+                    } else {
+                        suggestionsDiv.hide();
+                    }
+                });
+            };
+
+            handleSuggestions($('#lista-numere-filter-firma'), $('#firmaSuggestions'), (term) => fetchSuggestionsForFilter(term, 'Firma'));
+            handleSuggestions($('#lista-numere-filter-pctlucru'), $('#pctLucruSuggestions'), (term) => fetchSuggestionsForFilter(term, 'PctLucru'));
+            handleSuggestions($('#lista-numere-filter-nrtelefon'), $('#nrTelefonSuggestions'), fetchNumarTelefonSuggestions);
+
+            $('#lista-numere-filter-firma').on('input', function () {
+                handleSuggestions($('#lista-numere-filter-pctlucru'), $('#pctLucruSuggestions'), (term) => fetchSuggestionsForFilter(term, 'PctLucru', $(this).val()));
             });
 
             $('#lista-numere-filter-pctlucru').on('input', function () {
-                const term = $(this).val();
-                const firma = $('#lista-numere-filter-firma').val();
-                if (term.length >= 3 && firma) {
-                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'PctLucru', firma: firma }, function (data) {
-                        let suggestions = '';
-                        data.forEach(pctLucru => {
-                            suggestions += `<div class="suggestion-item">${pctLucru}</div>`;
-                        });
-                        $('#pctLucruSuggestions').html(suggestions).show();
-                    });
-                } else {
-                    $('#pctLucruSuggestions').hide();
+                handleSuggestions($('#lista-numere-filter-firma'), $('#firmaSuggestions'), (term) => fetchSuggestionsForFilter(term, 'Firma', null, $(this).val()));
+            });
+
+            $(document).on('keydown', function (event) {
+                if (event.key === 'Enter' && filterDropdown.hasClass('visible')) {
+                    applyFilter();
                 }
-            });
-
-            $('#pctLucruSuggestions').on('click', '.suggestion-item', function () {
-                const selectedPctLucru = $(this).text();
-                $('#lista-numere-filter-pctlucru').val(selectedPctLucru);
-                $('#pctLucruSuggestions').hide();
-                // Fetch and show NrTelefon suggestions based on selected Firma and PctLucru
-                $('#lista-numere-filter-nrtelefon').val('');
-            });
-
-            $('#lista-numere-filter-nrtelefon').on('input', function () {
-                const term = $(this).val();
-                const firma = $('#lista-numere-filter-firma').val();
-                const pctLucru = $('#lista-numere-filter-pctlucru').val();
-                if (term.length >= 3 && firma && pctLucru) {
-                    $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'NrTelefon', firma: firma, pctLucru: pctLucru }, function (data) {
-                        let suggestions = '';
-                        data.forEach(nrTelefon => {
-                            suggestions += `<div class="suggestion-item">${nrTelefon}</div>`;
-                        });
-                        $('#nrTelefonSuggestions').html(suggestions).show();
-                    });
-                } else {
-                    $('#nrTelefonSuggestions').hide();
-                }
-            });
-
-            $('#nrTelefonSuggestions').on('click', '.suggestion-item', function () {
-                const selectedNrTelefon = $(this).text();
-                $('#lista-numere-filter-nrtelefon').val(selectedNrTelefon);
-                $('#nrTelefonSuggestions').hide();
             });
 
             // Delete icon functionality
