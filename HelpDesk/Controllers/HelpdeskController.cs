@@ -167,17 +167,37 @@ namespace HelpdeskApp.Controllers
                 return View("Index");
             }
 
-            if (string.IsNullOrWhiteSpace(Firma) || string.IsNullOrWhiteSpace(PctLucru) || Data == default || string.IsNullOrWhiteSpace(OraApel) || string.IsNullOrWhiteSpace(DurataApel))
+            // Validate mandatory fields
+            if (string.IsNullOrWhiteSpace(Firma) || string.IsNullOrWhiteSpace(PctLucru) || string.IsNullOrWhiteSpace(NrTelefon) || Data == default || string.IsNullOrWhiteSpace(OraApel) || string.IsNullOrWhiteSpace(DurataApel))
             {
                 ModelState.AddModelError(string.Empty, "All fields marked with * are mandatory.");
                 _logger.LogWarning("Mandatory fields are missing.");
                 return View("Index");
             }
 
+            // Validate NrTelefon
+            if (NrTelefon.Length != 10 || !NrTelefon.All(char.IsDigit))
+            {
+                ModelState.AddModelError(string.Empty, "Numar Telefon must be exactly 10 digits.");
+                _logger.LogWarning("Invalid Numar Telefon provided.");
+                return View("Index");
+            }
+
+            // Validate OraApel
             if (!TimeSpan.TryParse(OraApel, out TimeSpan oraApelTime))
             {
                 ModelState.AddModelError(string.Empty, "Ora Apel must be a valid time.");
                 _logger.LogWarning("Invalid Ora Apel provided.");
+                return View("Index");
+            }
+
+            // Check if OraApel is in the future relative to the system time
+            var currentDateTime = DateTime.Now;
+            var selectedDateTime = Data.Date.Add(oraApelTime);
+            if (selectedDateTime > currentDateTime)
+            {
+                ModelState.AddModelError(string.Empty, "Ora Apel cannot be in the future.");
+                _logger.LogWarning("Ora Apel is in the future.");
                 return View("Index");
             }
 
@@ -202,28 +222,24 @@ namespace HelpdeskApp.Controllers
                 _logger.LogInformation("New FirmaPunctLucru created: {Firma}, {PctLucru}", Firma, PctLucru);
             }
 
-            FirmaNrTelefon firmaNrTelefon = null;
-            if (!string.IsNullOrWhiteSpace(NrTelefon))
-            {
-                firmaNrTelefon = await _context.FirmaNrTelefonEntries
-                    .FirstOrDefaultAsync(f => f.NrTelefon == NrTelefon && f.ID_firma_punct_lucru == firmaPunctLucru.Id);
+            FirmaNrTelefon firmaNrTelefon = await _context.FirmaNrTelefonEntries
+                .FirstOrDefaultAsync(f => f.NrTelefon == NrTelefon && f.ID_firma_punct_lucru == firmaPunctLucru.Id);
 
-                if (firmaNrTelefon == null)
+            if (firmaNrTelefon == null)
+            {
+                firmaNrTelefon = new FirmaNrTelefon
                 {
-                    firmaNrTelefon = new FirmaNrTelefon
-                    {
-                        ID_firma_punct_lucru = firmaPunctLucru.Id,
-                        NrTelefon = NrTelefon
-                    };
-                    _context.FirmaNrTelefonEntries.Add(firmaNrTelefon);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation("New FirmaNrTelefon created: {NrTelefon}", NrTelefon);
-                }
+                    ID_firma_punct_lucru = firmaPunctLucru.Id,
+                    NrTelefon = NrTelefon
+                };
+                _context.FirmaNrTelefonEntries.Add(firmaNrTelefon);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("New FirmaNrTelefon created: {NrTelefon}", NrTelefon);
             }
 
             var entry = new HelpdeskEntry
             {
-                ID_nr_telefon = firmaNrTelefon?.Id ?? default(long),  // Set to default(long) if firmaNrTelefon is null
+                ID_nr_telefon = firmaNrTelefon?.Id ?? default(long),
                 Data = Data,
                 Zi = Zi,
                 OraApel = oraApelTime,
@@ -241,6 +257,7 @@ namespace HelpdeskApp.Controllers
             _logger.LogInformation("HelpdeskEntry created successfully with ID: {EntryId}", entry.Id);
             return View("Index");
         }
+
 
         public async Task<IActionResult> GetEntryDetails(long id)
         {

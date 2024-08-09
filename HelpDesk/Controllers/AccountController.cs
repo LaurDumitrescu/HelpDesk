@@ -30,13 +30,11 @@ namespace HelpdeskApp.Controllers
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
-            // Check for X-Forwarded-For header
             if (HttpContext.Request.Headers.ContainsKey("X-Forwarded-For"))
             {
                 ipAddress = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
             }
 
-            // Check for X-Real-IP header
             if (string.IsNullOrEmpty(ipAddress) && HttpContext.Request.Headers.ContainsKey("X-Real-IP"))
             {
                 ipAddress = HttpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
@@ -47,7 +45,6 @@ namespace HelpdeskApp.Controllers
                 ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             }
 
-            // Convert IPv4-mapped IPv6 addresses to IPv4
             if (ipAddress != null && ipAddress.Contains("::ffff:"))
             {
                 ipAddress = ipAddress.Split(':').Last();
@@ -55,7 +52,6 @@ namespace HelpdeskApp.Controllers
 
             return ipAddress ?? "Unknown IP";
         }
-
 
         [HttpGet]
         [AllowAnonymous]
@@ -78,6 +74,13 @@ namespace HelpdeskApp.Controllers
 
                 if (user != null)
                 {
+                    if (user.IsDeleted)
+                    {
+                        TempData["ErrorMessage"] = "User has been deactivated";
+                        _logger.LogWarning("Login attempt failed for deactivated user {Username} from IP {IP}.", model.Username, ipAddress);
+                        return View(model);
+                    }
+
                     user.LastLoginTimestamp = DateTime.Now;
                     user.FailedLoginsCount = 0;
                     await _context.SaveChangesAsync();

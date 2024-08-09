@@ -33,7 +33,7 @@
                     <input type="text" id="PctLucru" name="PctLucru" class="entry-input">
                 </div>
                 <div class="input-container">
-                    <label for="NrTelefon">Numar Telefon:</label>
+                    <label for="NrTelefon">Numar Telefon<span class="required">*</span>:</label>
                     <input type="text" id="NrTelefon" name="NrTelefon" class="entry-input">
                 </div>
                 <div class="input-container-row">
@@ -471,13 +471,19 @@
         function validateForm() {
             var firma = document.getElementById("Firma").value.trim();
             var pctLucru = document.getElementById("PctLucru").value.trim();
+            var nrTelefon = document.getElementById("NrTelefon").value.trim();
             var data = document.getElementById("Data").value.trim();
             var oraApel = document.getElementById("OraApel").value.trim();
             var durataApel = document.getElementById("DurataApel").value.trim();
             var durataApelPattern = /^(\d{2}):(\d{2}):(\d{2})$/;
 
-            if (!firma || !pctLucru || !data || !oraApel || !durataApel) {
+            if (!firma || !pctLucru || !nrTelefon || !data || !oraApel || !durataApel) {
                 showError("All fields marked with * are mandatory.");
+                return false;
+            }
+
+            if (!/^\d{10}$/.test(nrTelefon)) {
+                showError("Numar Telefon must be 10 digits.");
                 return false;
             }
 
@@ -491,8 +497,17 @@
                 return false;
             }
 
+            var oraApelDateTime = new Date(data + 'T' + oraApel);
+            var currentDateTime = new Date();
+
+            if (oraApelDateTime > currentDateTime) {
+                showError("Ora Apel cannot be in the future.");
+                return false;
+            }
+
             return true;
         }
+
 
         function isValidTime(time) {
             var timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
