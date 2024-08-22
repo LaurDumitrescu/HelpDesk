@@ -14,15 +14,28 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .chart-container {
+            margin-bottom: 20px; /* Space between the charts */
+        }
+
+        .totals-container {
+            margin-top: 30px; /* Space between the second chart and widgets */
+        }
+    </style>
 </head>
 <body>
     @Html.Partial("_Header")
 
     <div class="page-container">
         <h1>Raport Periodic</h1>
-        <h3>Perioada: @ViewBag.StartDate - @ViewBag.EndDate</h3> <!-- Added period display -->
+        <h3>Perioada: @ViewBag.StartDate - @ViewBag.EndDate</h3> <!-- Display period -->
+        <!-- Separate Graphs -->
         <div class="chart-container">
             <canvas id="callsChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="durationChart"></canvas>
         </div>
 
         <div class="totals-container">
@@ -48,41 +61,41 @@
             </div>
             <div class="total-card">
                 <div class="icon-container">
-                    <i class="fas fa-calendar-check" style="color: white;"></i> <!-- Corrected icon -->
+                    <i class="fas fa-calendar-check" style="color: white;"></i>
                 </div>
                 <div class="text-container">
                     <div class="number">@ViewBag.TotalCallsDuringSchedule</div>
-                    <div class="label">Apeluri în timpul programului</div> <!-- Corrected label -->
+                    <div class="label">Apeluri în timpul programului</div>
                     <div class="sub-label">Perioada Selectată</div>
                 </div>
             </div>
             <div class="total-card">
                 <div class="icon-container">
-                    <i class="fas fa-hourglass-half" style="color: white;"></i> <!-- Corrected icon -->
+                    <i class="fas fa-hourglass-half" style="color: white;"></i>
                 </div>
                 <div class="text-container">
                     <div class="number">@ViewBag.TotalDurationDuringScheduleMinutes minute</div>
-                    <div class="label">Durata în timpul programului (@ViewBag.TotalDurationDuringScheduleHours ore)</div> <!-- Corrected label -->
+                    <div class="label">Durata în timpul programului (@ViewBag.TotalDurationDuringScheduleHours ore)</div>
                     <div class="sub-label">Perioada Selectată</div>
                 </div>
             </div>
             <div class="total-card">
                 <div class="icon-container">
-                    <i class="fas fa-calendar-times" style="color: white;"></i> <!-- Corrected icon -->
+                    <i class="fas fa-calendar-times" style="color: white;"></i>
                 </div>
                 <div class="text-container">
                     <div class="number">@ViewBag.TotalCallsOutsideSchedule</div>
-                    <div class="label">Apeluri în afara programului</div> <!-- Corrected label -->
+                    <div class="label">Apeluri în afara programului</div>
                     <div class="sub-label">Perioada Selectată</div>
                 </div>
             </div>
             <div class="total-card">
                 <div class="icon-container">
-                    <i class="fas fa-hourglass-end" style="color: white;"></i> <!-- Corrected icon -->
+                    <i class="fas fa-hourglass-end" style="color: white;"></i>
                 </div>
                 <div class="text-container">
                     <div class="number">@ViewBag.TotalDurationOutsideScheduleMinutes minute</div>
-                    <div class="label">Durata în afara programului (@ViewBag.TotalDurationOutsideScheduleHours ore)</div> <!-- Corrected label -->
+                    <div class="label">Durata în afara programului (@ViewBag.TotalDurationOutsideScheduleHours ore)</div>
                     <div class="sub-label">Perioada Selectată</div>
                 </div>
             </div>
@@ -114,6 +127,7 @@
         </div>
     </div>
     @Html.Partial("_Footer")
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var callsData = @Html.Raw(Json.Serialize(ViewBag.CallsData));
@@ -123,8 +137,9 @@
                 return labels.map(label => label.replace(/^0+/, ''));
             }
 
-            var ctx = document.getElementById('callsChart').getContext('2d');
-            var callsChart = new Chart(ctx, {
+            // Chart for Număr Total Apeluri pe Zi
+            var ctxCalls = document.getElementById('callsChart').getContext('2d');
+            var callsChart = new Chart(ctxCalls, {
                 type: 'line',
                 data: {
                     labels: formatLabels(callsData.labels),
@@ -136,7 +151,58 @@
                         borderWidth: 1,
                         fill: true,
                         spanGaps: true
-                    }, {
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Dată'
+                            },
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Număr'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function (tooltipItems) {
+                                    const index = tooltipItems[0].dataIndex;
+                                    return callsData.fullDates[index];
+                                },
+                                label: function (tooltipItem) {
+                                    const datasetLabel = tooltipItem.dataset.label || '';
+                                    const dataValue = tooltipItem.raw.toFixed(2);
+                                    return `${datasetLabel}: ${dataValue}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart for Durată Totală pe Zi (minute)
+            var ctxDuration = document.getElementById('durationChart').getContext('2d');
+            var durationChart = new Chart(ctxDuration, {
+                type: 'line',
+                data: {
+                    labels: formatLabels(durationsData.labels),
+                    datasets: [{
                         label: 'Durată Totală pe Zi (minute)',
                         data: durationsData.data,
                         borderColor: 'rgba(153, 102, 255, 1)',
@@ -166,7 +232,7 @@
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Număr/ Durată'
+                                text: 'Durată (minute)'
                             },
                             beginAtZero: true
                         }
@@ -176,18 +242,14 @@
                             callbacks: {
                                 title: function (tooltipItems) {
                                     const index = tooltipItems[0].dataIndex;
-                                    return callsData.fullDates[index];
+                                    return durationsData.fullDates[index];
                                 },
                                 label: function (tooltipItem) {
                                     const datasetLabel = tooltipItem.dataset.label || '';
                                     const dataValue = tooltipItem.raw.toFixed(2);
-                                    if (datasetLabel === 'Durată Totală pe Zi (minute)') {
-                                        const hours = Math.floor(dataValue / 60);
-                                        const minutes = Math.floor(dataValue % 60);
-                                        return `${datasetLabel}: ${dataValue} minute (${hours} ore ${minutes} minute)`;
-                                    } else {
-                                        return `${datasetLabel}: ${dataValue}`;
-                                    }
+                                    const hours = Math.floor(dataValue / 60);
+                                    const minutes = Math.floor(dataValue % 60);
+                                    return `${datasetLabel}: ${dataValue} minute (${hours} ore ${minutes} minute)`;
                                 }
                             }
                         }

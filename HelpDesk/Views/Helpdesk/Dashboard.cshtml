@@ -14,15 +14,28 @@
     <link rel="stylesheet" href="~/css/site.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .chart-container {
+            margin-bottom: 20px; /* Add space between charts */
+        }
+
+        .totals-container {
+            margin-top: 30px; /* Add space between the second graph and widgets */
+        }
+    </style>
 </head>
 <body>
     @Html.Partial("_Header")
 
-
     <div class="page-container">
         <h1>Dashboard</h1>
+
+        <!-- Separate Graphs -->
         <div class="chart-container">
             <canvas id="callsChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="durationChart"></canvas>
         </div>
 
         <!-- New Section for Total Calls and Duration -->
@@ -162,6 +175,7 @@
         </div>
     </div>
     @Html.Partial("_Footer")
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var callsData = @Html.Raw(Json.Serialize(ViewBag.CallsData));
@@ -172,8 +186,9 @@
                 return labels.map(label => label.replace(/^0+/, ''));
             }
 
-            var ctx = document.getElementById('callsChart').getContext('2d');
-            var callsChart = new Chart(ctx, {
+            // Chart for Număr Total Apeluri pe Zi
+            var ctxCalls = document.getElementById('callsChart').getContext('2d');
+            var callsChart = new Chart(ctxCalls, {
                 type: 'line',
                 data: {
                     labels: formatLabels(callsData.labels), // Format the labels
@@ -185,7 +200,58 @@
                         borderWidth: 1,
                         fill: true,
                         spanGaps: true
-                    }, {
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Dată'
+                            },
+                            ticks: {
+                                autoSkip: false, // Ensure all labels are displayed
+                                maxRotation: 0,  // No rotation
+                                minRotation: 0   // No rotation
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Număr'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: function (tooltipItems) {
+                                    const index = tooltipItems[0].dataIndex;
+                                    return callsData.fullDates[index];
+                                },
+                                label: function (tooltipItem) {
+                                    const datasetLabel = tooltipItem.dataset.label || '';
+                                    const dataValue = tooltipItem.raw.toFixed(2);
+                                    return `${datasetLabel}: ${dataValue}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart for Durată Totală pe Zi (minute)
+            var ctxDuration = document.getElementById('durationChart').getContext('2d');
+            var durationChart = new Chart(ctxDuration, {
+                type: 'line',
+                data: {
+                    labels: formatLabels(durationsData.labels), // Format the labels
+                    datasets: [{
                         label: 'Durată Totală pe Zi (minute)',
                         data: durationsData.data,
                         borderColor: 'rgba(153, 102, 255, 1)',
@@ -215,7 +281,7 @@
                             display: true,
                             title: {
                                 display: true,
-                                text: 'Număr/ Durată'
+                                text: 'Durată (minute)'
                             },
                             beginAtZero: true
                         }
@@ -225,18 +291,14 @@
                             callbacks: {
                                 title: function (tooltipItems) {
                                     const index = tooltipItems[0].dataIndex;
-                                    return callsData.fullDates[index];
+                                    return durationsData.fullDates[index];
                                 },
                                 label: function (tooltipItem) {
                                     const datasetLabel = tooltipItem.dataset.label || '';
                                     const dataValue = tooltipItem.raw.toFixed(2);
-                                    if (datasetLabel === 'Durată Totală pe Zi (minute)') {
-                                        const hours = Math.floor(dataValue / 60);
-                                        const minutes = Math.floor(dataValue % 60); // Convert to integer
-                                        return `${datasetLabel}: ${dataValue} minute (${hours} ore ${minutes} minute)`;
-                                    } else {
-                                        return `${datasetLabel}: ${dataValue}`;
-                                    }
+                                    const hours = Math.floor(dataValue / 60);
+                                    const minutes = Math.floor(dataValue % 60); // Convert to integer
+                                    return `${datasetLabel}: ${dataValue} minute (${hours} ore ${minutes} minute)`;
                                 }
                             }
                         }
