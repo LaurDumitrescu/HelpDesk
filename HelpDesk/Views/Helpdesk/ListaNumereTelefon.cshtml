@@ -79,10 +79,10 @@
                         <tr>
                             <td>@item.Firma</td>
                             <td>@item.PctLucru</td>
-                            <td class>@item.NrTelefon</td>
+                            <td>@item.NrTelefon</td>
                             <td class="d-flex justify-content-center align-items-center">
                                 <!-- Center the content vertically and horizontally -->
-                                <i class="bi bi-x-lg text-danger delete-icon-custom" style="cursor: pointer;" data-id="@item.Id"></i>
+                                <button class="btn btn-danger btn-sm delete-button" data-id="@item.Id">Sterge</button>
                             </td>
                         </tr>
                     }
@@ -189,6 +189,13 @@
             const filterDropdown = $('#lista-numere-custom-filter-dropdown');
             const applyFilterButton = $('#lista-numere-custom-apply-filter-button');
             const resetFilterButton = $('#lista-numere-custom-reset-filter-button');
+            const errorMessageAlert = $('#error-message-alert');
+
+            // Check session storage for error message indicator
+            if (sessionStorage.getItem('showErrorMessage') === 'true') {
+                errorMessageAlert.removeClass('d-none'); // Show the error message if indicator is set
+                sessionStorage.removeItem('showErrorMessage'); // Clear the indicator
+            }
 
             filterButton.click(function () {
                 filterDropdown.toggleClass('d-none');
@@ -268,8 +275,8 @@
                 }
             });
 
-            // Delete icon functionality
-            $('.delete-icon-custom').click(function () {
+            // Delete button functionality
+            $('.delete-button').click(function () {
                 const id = $(this).data('id');
                 $("#confirmDeleteButton").data('id', id); // Store id in the confirm button
                 $("#deleteConfirmationModal").modal('show'); // Show the Bootstrap modal
@@ -285,14 +292,21 @@
                         if (response.success) {
                             location.reload(); // Reload the page on successful deletion
                         } else {
-                            $('#error-message-alert').removeClass('d-none'); // Show Bootstrap error alert
+                            sessionStorage.setItem('showErrorMessage', 'true'); // Set indicator to show error message on reload
+                            location.reload(); // Reload the page to show error message
                         }
                     },
                     error: function () {
-                        $('#error-message-alert').removeClass('d-none'); // Show Bootstrap error alert on error
+                        sessionStorage.setItem('showErrorMessage', 'true'); // Set indicator to show error message on reload
+                        location.reload(); // Reload the page to show error message
                     }
                 });
                 $("#deleteConfirmationModal").modal('hide'); // Hide the Bootstrap modal after the AJAX call
+            });
+
+            // Reset error message visibility when alert is closed
+            errorMessageAlert.on('closed.bs.alert', function () {
+                errorMessageAlert.addClass('d-none'); // Hide the error alert when it's closed
             });
         });
 

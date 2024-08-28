@@ -14,227 +14,239 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Entries</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/viewentries.css" />
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
 </head>
-<body>
+<body class="bg-light">
     @Html.Partial("_Header")
 
-    <div class="page-container">
-        <!-- Button Container -->
-        <div class="button-container">
-            <button id="addEntryButton" onclick="location.href='/Helpdesk/Index'">Adaugare Apel</button>
+    <div class="container my-4">
+
+        <!-- Display success message if modification was successful -->
+    @if (TempData["ModificationSuccess"] != null && (bool)TempData["ModificationSuccess"] == true)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            Modificarea a fost realizată cu succes!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="button-container">
-            <button id="filterButton">Filtrare</button>
-            <!-- Export Button -->
-            <div class="export-button">
-                Export
-                <div class="export-options">
-                    <a href="#" onclick="exportEntries('excel')">Excel</a>
-                    <a href="#" onclick="exportEntries('pdf')">PDF</a>
+    }
+
+
+        <!-- Button Row for Adaugare Apel -->
+        <div class="row mb-2">
+            <div class="col-12">
+                <button id="addEntryButton" class="btn btn-primary" onclick="location.href='/Helpdesk/Index'">Adaugare Apel</button>
+            </div>
+        </div>
+
+        <!-- Button Row for Filtrare and Export -->
+        <div class="row mb-4 mt-4">
+            <div class="col-auto">
+                <button id="filterButton" class="btn btn-secondary">Filtrare</button>
+            </div>
+            <div class="col-auto">
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle" type="button" id="exportButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Export
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="exportButton">
+                        <li><a class="dropdown-item" href="#" onclick="exportEntries('excel')">Excel</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportEntries('pdf')">PDF</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
 
         <!-- Filter Dropdown Menu -->
-        <div id="filterDropdown" class="dropdown-content">
-            <div>
-                <label for="filterFirma">Firma:</label>
-                <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma">
+        <div id="filterDropdown" class="bg-white p-3 shadow-sm rounded mb-3" style="display:none;">
+            <div class="mb-2">
+                <label for="filterFirma" class="form-label">Firma:</label>
+                <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma" class="form-control">
                 <div id="firmaSuggestions" class="suggestions"></div>
             </div>
-            <div>
-                <label for="filterPctLucru">Punct de Lucru:</label>
-                <input type="text" id="filterPctLucru" name="filterPctLucru" value="@ViewBag.FilterPctLucru">
+            <div class="mb-2">
+                <label for="filterPctLucru" class="form-label">Punct de Lucru:</label>
+                <input type="text" id="filterPctLucru" name="filterPctLucru" value="@ViewBag.FilterPctLucru" class="form-control">
                 <div id="pctLucruSuggestions" class="suggestions"></div>
             </div>
-            <div>
-                <label for="filterNrTelefon">Numar Telefon:</label>
-                <input type="text" id="filterNrTelefon" name="filterNrTelefon" value="@ViewBag.FilterNrTelefon">
+            <div class="mb-2">
+                <label for="filterNrTelefon" class="form-label">Numar Telefon:</label>
+                <input type="text" id="filterNrTelefon" name="filterNrTelefon" value="@ViewBag.FilterNrTelefon" class="form-control">
                 <div id="nrTelefonSuggestions" class="suggestions"></div>
             </div>
-            <div>
-                <label for="startDate">Start Date:</label>
-                <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate">
+            <div class="mb-2">
+                <label for="startDate" class="form-label">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate" class="form-control">
             </div>
-            <div>
-                <label for="endDate">End Date:</label>
-                <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate">
+            <div class="mb-2">
+                <label for="endDate" class="form-label">End Date:</label>
+                <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate" class="form-control">
             </div>
-            <button id="applyFilterButton">Apply Filter</button>
-            <button id="resetFilterButton">Reset Filter</button>
+            <button id="applyFilterButton" class="btn btn-primary">Apply Filter</button>
+            <button id="resetFilterButton" class="btn btn-secondary">Reset Filter</button>
         </div>
 
-        <div class="table-container">
+        <!-- Table Container -->
+        <div class="table-responsive">
             <form id="csrfForm">
                 @Html.AntiForgeryToken()
             </form>
-            <table id="entryTable">
-                <thead>
+            <table id="entryTable" class="table table-bordered table-hover">
+                <thead class="table-dark align-middle text-center">
                     <tr>
                         <th>Firma</th>
                         <th>Punct de Lucru</th>
                         <th>Numar Telefon</th>
-                        <th data-column="Data">Data</th>
+                        <th>Data</th>
                         <th>Zi</th>
                         <th>Ora Apel</th>
                         <th>Durata Apel</th>
-                        <th data-column="InseratDe">Inserat De</th>
-                        <th data-column="ModificatDe">Modificat De</th>
+                        <th>In Timpul Programului</th>
+                        <th>Inserat De</th>
+                        <th>Modificat De</th>
                         <th>Actiuni</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
+                        var oraApelDateTime = DateTime.Parse($"{item.Data} {item.OraApel}");
+                        var isWeekend = oraApelDateTime.DayOfWeek == DayOfWeek.Saturday || oraApelDateTime.DayOfWeek == DayOfWeek.Sunday;
+                        var isWithinWorkingHours = oraApelDateTime.TimeOfDay >= TimeSpan.FromHours(8) && oraApelDateTime.TimeOfDay < TimeSpan.FromHours(19);
+
+                        var isInWorkingHoursBadge = !isWeekend && isWithinWorkingHours ? "<span class='badge bg-success'>Da</span>" : "<span class='badge bg-danger'>Nu</span>";
+
                         <tr>
                             <td>@item.Firma</td>
                             <td>@item.PctLucru</td>
                             <td>@item.NrTelefon</td>
-                            <td data-column="Data">
-                                <input type="date" value="@item.Data" data-id="@item.Id" data-field="Data" class="entry-input" disabled>
-                            </td>
-                            <td class="not-editable">@item.Zi</td>
-                            <td data-field="OraApel">@item.OraApel</td>
+                            <td><input type="date" value="@item.Data" data-id="@item.Id" data-field="Data" class="form-control" disabled></td>
+                            <td>@item.Zi</td>
+                            <td>@item.OraApel</td>
                             <td>@item.DurataApel</td>
-                            <td data-column="InseratDe" class="not-editable">@item.InseratDe</td>
-                            <td data-column="ModificatDe" class="not-editable">@item.ModificatDe</td>
-                            <td class="center-cell">
-                                <button class="details-button" data-id="@item.Id">Detalii</button>
+                            <td class="align-middle text-center">@Html.Raw(isInWorkingHoursBadge)</td>
+                            <td>@item.InseratDe</td>
+                            <td>@item.ModificatDe</td>
+                            <td class="text-center">
+                                <button class="btn btn-secondary details-button" data-id="@item.Id">Detalii</button>
                             </td>
                         </tr>
                     }
-
                 </tbody>
             </table>
 
             <!-- Pagination controls -->
-            <div class="pagination">
-                @if (currentPage > 1)
-                {
-                    <a href="@Url.Action("ViewEntries", new { page = 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">First</a>
-                    <a href="@Url.Action("ViewEntries", new { page = currentPage - 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Previous</a>
-                }
-
-                @{
-                    var startPage = currentPage - (displayPages / 2);
-                    var endPage = currentPage + (displayPages / 2);
-
-                    if (startPage < 1)
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    @if (currentPage > 1)
                     {
-                        endPage = endPage - (startPage - 1);
-                        startPage = 1;
+                        <li class="page-item">
+                            <a href="@Url.Action("ViewEntries", new { page = 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="@Url.Action("ViewEntries", new { page = currentPage - 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Previous</a>
+                        </li>
                     }
 
-                    if (endPage > totalPages)
-                    {
-                        startPage = startPage - (endPage - totalPages);
-                        endPage = totalPages;
-                    }
+                    @{
+                        var startPage = currentPage - (displayPages / 2);
+                        var endPage = currentPage + (displayPages / 2);
 
-                    if (startPage < 1)
-                    {
-                        startPage = 1;
-                    }
+                        if (startPage < 1)
+                        {
+                            endPage = endPage - (startPage - 1);
+                            startPage = 1;
+                        }
 
-                    if (endPage - startPage + 1 < displayPages)
-                    {
-                        endPage = startPage + displayPages - 1;
                         if (endPage > totalPages)
                         {
+                            startPage = startPage - (endPage - totalPages);
                             endPage = totalPages;
                         }
+
+                        if (startPage < 1)
+                        {
+                            startPage = 1;
+                        }
+
+                        if (endPage - startPage + 1 < displayPages)
+                        {
+                            endPage = startPage + displayPages - 1;
+                            if (endPage > totalPages)
+                            {
+                                endPage = totalPages;
+                            }
+                        }
                     }
-                }
 
-                @if (startPage > 1)
-                {
-                    <a href="@Url.Action("ViewEntries", new { page = startPage - 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">...</a>
-                }
-
-                @for (int i = startPage; i <= endPage; i++)
-                {
-                    if (i == currentPage)
+                    @if (startPage > 1)
                     {
-                        <span class="page-link active">@i</span>
+                        <li class="page-item">
+                            <a href="@Url.Action("ViewEntries", new { page = startPage - 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">...</a>
+                        </li>
                     }
-                    else
+
+                    @for (int i = startPage; i <= endPage; i++)
                     {
-                        <a href="@Url.Action("ViewEntries", new { page = i, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">@i</a>
+                        if (i == currentPage)
+                        {
+                            <li class="page-item active"><span class="page-link">@i</span></li>
+                        }
+                        else
+                        {
+                            <li class="page-item">
+                                <a href="@Url.Action("ViewEntries", new { page = i, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">@i</a>
+                            </li>
+                        }
                     }
-                }
 
-                @if (endPage < totalPages)
-                {
-                    <a href="@Url.Action("ViewEntries", new { page = endPage + 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">...</a>
-                }
+                    @if (endPage < totalPages)
+                    {
+                        <li class="page-item">
+                            <a href="@Url.Action("ViewEntries", new { page = endPage + 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">...</a>
+                        </li>
+                    }
 
-                @if (currentPage < totalPages)
-                {
-                    <a href="@Url.Action("ViewEntries", new { page = currentPage + 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Next</a>
-                    <a href="@Url.Action("ViewEntries", new { page = totalPages, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Last</a>
-                }
+                    @if (currentPage < totalPages)
+                    {
+                        <li class="page-item">
+                            <a href="@Url.Action("ViewEntries", new { page = currentPage + 1, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="@Url.Action("ViewEntries", new { page = totalPages, filterFirma = ViewBag.FilterFirma, filterPctLucru = ViewBag.FilterPctLucru, filterNrTelefon = ViewBag.FilterNrTelefon, startDate = ViewBag.StartDate, endDate = ViewBag.EndDate })" class="page-link">Last</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Entry Details Modal -->
+    <div id="entryDetailsModal" class="modal fade" tabindex="-1" aria-labelledby="entryDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="entryDetailsModalLabel">Detalii Apel</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="entryDetails"></div>
+                <div class="modal-footer">
+                    <button id="modifyEntryButton" class="btn btn-primary">Modificare</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="entryDetailsModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Detalii Apel</h2>
-            <div id="entryDetails"></div>
-            <button id="modifyEntryButton">Modificare</button>
-        </div>
-    </div>
-
     @Html.Partial("_Footer")
+
+    <!-- Include Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const colorDayAndTimeCells = (row) => {
-                const ziCell = row.querySelector('.not-editable');
-                if (ziCell) {
-                    const day = ziCell.textContent.trim();
-                    if (day === 'Saturday' || day === 'Sunday') {
-                        ziCell.style.backgroundColor = 'yellow';
-                    } else {
-                        ziCell.style.backgroundColor = '';
-                    }
-                }
-
-                const oraApelCell = row.querySelector('[data-field="OraApel"]');
-                if (oraApelCell) {
-                    const time = oraApelCell.textContent.trim();
-                    if (time) {
-                        const [hours, minutes] = time.split(':').map(Number);
-                        if ((hours >= 19 && hours <= 23) || (hours >= 0 && hours < 8)) {
-                            oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
-                            oraApelCell.style.backgroundColor = 'yellow';
-                        } else {
-                            oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
-                            oraApelCell.style.backgroundColor = '';
-                        }
-                    } else {
-                        oraApelCell.dataset.originalColor = oraApelCell.style.backgroundColor;
-                        oraApelCell.style.backgroundColor = '';
-                    }
-                }
-            };
-
-            document.querySelectorAll('tbody tr').forEach(row => {
-                colorDayAndTimeCells(row);
-            });
-
-            // Filter Button and Dropdown Logic
-            const filterButton = document.getElementById('filterButton');
-            const filterDropdown = document.getElementById('filterDropdown');
-            filterButton.addEventListener('click', () => {
-                filterDropdown.classList.toggle('visible');
-            });
-
             const fetchSuggestionsForFilter = async (term, field, firma = null, pctLucru = null) => {
                 const params = new URLSearchParams({ term, field });
                 if (firma) {
@@ -259,15 +271,19 @@
                     const term = inputElement.value;
                     if (term.length >= 3) {
                         const suggestions = await fetchUrl(term);
-                        suggestionsDiv.innerHTML = suggestions.map(s => `<div>${s}</div>`).join('');
-                        suggestionsDiv.querySelectorAll('div').forEach(suggestion => {
-                            suggestion.addEventListener('click', () => {
-                                inputElement.value = suggestion.textContent;
-                                suggestionsDiv.innerHTML = '';
+                        if (suggestions.length > 0) {
+                            suggestionsDiv.innerHTML = suggestions.map(s => `<div class="list-group-item list-group-item-action">${s}</div>`).join('');
+                            suggestionsDiv.querySelectorAll('div').forEach(suggestion => {
+                                suggestion.addEventListener('click', () => {
+                                    inputElement.value = suggestion.textContent;
+                                    suggestionsDiv.innerHTML = '';
+                                });
                             });
-                        });
+                        } else {
+                            suggestionsDiv.innerHTML = ''; // Clear suggestions if none are available
+                        }
                     } else {
-                        suggestionsDiv.innerHTML = '';
+                        suggestionsDiv.innerHTML = ''; // Clear suggestions if input is less than 3 characters
                     }
                 });
             };
@@ -334,42 +350,32 @@
                     const entryDetails = await fetchEntryDetails(entryId);
                     document.getElementById('entryDetails').innerHTML = entryDetails;
                     document.getElementById('modifyEntryButton').setAttribute('data-id', entryId);
-                    document.getElementById('entryDetailsModal').style.display = "block";
+                    const modal = new bootstrap.Modal(document.getElementById('entryDetailsModal'));
+                    modal.show();
                 });
-            });
-
-            document.querySelector('.close').addEventListener('click', function () {
-                document.getElementById('entryDetailsModal').style.display = "none";
-            });
-
-            window.addEventListener('click', function (event) {
-                const modal = document.getElementById('entryDetailsModal');
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
             });
 
             async function fetchEntryDetails(id) {
                 const response = await fetch(`/Helpdesk/GetEntryDetails/${id}`);
                 const data = await response.json();
                 return `
-                        <table>
-                            <tr><td>Firma:</td><td>${data.firma || ''}</td></tr>
-                            <tr><td>Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
-                            <tr><td>Prioritate:</td><td>${data.priority || ''}</td></tr>
-                            <tr><td>Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
-                            <tr><td>Data:</td><td>${formatDateToMMDDYYYY(data.data)}</td></tr>
-                            <tr><td>Zi:</td><td>${data.zi || ''}</td></tr>
-                            <tr><td>Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
-                            <tr><td>Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
-                            <tr><td>Problema:</td><td>${data.problema || ''}</td></tr>
-                            <tr><td>Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
-                            <tr><td>Ins Time:</td><td>${formatDateTimeToLocal(data.insTime)}</td></tr>
-                            <tr><td>Mod Time:</td><td>${formatDateTimeToLocal(data.modTime)}</td></tr>
-                            <tr><td>Ins User:</td><td>${data.insUserName || ''}</td></tr>
-                            <tr><td>Mod User:</td><td>${data.modUserName || ''}</td></tr>
-                        </table>
-                    `;
+                    <table class="table table-bordered">
+                        <tr><td class="fw-bold text-end">Firma:</td><td>${data.firma || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Punct de Lucru:</td><td>${data.pctLucru || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Prioritate:</td><td>${data.priority || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Numar Telefon:</td><td>${data.nrTelefon || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Data:</td><td>${formatDateToMMDDYYYY(data.data)}</td></tr>
+                        <tr><td class="fw-bold text-end">Zi:</td><td>${data.zi || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Ora Apel:</td><td>${data.oraApel || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Durata Apel:</td><td>${data.durataApel || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Problema:</td><td>${data.problema || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Rezolvare:</td><td>${data.rezolvare || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Ins Time:</td><td>${formatDateTimeToLocal(data.insTime)}</td></tr>
+                        <tr><td class="fw-bold text-end">Mod Time:</td><td>${formatDateTimeToLocal(data.modTime)}</td></tr>
+                        <tr><td class="fw-bold text-end">Ins User:</td><td>${data.insUserName || ''}</td></tr>
+                        <tr><td class="fw-bold text-end">Mod User:</td><td>${data.modUserName || ''}</td></tr>
+                    </table>
+                `;
             }
 
             function formatDateToMMDDYYYY(dateTime) {
@@ -407,6 +413,5 @@
             };
         });
     </script>
-
 </body>
 </html>

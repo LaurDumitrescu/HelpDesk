@@ -11,28 +11,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add User</title>
-    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     @Html.Partial("_Header")
-    <div class="login-container">
+
+    <div class="container mt-5 content">
+        <h2 class="text-center mb-4">Adăugați Utilizator</h2>
         <form asp-action="AddUser" method="post">
-            <div class="input-container">
-                <label for="Username">Username:</label>
-                <input type="text" id="Username" name="Username" class="entry-input">
+            <div class="mb-3">
+                <label for="Username" class="form-label">Username:</label>
+                <input type="text" id="Username" name="Username" class="form-control" required>
             </div>
-            <div class="input-container">
-                <label for="Password">Parola:</label>
-                <input type="password" id="Password" name="Password" class="entry-input">
+            <div class="mb-3">
+                <label for="Password" class="form-label">Parola:</label>
+                <input type="password" id="Password" name="Password" class="form-control" required>
             </div>
-            <div class="input-container">
-                <label for="Name">Nume Afisat:</label>
-                <input type="text" id="Name" name="Name" class="entry-input">
+            <div class="mb-3">
+                <label for="Name" class="form-label">Nume Afisat:</label>
+                <input type="text" id="Name" name="Name" class="form-control" required>
             </div>
-            <button type="submit" class="login-button">Adauga</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Adaugă</button>
+            </div>
         </form>
     </div>
 
-    @Html.Partial("_Footer")
+    <!-- Footer at the bottom -->
+    <footer class="mt-auto">
+        @Html.Partial("_Footer")
+    </footer>
+
+    <!-- Include Bootstrap JavaScript and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

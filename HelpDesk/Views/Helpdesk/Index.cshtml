@@ -9,66 +9,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Helpdesk Form</title>
-    <link rel="stylesheet" href="~/css/site.css" />
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include jQuery UI CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" />
+    <!-- Include Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     @Html.Partial("_Header")
 
-    <div class="page-container">
+    <div class="container mt-5">
         @if (ViewBag.SuccessMessage != null)
         {
-            <div class="success-message">@ViewBag.SuccessMessage</div>
+            <div class="alert alert-success" role="alert">
+                @ViewBag.SuccessMessage
+            </div>
         }
-        <div class="form-container">
+        <div class="card p-4 shadow-sm">
+            <h3 class="text-center mb-4">Helpdesk Form</h3>
             <form id="entryForm" asp-action="Create" method="post" onsubmit="return validateForm()">
-                <div class="input-container">
-                    <label for="Firma">Firma<span class="required">*</span>:</label>
-                    <input type="text" id="Firma" name="Firma" class="entry-input">
+                <div class="mb-3">
+                    <label for="Firma" class="form-label">Firma<span class="text-danger">*</span>:</label>
+                    <input type="text" id="Firma" name="Firma" class="form-control" required>
                 </div>
-                <div class="input-container">
-                    <label for="PctLucru">Punct de Lucru<span class="required">*</span>:</label>
-                    <input type="text" id="PctLucru" name="PctLucru" class="entry-input">
+                <div class="mb-3">
+                    <label for="PctLucru" class="form-label">Punct de Lucru<span class="text-danger">*</span>:</label>
+                    <input type="text" id="PctLucru" name="PctLucru" class="form-control" required>
                 </div>
-                <div class="input-container">
-                    <label for="NrTelefon">Numar Telefon<span class="required">*</span>:</label>
-                    <input type="text" id="NrTelefon" name="NrTelefon" class="entry-input">
+                <div class="mb-3">
+                    <label for="NrTelefon" class="form-label">Numar Telefon<span class="text-danger">*</span>:</label>
+                    <input type="text" id="NrTelefon" name="NrTelefon" class="form-control" required>
                 </div>
-                <div class="input-container-row">
-                    <div class="input-container">
-                        <label for="Data">Data<span class="required">*</span>:</label>
-                        <input type="date" id="Data" name="Data" onchange="updateDayOfWeek(this)" class="entry-input">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="Data" class="form-label">Data<span class="text-danger">*</span>:</label>
+                        <input type="date" id="Data" name="Data" onchange="updateDayOfWeek(this)" class="form-control" required>
                     </div>
-                    <div class="input-container">
-                        <label for="OraApel">Ora Apel<span class="required">*</span>:</label>
-                        <input type="text" id="OraApel" name="OraApel" class="entry-input" maxlength="5">
+                    <div class="col-md-6">
+                        <label for="OraApel" class="form-label">Ora Apel<span class="text-danger">*</span>:</label>
+                        <input type="text" id="OraApel" name="OraApel" class="form-control" maxlength="5" required>
                     </div>
                 </div>
-                <div class="input-container">
-                    <label for="DurataApel">Durata Apel<span class="required">*</span>:</label>
-                    <input type="text" id="DurataApel" name="DurataApel" class="entry-input" maxlength="8">
+                <div class="mb-3">
+                    <label for="DurataApel" class="form-label">Durata Apel<span class="text-danger">*</span>:</label>
+                    <input type="text" id="DurataApel" name="DurataApel" class="form-control" maxlength="8" required>
                 </div>
-                <div class="input-container">
-                    <label for="Problema">Problema:</label>
-                    <input type="text" id="Problema" name="Problema" class="entry-input">
+                <div class="mb-3">
+                    <label for="Problema" class="form-label">Problema:</label>
+                    <input type="text" id="Problema" name="Problema" class="form-control">
                 </div>
-                <div class="input-container">
-                    <label for="Rezolvare">Rezolvare:</label>
-                    <input type="text" id="Rezolvare" name="Rezolvare" class="entry-input">
+                <div class="mb-3">
+                    <label for="Rezolvare" class="form-label">Rezolvare:</label>
+                    <input type="text" id="Rezolvare" name="Rezolvare" class="form-control">
                 </div>
                 <input type="hidden" id="Zi" name="Zi">
-                <button type="submit" class="add-entry-button">Adaugare</button>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Adaugare</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div id="errorDialog" title="Validation Error" style="display:none;">
-        <p id="errorMessage"></p>
+    <!-- Error Dialog for Validation -->
+    <div id="errorDialog" class="modal fade" tabindex="-1" aria-labelledby="errorDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorDialogLabel">Validation Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ok</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    @Html.Partial("_Footer")
+    <!-- Footer at the bottom -->
+    <footer class="mt-auto">
+        @Html.Partial("_Footer")
+    </footer>
+
+    <!-- Include Bootstrap JavaScript and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -77,7 +104,6 @@
             // Function to set the current date in the date input field
             function setCurrentDate() {
                 var now = new Date();
-                // Adjust to the local time zone
                 var currentDate = now.toISOString().split('T')[0];
                 document.getElementById("Data").value = currentDate;
                 updateDayOfWeek({ value: currentDate });
@@ -103,16 +129,8 @@
                         url: "/Helpdesk/GetSingleSuggestion",
                         data: { firma: firma },
                         success: function (data) {
-                            if (data.pctLucru) {
-                                $("#PctLucru").val(data.pctLucru);
-                            } else {
-                                $("#PctLucru").val('');
-                            }
-                            if (data.nrTelefon) {
-                                $("#NrTelefon").val(data.nrTelefon);
-                            } else {
-                                $("#NrTelefon").val('');
-                            }
+                            $("#PctLucru").val(data.pctLucru || '');
+                            $("#NrTelefon").val(data.nrTelefon || '');
                         }
                     });
                 },
@@ -161,7 +179,7 @@
                 time_24hr: true,
                 defaultHour: 0,
                 defaultMinute: 0,
-                allowInput: true // Allow manual input
+                allowInput: true
             });
 
             // Add event listener for input field to automatically add colon and switch to minutes
@@ -197,7 +215,6 @@
 
                 if (e.key === "Tab") {
                     if (value === "") {
-                        // Move to the next field if the input is blank
                         input.blur();
                         var formElements = document.querySelectorAll("input, button, select, textarea");
                         for (var i = 0; i < formElements.length; i++) {
@@ -208,17 +225,14 @@
                         }
                     } else if (value.includes(":")) {
                         if (input.selectionStart === 0) {
-                            // Highlight the HH part
                             setTimeout(function () {
                                 input.setSelectionRange(0, value.indexOf(":"));
                             }, 0);
                         } else if (input.selectionStart <= value.indexOf(":")) {
-                            // Highlight the MM part
                             setTimeout(function () {
                                 input.setSelectionRange(value.indexOf(":") + 1, value.indexOf(":") + 3);
                             }, 0);
                         } else if (input.selectionStart > value.indexOf(":") + 1) {
-                            // Move to the next field
                             input.blur();
                             var formElements = document.querySelectorAll("input, button, select, textarea");
                             for (var i = 0; i < formElements.length; i++) {
@@ -229,7 +243,6 @@
                             }
                         }
                     } else {
-                        // Move cursor to HH part
                         setTimeout(function () {
                             input.setSelectionRange(0, value.length);
                         }, 0);
@@ -242,7 +255,6 @@
                 var input = e.target;
                 var value = input.value;
 
-                // Validate HH and MM ranges
                 if (value.includes(":")) {
                     var parts = value.split(":");
                     var hh = parseInt(parts[0], 10);
@@ -271,7 +283,6 @@
                         if (hh.length > 2) hh = hh.slice(0, 2);
                         if (mm.length > 2) mm = mm.slice(0, 2);
 
-                        // Ensure valid HH and MM ranges
                         if (parseInt(hh, 10) > 23) hh = "23";
                         if (parseInt(mm, 10) > 59) mm = "59";
 
@@ -337,7 +348,6 @@
 
                 if (e.key === "Tab") {
                     if (value === "") {
-                        // Move to the next field if the input is blank
                         input.blur();
                         var formElements = document.querySelectorAll("input, button, select, textarea");
                         for (var i = 0; i < formElements.length; i++) {
@@ -349,22 +359,18 @@
                     } else if (value.includes(":")) {
                         var parts = value.split(":");
                         if (input.selectionStart === 0) {
-                            // Highlight the HH part
                             setTimeout(function () {
                                 input.setSelectionRange(0, parts[0].length);
                             }, 0);
                         } else if (input.selectionStart <= parts[0].length + 1) {
-                            // Highlight the MM part
                             setTimeout(function () {
                                 input.setSelectionRange(parts[0].length + 1, parts[0].length + 1 + parts[1].length);
                             }, 0);
                         } else if (input.selectionStart <= parts[0].length + 1 + parts[1].length + 1) {
-                            // Highlight the SS part
                             setTimeout(function () {
                                 input.setSelectionRange(parts[0].length + 1 + parts[1].length + 1, parts[0].length + 1 + parts[1].length + 1 + parts[2].length);
                             }, 0);
                         } else if (input.selectionStart >= value.length) {
-                            // Move to the next field
                             input.blur();
                             var formElements = document.querySelectorAll("input, button, select, textarea");
                             for (var i = 0; i < formElements.length; i++) {
@@ -375,7 +381,6 @@
                             }
                         }
                     } else {
-                        // Move cursor to HH part
                         setTimeout(function () {
                             input.setSelectionRange(0, value.length);
                         }, 0);
@@ -388,7 +393,6 @@
                 var input = e.target;
                 var value = input.value;
 
-                // Validate HH, MM, and SS ranges
                 if (value.includes(":")) {
                     var parts = value.split(":");
                     var hh = parseInt(parts[0], 10);
@@ -423,7 +427,6 @@
                         if (mm.length > 2) mm = mm.slice(0, 2);
                         if (ss.length > 2) ss = ss.slice(0, 2);
 
-                        // Ensure valid HH, MM, and SS ranges
                         if (parseInt(hh, 10) > 23) hh = "23";
                         if (parseInt(mm, 10) > 59) mm = "59";
                         if (parseInt(ss, 10) > 59) ss = "59";
@@ -459,6 +462,17 @@
                     e.preventDefault();
                 }
             });
+
+            // Clear the error message when the modal is hidden
+            $('#errorDialog').on('hidden.bs.modal', function () {
+                $('#errorMessage').text('');
+            });
+
+            // Reset error message if the user starts editing the form again
+            $('#entryForm input').on('input', function () {
+                $('#errorMessage').text('');
+                $('#errorDialog').modal('hide');
+            });
         });
 
         function updateDayOfWeek(input) {
@@ -483,17 +497,17 @@
             }
 
             if (!/^\d{10}$/.test(nrTelefon)) {
-                showError("Numar Telefon must be 10 digits.");
+                showError("Numar Telefon trebuie sa fie din 10 cifre.");
                 return false;
             }
 
             if (!durataApelPattern.test(durataApel)) {
-                showError("Durata Apel must be in the format XX:XX:XX.");
+                showError("Durata Apel trebuie sa respecte formatul XX:XX:XX");
                 return false;
             }
 
             if (!isValidTime(oraApel)) {
-                showError("Ora Apel must be a valid time.");
+                showError("Ora Apel trebuie sa respecte formatul HH:MM:SS");
                 return false;
             }
 
@@ -501,13 +515,12 @@
             var currentDateTime = new Date();
 
             if (oraApelDateTime > currentDateTime) {
-                showError("Ora Apel cannot be in the future.");
+                showError("Ora Apel sau Data nu pot fi in viitor.");
                 return false;
             }
 
             return true;
         }
-
 
         function isValidTime(time) {
             var timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
@@ -516,14 +529,7 @@
 
         function showError(message) {
             $("#errorMessage").text(message);
-            $("#errorDialog").dialog({
-                modal: true,
-                buttons: {
-                    Ok: function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
+            $("#errorDialog").modal('show');
         }
     </script>
 </body>

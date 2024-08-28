@@ -480,11 +480,12 @@ namespace HelpdeskApp.Controllers
 
             _logger.LogInformation("HelpdeskEntry updated successfully with ID: {EntryId}", entry.Id);
 
+            // Set TempData to indicate a successful modification
+            TempData["ModificationSuccess"] = true;
+
             var modifiedUserName = currentUser.Nume;
             return Json(new { modifiedUserName });
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> GetSuggestions(string term, string field, string firma = null, string pctLucru = null)

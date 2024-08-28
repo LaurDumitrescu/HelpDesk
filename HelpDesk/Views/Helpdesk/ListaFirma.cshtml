@@ -13,45 +13,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista Firmelor după Prioritate</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/firmaList.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
     @Html.Partial("_Header")
 
-    <div class="lista-firma-page-container">
+    <div class="container mt-4">
         <!-- Filter Button and Dropdown Menu -->
-        <div class="lista-firma-button-container">
-            <button id="lista-firma-filter-button">Filtrare</button>
+        <div class="d-flex justify-content-between mb-3">
+            <button class="btn btn-secondary" id="lista-firma-filter-button">Filtrare</button>
         </div>
-        <div id="lista-firma-filter-dropdown" class="lista-firma-dropdown-content @ViewBag.FilterVisible">
-            <div>
-                <label for="lista-firma-filter-firma">Firma:</label>
-                <input type="text" id="lista-firma-filter-firma" name="filterFirma" value="@filterFirma">
-                <div id="firmaSuggestions" class="suggestions"></div>
+
+        <!-- Filter Dropdown -->
+        <div id="lista-firma-filter-dropdown" class="border p-3 mb-3 rounded bg-light d-none">
+            <div class="mb-2">
+                <label for="lista-firma-filter-firma" class="form-label">Firma:</label>
+                <input type="text" class="form-control" id="lista-firma-filter-firma" name="filterFirma" value="@filterFirma">
+                <div id="firmaSuggestions" class="dropdown-menu"></div>
             </div>
-            <div>
-                <label for="lista-firma-filter-priority">Prioritate:</label>
-                <input type="text" id="lista-firma-filter-priority" name="filterPriority" value="@filterPriority">
+            <div class="mb-2">
+                <label for="lista-firma-filter-priority" class="form-label">Prioritate:</label>
+                <input type="text" class="form-control" id="lista-firma-filter-priority" name="filterPriority" value="@filterPriority">
             </div>
-            <div class="lista-firma-filter-buttons">
-                <button id="lista-firma-apply-filter-button">Apply Filter</button>
-                <button id="lista-firma-reset-filter-button">Reset Filter</button>
+            <div class="d-flex justify-content-start mt-3">
+                <button class="btn btn-success me-2" id="lista-firma-apply-filter-button">Apply Filter</button>
+                <button class="btn btn-warning" id="lista-firma-reset-filter-button">Reset Filter</button>
             </div>
         </div>
 
         <!-- Table Container -->
-        <div class="lista-firma-table-container">
+        <div class="table-responsive mb-4">
             @if (Model.Count == 0)
             {
-                <div class="no-entries-message">
+                <div class="alert alert-info text-center">
                     Nu există inregistrari.
                 </div>
             }
             else
             {
-                <table id="lista-firma-table">
-                    <thead>
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark text-white">
                         <tr>
                             @foreach (var priority in Model.Keys.OrderBy(p => p))
                             {
@@ -89,6 +92,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
             const filterButton = $('#lista-firma-filter-button');
@@ -97,7 +101,7 @@
             const resetFilterButton = $('#lista-firma-reset-filter-button');
 
             filterButton.click(function () {
-                filterDropdown.toggleClass('visible');
+                filterDropdown.toggleClass('d-none');
             });
 
             applyFilterButton.click(function () {
@@ -110,6 +114,7 @@
             resetFilterButton.click(function () {
                 $('#lista-firma-filter-firma').val('');
                 $('#lista-firma-filter-priority').val('');
+                $('.dropdown-menu').hide(); // Hide suggestions when filters are reset
             });
 
             $('#lista-firma-filter-firma').on('input', function () {
@@ -118,7 +123,7 @@
                     $.get('@Url.Action("GetSuggestions", "Helpdesk")', { term: term, field: 'Firma' }, function (data) {
                         let suggestions = '';
                         data.forEach(firma => {
-                            suggestions += `<div class="suggestion-item">${firma}</div>`;
+                            suggestions += `<a class="dropdown-item">${firma}</a>`;
                         });
                         $('#firmaSuggestions').html(suggestions).show();
                     });
@@ -127,7 +132,7 @@
                 }
             });
 
-            $('#firmaSuggestions').on('click', '.suggestion-item', function () {
+            $('#firmaSuggestions').on('click', '.dropdown-item', function () {
                 const selectedFirma = $(this).text();
                 $('#lista-firma-filter-firma').val(selectedFirma);
                 $('#firmaSuggestions').hide();
