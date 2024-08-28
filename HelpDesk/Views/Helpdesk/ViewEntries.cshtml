@@ -24,14 +24,13 @@
     <div class="container my-4">
 
         <!-- Display success message if modification was successful -->
-    @if (TempData["ModificationSuccess"] != null && (bool)TempData["ModificationSuccess"] == true)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Modificarea a fost realizată cu succes!
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
+        @if (TempData["ModificationSuccess"] != null && (bool)TempData["ModificationSuccess"] == true)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Modificarea a fost realizată cu succes!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
 
         <!-- Button Row for Adaugare Apel -->
         <div class="row mb-2">
@@ -59,7 +58,7 @@
         </div>
 
         <!-- Filter Dropdown Menu -->
-        <div id="filterDropdown" class="bg-white p-3 shadow-sm rounded mb-3" style="display:none;">
+        <div id="filterDropdown" class="bg-white p-3 shadow-sm rounded mb-3 d-none">
             <div class="mb-2">
                 <label for="filterFirma" class="form-label">Firma:</label>
                 <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma" class="form-control">
@@ -266,24 +265,27 @@
                 return suggestions;
             };
 
-            const handleSuggestions = (inputElement, suggestionsDiv, fetchUrl) => {
+            const handleSuggestions = (inputElement, suggestionsDiv, fetchUrl, field) => {
                 inputElement.addEventListener('input', async () => {
                     const term = inputElement.value;
                     if (term.length >= 3) {
                         const suggestions = await fetchUrl(term);
-                        if (suggestions.length > 0) {
-                            suggestionsDiv.innerHTML = suggestions.map(s => `<div class="list-group-item list-group-item-action">${s}</div>`).join('');
-                            suggestionsDiv.querySelectorAll('div').forEach(suggestion => {
-                                suggestion.addEventListener('click', () => {
-                                    inputElement.value = suggestion.textContent;
-                                    suggestionsDiv.innerHTML = '';
-                                });
+                        let suggestionItems = '';
+                        suggestions.forEach(item => {
+                            suggestionItems += `<a class="dropdown-item">${item}</a>`;
+                        });
+                        suggestionsDiv.innerHTML = suggestionItems;
+                        suggestionsDiv.style.display = 'block';
+
+                        // Add click event for each suggestion
+                        suggestionsDiv.querySelectorAll('.dropdown-item').forEach(suggestion => {
+                            suggestion.addEventListener('click', () => {
+                                inputElement.value = suggestion.textContent;
+                                suggestionsDiv.style.display = 'none';
                             });
-                        } else {
-                            suggestionsDiv.innerHTML = ''; // Clear suggestions if none are available
-                        }
+                        });
                     } else {
-                        suggestionsDiv.innerHTML = ''; // Clear suggestions if input is less than 3 characters
+                        suggestionsDiv.style.display = 'none'; // Hide suggestions if input is less than 3 characters
                     }
                 });
             };
@@ -291,27 +293,27 @@
             // Handle Firma Suggestions for Filter
             const filterFirmaInput = document.getElementById('filterFirma');
             const firmaSuggestionsDiv = document.getElementById('firmaSuggestions');
-            handleSuggestions(filterFirmaInput, firmaSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'Firma'));
+            handleSuggestions(filterFirmaInput, firmaSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'Firma'), 'Firma');
 
             // Handle Punct de Lucru Suggestions for Filter
             const filterPctLucruInput = document.getElementById('filterPctLucru');
             const pctLucruSuggestionsDiv = document.getElementById('pctLucruSuggestions');
-            handleSuggestions(filterPctLucruInput, pctLucruSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'PctLucru'));
+            handleSuggestions(filterPctLucruInput, pctLucruSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'PctLucru'), 'PctLucru');
 
             // Update Firma suggestions when PctLucru changes
             filterPctLucruInput.addEventListener('input', () => {
-                handleSuggestions(filterFirmaInput, firmaSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'Firma', null, filterPctLucruInput.value));
+                handleSuggestions(filterFirmaInput, firmaSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'Firma', null, filterPctLucruInput.value), 'Firma');
             });
 
             // Update PctLucru suggestions when Firma changes
             filterFirmaInput.addEventListener('input', () => {
-                handleSuggestions(filterPctLucruInput, pctLucruSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'PctLucru', filterFirmaInput.value));
+                handleSuggestions(filterPctLucruInput, pctLucruSuggestionsDiv, (term) => fetchSuggestionsForFilter(term, 'PctLucru', filterFirmaInput.value), 'PctLucru');
             });
 
             // Handle Numar Telefon Suggestions for Filter
             const filterNrTelefonInput = document.getElementById('filterNrTelefon');
             const nrTelefonSuggestionsDiv = document.getElementById('nrTelefonSuggestions');
-            handleSuggestions(filterNrTelefonInput, nrTelefonSuggestionsDiv, fetchNumarTelefonSuggestions);
+            handleSuggestions(filterNrTelefonInput, nrTelefonSuggestionsDiv, fetchNumarTelefonSuggestions, 'NrTelefon');
 
             // Apply Filter Logic
             const applyFilter = () => {
@@ -336,11 +338,10 @@
                 document.getElementById('endDate').value = '';
             });
 
-            // Add event listener to detect Enter key press
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' && filterDropdown.classList.contains('visible')) {
-                    applyFilter();
-                }
+            // Toggle Filter Dropdown Visibility
+            document.getElementById('filterButton').addEventListener('click', function () {
+                const filterDropdown = document.getElementById('filterDropdown');
+                filterDropdown.classList.toggle('d-none');
             });
 
             // Entry Details Modal Logic

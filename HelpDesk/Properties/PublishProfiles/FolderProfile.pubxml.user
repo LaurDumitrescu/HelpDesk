@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\AppSupport</_PublishTargetUrl>
-    <History>True|2024-08-28T08:34:31.6908926Z||;False|2024-08-28T11:33:38.0407202+03:00||;False|2024-08-28T11:33:25.1548621+03:00||;True|2024-06-04T16:20:21.0239491+03:00||;</History>
+    <History>True|2024-08-28T09:36:56.4160482Z||;True|2024-08-28T11:34:31.6908926+03:00||;False|2024-08-28T11:33:38.0407202+03:00||;False|2024-08-28T11:33:25.1548621+03:00||;True|2024-06-04T16:20:21.0239491+03:00||;</History>
     <LastFailureDetails />
     <TimeStampOfAssociatedLegacyPublishXmlFile />
   </PropertyGroup>
