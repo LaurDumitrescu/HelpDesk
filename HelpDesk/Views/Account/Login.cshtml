@@ -10,28 +10,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Removed site.css to prevent layout issues -->
 </head>
-<body>
-    <div class="login-container">
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="login-error-message">@TempData["ErrorMessage"]</div>
-        }
-        <form asp-action="Login" method="post" id="loginForm">
-            <div class="input-container">
-                <label for="Username">Username:</label>
-                <input type="text" id="Username" name="Username" class="entry-input">
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <div class="container flex-grow-1">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mt-5">Login</h2>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+
+                <form asp-action="Login" method="post" id="loginForm" class="mt-4">
+                    <div class="form-group">
+                        <label for="Username">Username:</label>
+                        <input type="text" id="Username" name="Username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="Password">Password:</label>
+                        <input type="password" id="Password" name="Password" class="form-control">
+                    </div>
+                    <!-- Half-width login button with centered alignment -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 50%;">Login</button>
+                    </div>
+                </form>
             </div>
-            <div class="input-container">
-                <label for="Password">Password:</label>
-                <input type="password" id="Password" name="Password" class="entry-input">
-            </div>
-            <button type="submit" class="login-button">Login</button>
-        </form>
+        </div>
     </div>
+
+    <!-- Include the footer using partial view -->
     @Html.Partial("_Footer")
 
+    <!-- Ensure scripts are loaded after all HTML content -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const loginForm = document.getElementById('loginForm');

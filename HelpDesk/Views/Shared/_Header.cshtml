@@ -2,35 +2,50 @@
     var userName = ViewBag.UserName;
 }
 
-<div class="top-nav">
-    <div class="nav-left">
-        <a href="/Helpdesk/Dashboard" class="nav-link">HelpDesk</a>
-    </div>
-    <div class="nav-center">
-        <div class="nav-dropdown">
-            <button class="nav-link dropdown-toggle">Lista</button>
-            <div class="dropdown-content">
-                <a href="/Helpdesk/ViewEntries">Lista Apeluri</a>
-                <a href="/Helpdesk/ListaNumereTelefon">Lista Numere Telefon</a>
-                <a href="/Helpdesk/ListaFirmaPunctLucru">Lista Firme</a>
-            </div>
+<!-- Bootstrap Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/Helpdesk/Dashboard">HelpDesk</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <!-- Lista Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="listaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Lista
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="listaDropdown">
+                        <li><a class="dropdown-item" href="/Helpdesk/ViewEntries">Lista Apeluri</a></li>
+                        <li><a class="dropdown-item" href="/Helpdesk/ListaNumereTelefon">Lista Numere Telefon</a></li>
+                        <li><a class="dropdown-item" href="/Helpdesk/ListaFirmaPunctLucru">Lista Firme</a></li>
+                    </ul>
+                </li>
+                <!-- Rapoarte Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="rapoarteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Rapoarte
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="rapoarteDropdown">
+                        <li><a class="dropdown-item" href="/Helpdesk/InputRaport">Raport Periodic</a></li>
+                        <li><a class="dropdown-item" href="/Helpdesk/ListaFirma">Suport PetroSol Prioritati</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <!-- User Menu Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userMenuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        @userName
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown">
+                        <li><a class="dropdown-item" href="/Account/AddUser">Adaugare User</a></li>
+                        <li><a class="dropdown-item" href="/Account/ChangePassword">Schimbare Parola</a></li>
+                        <li><a class="dropdown-item" href="/Account/Logout">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
         </div>
-        <div class="nav-dropdown">
-            <button class="nav-link dropdown-toggle">Rapoarte</button>
-            <div class="dropdown-content">
-                <a href="/Helpdesk/InputRaport">Raport Periodic</a>
-                <a href="/Helpdesk/ListaFirma">Suport PetroSol Prioritati</a>
-            </div>
-        </div>
     </div>
-    <div class="nav-right">
-        <div class="user-menu">
-            <span class="user-name">@userName</span>
-            <div class="dropdown-content">
-                <a href="/Account/AddUser">Adaugare User</a>
-                <a href="/Account/ChangePassword">Schimbare Parola</a>
-                <a href="/Account/Logout">Logout</a>
-            </div>
-        </div>
-    </div>
-</div>
+</nav>

@@ -11,127 +11,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        .chart-container {
-            margin-bottom: 20px; /* Add space between charts */
-        }
-
-        .totals-container {
-            margin-top: 30px; /* Add space between the second graph and widgets */
-        }
-    </style>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="bg-light">
     @Html.Partial("_Header")
 
-    <div class="page-container">
-        <h1>Dashboard</h1>
+    <div class="container-fluid my-4">
+        <h1 class="text-center mb-4">Dashboard</h1>
 
-        <!-- Separate Graphs -->
-        <div class="chart-container">
-            <canvas id="callsChart"></canvas>
+        <!-- Graphs with Full Width -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card h-100 w-100">
+                    <div class="card-body">
+                        <canvas id="callsChart" style="width: 100%; height: 270px;"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="chart-container">
-            <canvas id="durationChart"></canvas>
-        </div>
-
-        <!-- New Section for Total Calls and Duration -->
-        <div class="totals-container">
-            <!-- Total Calls Current Month -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-exclamation-circle" style="color: white;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.TotalCallsCurrentMonth</div>
-                    <div class="label">Total Apeluri</div>
-                    <div class="sub-label">Luna Curenta</div>
-                </div>
-            </div>
-            <!-- Total Duration Current Month -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-clock" style="color: white;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.TotalDurationCurrentMonthMinutes minute</div>
-                    <div class="label">Durata Totala (@ViewBag.TotalDurationCurrentMonthHours ore)</div>
-                    <div class="sub-label">Luna Curenta</div>
-                </div>
-            </div>
-            <!-- Total Calls During Schedule -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-calendar-check" style="color: white;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.TotalCallsDuringSchedule</div>
-                    <div class="label">Apeluri în timpul programului</div>
-                    <div class="sub-label">Luna Curenta</div>
-                </div>
-            </div>
-            <!-- Total Duration During Schedule -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-hourglass-half" style="color: white;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.TotalDurationDuringScheduleMinutes minute</div>
-                    <div class="label">Durata în timpul programului (@ViewBag.TotalDurationDuringScheduleHours ore)</div>
-                    <div class="sub-label">Luna Curenta</div>
-                </div>
-            </div>
-            <!-- Total Calls Outside Schedule -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-calendar-times" style="color: white;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.TotalCallsOutsideSchedule</div>
-                    <div class="label">Apeluri în afara programului</div>
-                    <div class="sub-label">Luna Curenta</div>
-                </div>
-            </div>
-            <!-- Total Duration Outside Schedule -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-hourglass-end" style="color: white;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.TotalDurationOutsideScheduleMinutes minute</div>
-                    <div class="label">Durata în afara programului (@ViewBag.TotalDurationOutsideScheduleHours ore)</div>
-                    <div class="sub-label">Luna Curenta</div>
-                </div>
-            </div>
-            <!-- New Widgets -->
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-exclamation-triangle" style="color: red;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.FirmsWithoutIdCount</div>
-                    <div class="label">Firme Fără Nr.Tel Asociat</div>
-                </div>
-            </div>
-            <div class="total-card">
-                <div class="icon-container">
-                    <i class="fas fa-list" style="color: red;"></i>
-                </div>
-                <div class="text-container">
-                    <div class="number">@ViewBag.FirmsWithMultipleIdsCount</div>
-                    <div class="label">Firme cu Multiple Nr.Tel</div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card h-100 w-100">
+                    <div class="card-body">
+                        <canvas id="durationChart" style="width: 100%; height: 270px;"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="tables-container">
-            <div class="table">
-                <h2>Top 10 Firme (Toate Timpurile)</h2>
-                <table>
-                    <thead>
+        <!-- Reimagined Card Layout: Adjusted for Content Fit -->
+        <div class="row">
+            <!-- Other cards remain the same -->
+            <div class="col-md-4 mb-4">
+                <div class="card text-white bg-primary text-center" style="height: 120px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-1">
+                        <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                        <div>
+                            <h6 class="card-title mb-0" style="font-size: 1.2rem;">@ViewBag.TotalCallsCurrentMonth</h6>
+                            <p class="card-text" style="font-size: 1.0rem;"><small>Total Apeluri<br>Luna Curenta</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-white bg-success text-center" style="height: 120px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-1">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <div>
+                            <h6 class="card-title mb-0" style="font-size: 1.2rem;">@ViewBag.TotalDurationCurrentMonthMinutes minute</h6>
+                            <p class="card-text" style="font-size: 1.0rem;"><small>Durata Totala (@ViewBag.TotalDurationCurrentMonthHours ore)<br>Luna Curenta</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-white bg-warning text-center" style="height: 120px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-1">
+                        <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                        <div>
+                            <h6 class="card-title mb-0" style="font-size: 1.2rem;">@ViewBag.TotalCallsDuringSchedule</h6>
+                            <p class="card-text" style="font-size: 1.0rem;"><small>Apeluri în timpul programului<br>Luna Curenta</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-white bg-info text-center" style="height: 120px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-1">
+                        <i class="fas fa-hourglass-half fa-2x mb-2"></i>
+                        <div>
+                            <h6 class="card-title mb-0" style="font-size: 1.2rem;">@ViewBag.TotalDurationDuringScheduleMinutes minute</h6>
+                            <p class="card-text" style="font-size: 1.0rem;"><small>Durata în timpul programului (@ViewBag.TotalDurationDuringScheduleHours ore)<br>Luna Curenta</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-white bg-danger text-center" style="height: 120px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-1">
+                        <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                        <div>
+                            <h6 class="card-title mb-0" style="font-size: 1.2rem;">@ViewBag.TotalCallsOutsideSchedule</h6>
+                            <p class="card-text" style="font-size: 1.0rem;"><small>Apeluri în afara programului<br>Luna Curenta</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card text-white bg-secondary text-center" style="height: 120px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-1">
+                        <i class="fas fa-hourglass-end fa-2x mb-2"></i>
+                        <div>
+                            <h6 class="card-title mb-0" style="font-size: 1.2rem;">@ViewBag.TotalDurationOutsideScheduleMinutes minute</h6>
+                            <p class="card-text" style="font-size: 1.0rem;"><small>Durata în afara programului (@ViewBag.TotalDurationOutsideScheduleHours ore)<br>Luna Curenta</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Section: Updated Table Header Styles -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <h2 class="text-center mb-4">Top 10 Firme (Toate Timpurile)</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark text-white">
+                        <!-- Updated styles for dark grey background and white text -->
                         <tr>
                             <th>Firma</th>
                             <th>Număr Total Apeluri</th>
@@ -150,10 +140,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="table">
-                <h2>Top 10 Firme (Luna Curentă)</h2>
-                <table>
-                    <thead>
+            <div class="col-md-6 mb-4">
+                <h2 class="text-center mb-4">Top 10 Firme (Luna Curentă)</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark text-white">
+                        <!-- Updated styles for dark grey background and white text -->
                         <tr>
                             <th>Firma</th>
                             <th>Număr Total Apeluri</th>
@@ -174,24 +165,26 @@
             </div>
         </div>
     </div>
+
     @Html.Partial("_Footer")
+
+    <!-- Include Bootstrap JavaScript and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var callsData = @Html.Raw(Json.Serialize(ViewBag.CallsData));
             var durationsData = @Html.Raw(Json.Serialize(ViewBag.DurationsData));
 
-            // Function to format the labels without leading zeros
             function formatLabels(labels) {
                 return labels.map(label => label.replace(/^0+/, ''));
             }
 
-            // Chart for Număr Total Apeluri pe Zi
             var ctxCalls = document.getElementById('callsChart').getContext('2d');
             var callsChart = new Chart(ctxCalls, {
                 type: 'line',
                 data: {
-                    labels: formatLabels(callsData.labels), // Format the labels
+                    labels: formatLabels(callsData.labels),
                     datasets: [{
                         label: 'Număr Total Apeluri pe Zi',
                         data: callsData.data,
@@ -213,9 +206,9 @@
                                 text: 'Dată'
                             },
                             ticks: {
-                                autoSkip: false, // Ensure all labels are displayed
-                                maxRotation: 0,  // No rotation
-                                minRotation: 0   // No rotation
+                                autoSkip: false,
+                                maxRotation: 0,
+                                minRotation: 0
                             }
                         },
                         y: {
@@ -245,12 +238,11 @@
                 }
             });
 
-            // Chart for Durată Totală pe Zi (minute)
             var ctxDuration = document.getElementById('durationChart').getContext('2d');
             var durationChart = new Chart(ctxDuration, {
                 type: 'line',
                 data: {
-                    labels: formatLabels(durationsData.labels), // Format the labels
+                    labels: formatLabels(durationsData.labels),
                     datasets: [{
                         label: 'Durată Totală pe Zi (minute)',
                         data: durationsData.data,
@@ -272,9 +264,9 @@
                                 text: 'Dată'
                             },
                             ticks: {
-                                autoSkip: false, // Ensure all labels are displayed
-                                maxRotation: 0,  // No rotation
-                                minRotation: 0   // No rotation
+                                autoSkip: false,
+                                maxRotation: 0,
+                                minRotation: 0
                             }
                         },
                         y: {
@@ -297,7 +289,7 @@
                                     const datasetLabel = tooltipItem.dataset.label || '';
                                     const dataValue = tooltipItem.raw.toFixed(2);
                                     const hours = Math.floor(dataValue / 60);
-                                    const minutes = Math.floor(dataValue % 60); // Convert to integer
+                                    const minutes = Math.floor(dataValue % 60);
                                     return `${datasetLabel}: ${dataValue} minute (${hours} ore ${minutes} minute)`;
                                 }
                             }

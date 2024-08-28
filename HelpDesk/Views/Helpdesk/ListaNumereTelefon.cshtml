@@ -17,51 +17,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista Numere Telefon</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/css/custom-lista-numere.css" /> <!-- Link to the custom CSS file -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
     @Html.Partial("_Header")
 
-    <div class="lista-numere-custom-page-container">
-        <!-- Filter Button and Dropdown Menu -->
-        <div class="lista-numere-custom-button-container">
-            <button id="lista-numere-custom-filter-button">Filtrare</button>
-            <button class="lista-numere-custom-export-button" onclick="exportToExcel()">Export</button>
+    <div class="container mt-4">
+        <!-- Error message (hidden by default) -->
+        <div id="error-message-alert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+            Numarul de telefon este asociat unui apel si nu se poate sterge.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div id="lista-numere-custom-filter-dropdown" class="lista-numere-dropdown-content @ViewBag.FilterVisible">
+
+        <!-- Filter Button and Dropdown Menu -->
+        <div class="d-flex justify-content-between mb-3">
             <div>
-                <label for="lista-numere-filter-firma">Firma:</label>
-                <input type="text" id="lista-numere-filter-firma" name="filterFirma" value="@filterFirma">
-                <div id="firmaSuggestions" class="suggestions"></div>
+                <button class="btn btn-secondary" id="lista-numere-custom-filter-button">Filtrare</button>
+                <button class="btn btn-primary" onclick="exportToExcel()">Export</button>
             </div>
-            <div>
-                <label for="lista-numere-filter-pctlucru">Punct de Lucru:</label>
-                <input type="text" id="lista-numere-filter-pctlucru" name="filterPctLucru" value="@filterPctLucru">
-                <div id="pctLucruSuggestions" class="suggestions"></div>
+        </div>
+
+        <!-- Filter Dropdown -->
+        <div id="lista-numere-custom-filter-dropdown" class="border p-3 mb-3 rounded bg-light d-none">
+            <div class="mb-2">
+                <label for="lista-numere-filter-firma" class="form-label">Firma:</label>
+                <input type="text" class="form-control" id="lista-numere-filter-firma" name="filterFirma" value="@filterFirma">
+                <div id="firmaSuggestions" class="dropdown-menu"></div>
             </div>
-            <div>
-                <label for="lista-numere-filter-nrtelefon">Numar Telefon:</label>
-                <input type="text" id="lista-numere-filter-nrtelefon" name="filterNrTelefon" value="@filterNrTelefon">
-                <div id="nrTelefonSuggestions" class="suggestions"></div>
+            <div class="mb-2">
+                <label for="lista-numere-filter-pctlucru" class="form-label">Punct de Lucru:</label>
+                <input type="text" class="form-control" id="lista-numere-filter-pctlucru" name="filterPctLucru" value="@filterPctLucru">
+                <div id="pctLucruSuggestions" class="dropdown-menu"></div>
             </div>
-            <div class="lista-numere-custom-filter-buttons">
-                <button id="lista-numere-custom-apply-filter-button">Apply Filter</button>
-                <button id="lista-numere-custom-reset-filter-button">Reset Filter</button>
+            <div class="mb-2">
+                <label for="lista-numere-filter-nrtelefon" class="form-label">Numar Telefon:</label>
+                <input type="text" class="form-control" id="lista-numere-filter-nrtelefon" name="filterNrTelefon" value="@filterNrTelefon">
+                <div id="nrTelefonSuggestions" class="dropdown-menu"></div>
+            </div>
+            <div class="d-flex justify-content-start mt-3">
+                <button class="btn btn-success me-2" id="lista-numere-custom-apply-filter-button">Apply Filter</button>
+                <button class="btn btn-warning" id="lista-numere-custom-reset-filter-button">Reset Filter</button>
             </div>
         </div>
 
         <!-- Table Container -->
-        <div class="lista-numere-custom-table-container">
-            <table id="lista-numere-custom-telefon-table">
-                <thead>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-striped" id="lista-numere-custom-telefon-table">
+                <thead class="table-dark text-white">
                     <tr>
                         <th>Firma</th>
                         <th>Punct de Lucru</th>
                         <th>Numar Telefon</th>
-                        <th class="action-column-custom">Actiuni</th> <!-- Adjust the column size -->
+                        <th class="text-center">Actiuni</th> <!-- Center the "Actiuni" column header -->
                     </tr>
                 </thead>
                 <tbody>
@@ -70,21 +79,24 @@
                         <tr>
                             <td>@item.Firma</td>
                             <td>@item.PctLucru</td>
-                            <td>@item.NrTelefon</td>
-                            <td class="action-column-custom">
-                                <i class="fas fa-times delete-icon-custom" data-id="@item.Id"></i> <!-- Add delete icon -->
+                            <td class>@item.NrTelefon</td>
+                            <td class="d-flex justify-content-center align-items-center">
+                                <!-- Center the content vertically and horizontally -->
+                                <i class="bi bi-x-lg text-danger delete-icon-custom" style="cursor: pointer;" data-id="@item.Id"></i>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
 
-            <!-- Pagination controls -->
-            <div class="pagination">
+        <!-- Pagination controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
                 @if (currentPage > 1)
                 {
-                    <a href="@Url.Action("ListaNumereTelefon", new { page = 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">First</a>
-                    <a href="@Url.Action("ListaNumereTelefon", new { page = currentPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Previous</a>
+                    <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">First</a></li>
+                    <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = currentPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Previous</a></li>
                 }
 
                 @{
@@ -120,47 +132,57 @@
 
                 @if (startPage > 1)
                 {
-                    <a href="@Url.Action("ListaNumereTelefon", new { page = startPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">...</a>
+                    <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = startPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">...</a></li>
                 }
 
                 @for (int i = startPage; i <= endPage; i++)
                 {
                     if (i == currentPage)
                     {
-                        <span class="page-link active">@i</span>
+                        <li class="page-item active"><span class="page-link">@i</span></li>
                     }
                     else
                     {
-                        <a href="@Url.Action("ListaNumereTelefon", new { page = i, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">@i</a>
+                        <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = i, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">@i</a></li>
                     }
                 }
 
                 @if (endPage < totalPages)
                 {
-                    <a href="@Url.Action("ListaNumereTelefon", new { page = endPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">...</a>
+                    <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = endPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">...</a></li>
                 }
 
                 @if (currentPage < totalPages)
                 {
-                    <a href="@Url.Action("ListaNumereTelefon", new { page = currentPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Next</a>
-                    <a href="@Url.Action("ListaNumereTelefon", new { page = totalPages, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Last</a>
+                    <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = currentPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Next</a></li>
+                    <li class="page-item"><a href="@Url.Action("ListaNumereTelefon", new { page = totalPages, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterNrTelefon = filterNrTelefon })" class="page-link">Last</a></li>
                 }
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmare Stergere</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Esti sigur ca vrei sa stergi numarul de telefon? Aceasta actiune este ireversibila.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nu</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Da</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Confirmation dialog -->
-    <div id="delete-confirmation-dialog" title="Confirmare Stergere" style="display:none;">
-        <p>Esti sigur ca vrei sa stergi numarul de telefon? Aceasta actiune este ireversibila.</p>
-    </div>
-
-    <!-- Error dialog -->
-    <div id="error-message-dialog" title="Eroare" style="display:none;">
-        <p>A aparut o eroare. Te rugam sa incerci din nou.</p>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function () {
             const filterButton = $('#lista-numere-custom-filter-button');
@@ -169,7 +191,7 @@
             const resetFilterButton = $('#lista-numere-custom-reset-filter-button');
 
             filterButton.click(function () {
-                filterDropdown.toggleClass('visible');
+                filterDropdown.toggleClass('d-none');
             });
 
             const applyFilter = () => {
@@ -186,6 +208,7 @@
                 $('#lista-numere-filter-firma').val('');
                 $('#lista-numere-filter-pctlucru').val('');
                 $('#lista-numere-filter-nrtelefon').val('');
+                $('.dropdown-menu').hide(); // Hide suggestions when filters are reset
             });
 
             const fetchSuggestionsForFilter = async (term, field, firma = null, pctLucru = null) => {
@@ -212,11 +235,15 @@
                     const term = $(this).val();
                     if (term.length >= 3) {
                         const suggestions = await fetchUrl(term);
-                        suggestionsDiv.html(suggestions.map(s => `<div>${s}</div>`).join('')).show();
-                        suggestionsDiv.find('div').click(function () {
-                            inputElement.val($(this).text());
+                        if (suggestions.length > 0) {
+                            suggestionsDiv.html(suggestions.map(s => `<a class="dropdown-item">${s}</a>`).join('')).show();
+                            suggestionsDiv.find('a').click(function () {
+                                inputElement.val($(this).text());
+                                suggestionsDiv.hide();
+                            });
+                        } else {
                             suggestionsDiv.hide();
-                        });
+                        }
                     } else {
                         suggestionsDiv.hide();
                     }
@@ -236,7 +263,7 @@
             });
 
             $(document).on('keydown', function (event) {
-                if (event.key === 'Enter' && filterDropdown.hasClass('visible')) {
+                if (event.key === 'Enter' && !filterDropdown.hasClass('d-none')) {
                     applyFilter();
                 }
             });
@@ -244,46 +271,28 @@
             // Delete icon functionality
             $('.delete-icon-custom').click(function () {
                 const id = $(this).data('id');
-                $("#delete-confirmation-dialog").data('id', id).dialog('open');
+                $("#confirmDeleteButton").data('id', id); // Store id in the confirm button
+                $("#deleteConfirmationModal").modal('show'); // Show the Bootstrap modal
             });
 
-            $("#delete-confirmation-dialog").dialog({
-                autoOpen: false,
-                modal: true,
-                buttons: {
-                    "Yes": function () {
-                        const id = $(this).data('id');
-                        $.ajax({
-                            url: '@Url.Action("DeleteFirmaNrTelefon", "Helpdesk")',
-                            type: 'POST',
-                            data: { id: id },
-                            success: function (response) {
-                                if (response.success) {
-                                    location.reload();
-                                } else {
-                                    $("#error-message-dialog").dialog("open");
-                                }
-                            },
-                            error: function () {
-                                $("#error-message-dialog").dialog("open");
-                            }
-                        });
-                        $(this).dialog("close");
+            $("#confirmDeleteButton").click(function () {
+                const id = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("DeleteFirmaNrTelefon", "Helpdesk")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload(); // Reload the page on successful deletion
+                        } else {
+                            $('#error-message-alert').removeClass('d-none'); // Show Bootstrap error alert
+                        }
                     },
-                    "No": function () {
-                        $(this).dialog("close");
+                    error: function () {
+                        $('#error-message-alert').removeClass('d-none'); // Show Bootstrap error alert on error
                     }
-                }
-            });
-
-            $("#error-message-dialog").dialog({
-                autoOpen: false,
-                modal: true,
-                buttons: {
-                    "OK": function () {
-                        $(this).dialog("close");
-                    }
-                }
+                });
+                $("#deleteConfirmationModal").modal('hide'); // Hide the Bootstrap modal after the AJAX call
             });
         });
 

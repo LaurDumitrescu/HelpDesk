@@ -1,9 +1,10 @@
-﻿<!-- Views/Shared/_Footer.cshtml -->
-@{
+﻿@{
     var currentTime = DateTime.Now.ToString("HH:mm:ss");
 }
-<footer class="footer">
-    <p>© 2024 - PetroSol HelpDesk 1.8.5 | RO current time: <span id="current-time">@currentTime</span></p>
+<footer class="footer bg-dark text-white mt-4" style="font-size: 0.8rem;">
+    <div class="container text-center">
+        <p class="mb-0">© 2024 - PetroSol HelpDesk 1.8.5 | RO current time: <span id="current-time">@currentTime</span></p>
+    </div>
 </footer>
 
 <script>
