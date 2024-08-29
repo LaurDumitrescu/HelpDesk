@@ -59,20 +59,22 @@
 
         <!-- Filter Dropdown Menu -->
         <div id="filterDropdown" class="bg-white p-3 shadow-sm rounded mb-3 d-none">
-            <div class="mb-2">
+            <div class="mb-2 position-relative">
                 <label for="filterFirma" class="form-label">Firma:</label>
                 <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma" class="form-control">
-                <div id="firmaSuggestions" class="suggestions"></div>
+                <div id="firmaSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
             </div>
-            <div class="mb-2">
+
+            <div class="mb-2 position-relative">
                 <label for="filterPctLucru" class="form-label">Punct de Lucru:</label>
                 <input type="text" id="filterPctLucru" name="filterPctLucru" value="@ViewBag.FilterPctLucru" class="form-control">
-                <div id="pctLucruSuggestions" class="suggestions"></div>
+                <div id="pctLucruSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
             </div>
-            <div class="mb-2">
+
+            <div class="mb-2 position-relative">
                 <label for="filterNrTelefon" class="form-label">Numar Telefon:</label>
                 <input type="text" id="filterNrTelefon" name="filterNrTelefon" value="@ViewBag.FilterNrTelefon" class="form-control">
-                <div id="nrTelefonSuggestions" class="suggestions"></div>
+                <div id="nrTelefonSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
             </div>
             <div class="mb-2">
                 <label for="startDate" class="form-label">Start Date:</label>

@@ -74,17 +74,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            @foreach (var priority in Model.Keys.OrderBy(p => p))
-                            {
-                                <td>
-                                    @foreach (var firma in Model[priority])
-                                    {
-                                        <div>@firma</div>
-                                    }
-                                </td>
-                            }
-                        </tr>
+                        @{
+                            // Find the maximum number of firms under any priority to determine the number of rows needed
+                            int maxFirms = Model.Values.Max(list => list.Count);
+                        }
+                        @for (int i = 0; i < maxFirms; i++)
+                        {
+                            <tr>
+                                @foreach (var priority in Model.Keys.OrderBy(p => p))
+                                {
+                                    <td>
+                                        @if (i < Model[priority].Count)
+                                        {
+                                            @Model[priority][i]
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
                     </tbody>
                 </table>
             }

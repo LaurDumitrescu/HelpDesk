@@ -496,10 +496,11 @@
                 return false;
             }
 
-            if (!/^\d{10}$/.test(nrTelefon)) {
-                showError("Numar Telefon trebuie sa fie din 10 cifre.");
+            if (!/^\d{10,15}$/.test(nrTelefon)) {
+                showError("Numar Telefon trebuie sa fie intre 10 si 15 cifre.");
                 return false;
             }
+
 
             if (!durataApelPattern.test(durataApel)) {
                 showError("Durata Apel trebuie sa respecte formatul XX:XX:XX");
