@@ -23,7 +23,10 @@
     <div class="container mt-4">
         <!-- Filter Button and Dropdown Menu -->
         <div class="d-flex justify-content-between mb-3">
-            <button class="btn btn-secondary" id="lista-firma-filter-button">Filtrare</button>
+            <!-- Filter button with a funnel icon -->
+            <button class="btn btn-secondary" id="lista-firma-filter-button">
+                <i class="bi bi-funnel"></i> Filtrare
+            </button>
         </div>
 
         <!-- Filter Dropdown -->
@@ -38,10 +41,17 @@
                 <input type="text" class="form-control" id="lista-firma-filter-priority" name="filterPriority" value="@filterPriority">
             </div>
             <div class="d-flex justify-content-start mt-3">
-                <button class="btn btn-success me-2" id="lista-firma-apply-filter-button">Apply Filter</button>
-                <button class="btn btn-warning" id="lista-firma-reset-filter-button">Reset Filter</button>
+                <!-- Apply filter button with a check-circle icon -->
+                <button class="btn btn-success me-2" id="lista-firma-apply-filter-button">
+                    <i class="bi bi-check-circle"></i> Apply Filter
+                </button>
+                <!-- Reset filter button with an arrow-clockwise icon -->
+                <button class="btn btn-warning" id="lista-firma-reset-filter-button">
+                    <i class="bi bi-arrow-clockwise"></i> Reset Filter
+                </button>
             </div>
         </div>
+
 
         <!-- Table Container -->
         <div class="table-responsive mb-4">

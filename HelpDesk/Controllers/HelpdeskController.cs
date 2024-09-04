@@ -43,9 +43,16 @@ namespace HelpdeskApp.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ViewEntries(int page = 1, string filterFirma = null, string filterPctLucru = null, string filterNrTelefon = null, DateTime? startDate = null, DateTime? endDate = null)
+        public async Task<IActionResult> ViewEntries(
+    int page = 1,
+    string filterFirma = null,
+    string filterPctLucru = null,
+    string filterNrTelefon = null,
+    DateTime? startDate = null,
+    DateTime? endDate = null,
+    string filterInTimpulProgramului = null) // New parameter
         {
-            _logger.LogInformation("ViewEntries method called with parameters: page={Page}, filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterNrTelefon={FilterNrTelefon}, startDate={StartDate}, endDate={EndDate}.", page, filterFirma, filterPctLucru, filterNrTelefon, startDate, endDate);
+            _logger.LogInformation("ViewEntries method called with parameters: page={Page}, filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterNrTelefon={FilterNrTelefon}, startDate={StartDate}, endDate={EndDate}, filterInTimpulProgramului={FilterInTimpulProgramului}.", page, filterFirma, filterPctLucru, filterNrTelefon, startDate, endDate, filterInTimpulProgramului);
 
             var currentUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Nume == HttpContext.Session.GetString("Username"));
@@ -89,30 +96,48 @@ namespace HelpdeskApp.Controllers
                 query = query.Where(e => e.Data <= endDate.Value);
             }
 
-            query = query.OrderByDescending(e => e.Data).ThenByDescending(e => e.OraApel);
-
-            var totalEntries = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalEntries / (double)PageSize);
-
+            // Fetch entries from the database
             var entries = await query
-                .Skip((page - 1) * PageSize)
-                .Take(PageSize)
+                .OrderByDescending(e => e.Data)
+                .ThenByDescending(e => e.OraApel)
                 .Select(e => new
                 {
                     e.Id,
                     Firma = e.FirmaNrTelefon.FirmaPunctLucru.Firma ?? "",
                     PctLucru = e.FirmaNrTelefon.FirmaPunctLucru.PctLucru ?? "",
                     NrTelefon = e.FirmaNrTelefon.NrTelefon ?? "",
-                    Data = e.Data.ToString("yyyy-MM-dd"), // Ensure Data is formatted as a string
+                    Data = e.Data,
                     Zi = e.Zi ?? "",
-                    OraApel = e.OraApel.ToString(@"hh\:mm\:ss") ?? "",
+                    OraApel = e.OraApel,
                     DurataApel = e.DurataApel ?? "",
                     Problema = e.Problema ?? "",
                     Rezolvare = e.Rezolvare ?? "",
                     InsUserId = e.InsUserId,
                     ModUserId = e.ModUserId
                 })
-                .ToListAsync();
+                .ToListAsync(); // Fetch all results to be filtered in memory
+
+            // Step 2: Filter client-side
+            if (!string.IsNullOrEmpty(filterInTimpulProgramului))
+            {
+                bool isDuringSchedule = filterInTimpulProgramului == "Da";
+
+                entries = entries.Where(e =>
+                {
+                    var oraApelDateTime = e.Data + e.OraApel;
+                    var isWeekend = oraApelDateTime.DayOfWeek == DayOfWeek.Saturday || oraApelDateTime.DayOfWeek == DayOfWeek.Sunday;
+                    var isWithinWorkingHours = e.OraApel >= TimeSpan.FromHours(8) && e.OraApel < TimeSpan.FromHours(19);
+                    return isDuringSchedule == (!isWeekend && isWithinWorkingHours);
+                }).ToList();
+            }
+
+            var totalEntries = entries.Count;
+            var totalPages = (int)Math.Ceiling(totalEntries / (double)PageSize);
+
+            // Step 3: Apply pagination after client-side filtering
+            entries = entries.Skip((page - 1) * PageSize)
+                             .Take(PageSize)
+                             .ToList();
 
             var insUserIds = entries.Where(e => e.InsUserId.HasValue).Select(e => e.InsUserId.Value).Distinct();
             var modUserIds = entries.Where(e => e.ModUserId.HasValue).Select(e => e.ModUserId.Value).Distinct();
@@ -128,9 +153,9 @@ namespace HelpdeskApp.Controllers
                 e.Firma,
                 e.PctLucru,
                 e.NrTelefon,
-                e.Data,
+                Data = e.Data.ToString("yyyy-MM-dd"), // Ensure Data is formatted as a string
                 e.Zi,
-                e.OraApel,
+                OraApel = e.OraApel.ToString(@"hh\:mm\:ss") ?? "",
                 e.DurataApel,
                 e.Problema,
                 e.Rezolvare,
@@ -145,12 +170,12 @@ namespace HelpdeskApp.Controllers
             ViewBag.FilterNrTelefon = filterNrTelefon;
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
+            ViewBag.FilterInTimpulProgramului = filterInTimpulProgramului; // Pass the selected value back to the view
 
             _logger.LogInformation("ViewEntries method succeeded: Retrieved {TotalEntries} entries.", totalEntries);
 
             return View(result);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Create(string Firma, string PctLucru, string NrTelefon, DateTime Data, string Zi, string OraApel, string DurataApel, string Problema, string Rezolvare)

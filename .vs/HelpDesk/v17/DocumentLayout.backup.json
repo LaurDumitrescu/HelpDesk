@@ -1,12 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\shared\\_footer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\shared\\_footer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -14,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -35,19 +30,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "_Footer.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-08-29T05:57:32.347Z",
-              "EditorCaption": ""
             }
           ]
         }
