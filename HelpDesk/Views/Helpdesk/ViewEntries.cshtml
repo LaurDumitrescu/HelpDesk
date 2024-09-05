@@ -17,11 +17,12 @@
     <!-- Include Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body class="d-flex flex-column min-vh-100 bg-light">
     @Html.Partial("_Header")
 
-    <div class="container my-4">
+    <div class="container my-4 flex-grow-1">
 
         <!-- Display success message if modification was successful -->
         @if (TempData["ModificationSuccess"] != null && (bool)TempData["ModificationSuccess"] == true)
@@ -35,58 +36,87 @@
         <!-- Button Row for Adaugare Apel -->
         <div class="row mb-2">
             <div class="col-12">
-                <button id="addEntryButton" class="btn btn-primary" onclick="location.href='/Helpdesk/Index'">Adaugare Apel</button>
+                <button id="addEntryButton" class="btn btn-primary" onclick="location.href='/Helpdesk/Index'">
+                    <i class="bi bi-plus-circle"></i> Adaugare Apel
+                </button>
             </div>
         </div>
 
         <!-- Button Row for Filtrare and Export -->
         <div class="row mb-4 mt-4">
             <div class="col-auto">
-                <button id="filterButton" class="btn btn-secondary">Filtrare</button>
+                <button id="filterButton" class="btn btn-secondary">
+                    <i class="bi bi-funnel"></i> Filtrare
+                </button>
             </div>
             <div class="col-auto">
                 <div class="dropdown">
                     <button class="btn btn-success dropdown-toggle" type="button" id="exportButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Export
+                        <i class="bi bi-box-arrow-down"></i> Export
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="exportButton">
-                        <li><a class="dropdown-item" href="#" onclick="exportEntries('excel')">Excel</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportEntries('pdf')">PDF</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="exportEntries('excel')">
+                                <i class="bi bi-file-earmark-excel"></i> Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="exportEntries('pdf')">
+                                <i class="bi bi-file-pdf"></i> PDF
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
 
         <!-- Filter Dropdown Menu -->
-        <div id="filterDropdown" class="bg-white p-3 shadow-sm rounded mb-3 d-none">
-            <div class="mb-2 position-relative">
-                <label for="filterFirma" class="form-label">Firma:</label>
-                <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma" class="form-control">
-                <div id="firmaSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
+<div id="filterDropdown" class="bg-white p-3 shadow-sm rounded mb-3 d-none">
+    <div class="mb-2 position-relative">
+        <label for="filterFirma" class="form-label">Firma:</label>
+        <input type="text" id="filterFirma" name="filterFirma" value="@ViewBag.FilterFirma" class="form-control">
+        <div id="firmaSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
+    </div>
+
+    <div class="mb-2 position-relative">
+        <label for="filterPctLucru" class="form-label">Punct de Lucru:</label>
+        <input type="text" id="filterPctLucru" name="filterPctLucru" value="@ViewBag.FilterPctLucru" class="form-control">
+        <div id="pctLucruSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
+    </div>
+
+    <div class="mb-2 position-relative">
+        <label for="filterNrTelefon" class="form-label">Numar Telefon:</label>
+        <input type="text" id="filterNrTelefon" name="filterNrTelefon" value="@ViewBag.FilterNrTelefon" class="form-control">
+        <div id="nrTelefonSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
+    </div>
+
+            <div class="mb-2">
+                <label for="filterInTimpulProgramului" class="form-label">In Timpul Programului:</label>
+                @Html.DropDownList("filterInTimpulProgramului", new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Toate", Value = "", Selected = ViewBag.FilterInTimpulProgramului == "" },
+                new SelectListItem { Text = "Da", Value = "Da", Selected = ViewBag.FilterInTimpulProgramului == "Da" },
+                new SelectListItem { Text = "Nu", Value = "Nu", Selected = ViewBag.FilterInTimpulProgramului == "Nu" }
+                }, new { @class = "form-select", id = "filterInTimpulProgramului" })
             </div>
 
-            <div class="mb-2 position-relative">
-                <label for="filterPctLucru" class="form-label">Punct de Lucru:</label>
-                <input type="text" id="filterPctLucru" name="filterPctLucru" value="@ViewBag.FilterPctLucru" class="form-control">
-                <div id="pctLucruSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
-            </div>
+    <div class="mb-2">
+        <label for="startDate" class="form-label">Start Date:</label>
+        <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate" class="form-control">
+    </div>
+    <div class="mb-2">
+        <label for="endDate" class="form-label">End Date:</label>
+        <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate" class="form-control">
+    </div>
+    <button id="applyFilterButton" class="btn btn-primary">
+        <i class="bi bi-check-circle"></i> Apply Filter
+    </button>
+    <button id="resetFilterButton" class="btn btn-secondary">
+        <i class="bi bi-arrow-clockwise"></i> Reset Filter
+    </button>
+</div>
 
-            <div class="mb-2 position-relative">
-                <label for="filterNrTelefon" class="form-label">Numar Telefon:</label>
-                <input type="text" id="filterNrTelefon" name="filterNrTelefon" value="@ViewBag.FilterNrTelefon" class="form-control">
-                <div id="nrTelefonSuggestions" class="suggestions dropdown-menu shadow p-2" style="position: absolute; display: none; min-width: 100%; margin-top: 5px;"></div>
-            </div>
-            <div class="mb-2">
-                <label for="startDate" class="form-label">Start Date:</label>
-                <input type="date" id="startDate" name="startDate" value="@ViewBag.StartDate" class="form-control">
-            </div>
-            <div class="mb-2">
-                <label for="endDate" class="form-label">End Date:</label>
-                <input type="date" id="endDate" name="endDate" value="@ViewBag.EndDate" class="form-control">
-            </div>
-            <button id="applyFilterButton" class="btn btn-primary">Apply Filter</button>
-            <button id="resetFilterButton" class="btn btn-secondary">Reset Filter</button>
-        </div>
+
 
         <!-- Table Container -->
         <div class="table-responsive">
@@ -96,6 +126,7 @@
             <table id="entryTable" class="table table-bordered table-hover">
                 <thead class="table-dark align-middle text-center">
                     <tr>
+                        <th></th> 
                         <th>Firma</th>
                         <th>Punct de Lucru</th>
                         <th>Numar Telefon</th>
@@ -106,9 +137,9 @@
                         <th>In Timpul Programului</th>
                         <th>Inserat De</th>
                         <th>Modificat De</th>
-                        <th>Actiuni</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var item in Model)
                     {
@@ -119,6 +150,12 @@
                         var isInWorkingHoursBadge = !isWeekend && isWithinWorkingHours ? "<span class='badge bg-success'>Da</span>" : "<span class='badge bg-danger'>Nu</span>";
 
                         <tr>
+                            <td class="text-center">
+                                <!-- Icon button without background, green color, and smaller size -->
+                                <button class="btn btn-link p-0 details-button" data-id="@item.Id">
+                                    <i class="bi bi-search text-success fs-5"></i> <!-- Magnifying glass icon -->
+                                </button>
+                            </td>
                             <td>@item.Firma</td>
                             <td>@item.PctLucru</td>
                             <td>@item.NrTelefon</td>
@@ -129,10 +166,9 @@
                             <td class="align-middle text-center">@Html.Raw(isInWorkingHoursBadge)</td>
                             <td>@item.InseratDe</td>
                             <td>@item.ModificatDe</td>
-                            <td class="text-center">
-                                <button class="btn btn-secondary details-button" data-id="@item.Id">Detalii</button>
-                            </td>
                         </tr>
+
+
                     }
                 </tbody>
             </table>
@@ -233,8 +269,11 @@
                 </div>
                 <div class="modal-body" id="entryDetails"></div>
                 <div class="modal-footer">
-                    <button id="modifyEntryButton" class="btn btn-primary">Modificare</button>
+                    <button id="modifyEntryButton" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Modificare
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -324,21 +363,25 @@
                 const filterNrTelefon = filterNrTelefonInput.value;
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
-                window.location.href = `/Helpdesk/ViewEntries?page=1&filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+                const filterInTimpulProgramului = document.getElementById('filterInTimpulProgramului').value;
+
+                window.location.href = `/Helpdesk/ViewEntries?page=1&filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}&filterInTimpulProgramului=${filterInTimpulProgramului}`;
             };
+
 
             const applyFilterButton = document.getElementById('applyFilterButton');
             applyFilterButton.addEventListener('click', applyFilter);
 
             // Reset Filter Logic
-            const resetFilterButton = document.getElementById('resetFilterButton');
             resetFilterButton.addEventListener('click', () => {
                 filterFirmaInput.value = '';
                 filterPctLucruInput.value = '';
                 filterNrTelefonInput.value = '';
                 document.getElementById('startDate').value = '';
                 document.getElementById('endDate').value = '';
+                document.getElementById('filterInTimpulProgramului').value = '';
             });
+
 
             // Toggle Filter Dropdown Visibility
             document.getElementById('filterButton').addEventListener('click', function () {
@@ -407,13 +450,15 @@
                 const filterNrTelefon = document.getElementById('filterNrTelefon').value;
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
+                const filterInTimpulProgramului = document.getElementById('filterInTimpulProgramului').value;
 
                 if (format === 'excel') {
-                    window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+                    window.location.href = `/Helpdesk/ExportToExcel?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}&filterInTimpulProgramului=${filterInTimpulProgramului}`;
                 } else if (format === 'pdf') {
-                    window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}`;
+                    window.location.href = `/Helpdesk/ExportToPdf?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterNrTelefon=${filterNrTelefon}&startDate=${startDate}&endDate=${endDate}&filterInTimpulProgramului=${filterInTimpulProgramului}`;
                 }
             };
+
         });
     </script>
 </body>
