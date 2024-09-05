@@ -45972,3 +45972,110 @@ FROM (
     HAVING COUNT(*) > 1
 ) AS [t]
 2024-08-29 08:57:15 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-05 12:11:13 [Information] Now listening on: http://localhost:5235
+2024-09-05 12:11:13 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-05 12:11:13 [Information] Hosting environment: Development
+2024-09-05 12:11:13 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-09-05 12:11:14 [Warning] Failed to determine the https port for redirect.
+2024-09-05 12:11:14 [Information] Login page requested from IP ::1.
+2024-09-05 12:11:18 [Information] Login attempt for user laur from IP ::1.
+2024-09-05 12:11:18 [Information] Validating credentials for user laur from IP ::1.
+2024-09-05 12:11:35 [Error] An error occurred using the connection to database 'HelpDesk' on server 'LAPTOP-HEK7C3J3'.
+2024-09-05 12:11:36 [Error] An exception occurred while iterating over the results of a query for context type 'HelpdeskApp.Data.HelpdeskContext'.
+Microsoft.Data.SqlClient.SqlException (0x80131904): A network-related or instance-specific error occurred while establishing a connection to SQL Server. The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections. (provider: Named Pipes Provider, error: 40 - Could not open a connection to SQL Server)
+ ---> System.ComponentModel.Win32Exception (53): The network path was not found.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.Connect(ServerInfo serverInfo, SqlInternalConnectionTds connHandler, Boolean ignoreSniOpenTimeout, Int64 timerExpire, SqlConnectionString connectionOptions, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:00000000-0000-0000-0000-000000000000
+Error Number:53,State:0,Class:20
+2024-09-05 12:11:37 [Error] An unhandled exception has occurred while executing the request.
+2024-09-05 12:12:57 [Information] Now listening on: http://localhost:5235
+2024-09-05 12:12:57 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-05 12:12:57 [Information] Hosting environment: Development
+2024-09-05 12:12:57 [Information] Content root path: C:\Users\User\source\repos\HelpDesk\HelpDesk
+2024-09-05 12:12:58 [Warning] Failed to determine the https port for redirect.
+2024-09-05 12:12:58 [Information] Login page requested from IP ::1.
+2024-09-05 12:13:02 [Information] Login attempt for user laur from IP ::1.
+2024-09-05 12:13:02 [Information] Validating credentials for user laur from IP ::1.
+2024-09-05 12:13:03 [Information] Executed DbCommand (96ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-05 12:13:03 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-05 12:13:03 [Information] Executed DbCommand (23ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-05 12:13:04 [Information] User laur successfully logged in from IP ::1.
+2024-09-05 12:13:04 [Information] Dashboard method called.
+2024-09-05 12:13:04 [Information] Executed DbCommand (49ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-05 12:13:05 [Information] Executed DbCommand (93ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-05 12:13:07 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-05 12:13:07 [Information] Executed DbCommand (24ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-05 12:13:07 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-05 12:13:27 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null).
+2024-09-05 12:13:28 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-05 12:13:28 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[entry] AS [e]
+2024-09-05 12:13:28 [Information] Executed DbCommand (27ms) [Parameters=[@__p_0='?' (DbType = Int32), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT [t].[Id], COALESCE([f0].[firma], N''), COALESCE([f0].[pct_lucru], N''), COALESCE([f].[nr_telefon], N''), [t].[data], COALESCE([t].[zi], N''), [t].[ora_apel], COALESCE([t].[durata_apel], N''), COALESCE([t].[problema], N''), COALESCE([t].[rezolvare], N''), [t].[ins_user_id], [t].[mod_user_id]
+FROM (
+    SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_user_id], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi]
+    FROM [dbo].[entry] AS [e]
+    ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [t].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [t].[data] DESC, [t].[ora_apel] DESC
+2024-09-05 12:13:28 [Information] Executed DbCommand (4ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-05 12:13:29 [Information] ViewEntries method succeeded: Retrieved 474 entries.
