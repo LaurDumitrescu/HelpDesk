@@ -588,9 +588,9 @@ namespace HelpdeskApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportToExcel(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> ExportToExcel(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate, string filterInTimpulProgramului)
         {
-            _logger.LogInformation("ExportToExcel method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterNrTelefon={FilterNrTelefon}, startDate={StartDate}, endDate={EndDate}", filterFirma, filterPctLucru, filterNrTelefon, startDate, endDate);
+            _logger.LogInformation("ExportToExcel method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}");
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -624,14 +624,28 @@ namespace HelpdeskApp.Controllers
                 query = query.Where(e => e.Data <= endDate.Value);
             }
 
-            query = query.OrderByDescending(e => e.Data).ThenByDescending(e => e.OraApel);
+            var entries = await query.OrderByDescending(e => e.Data).ThenByDescending(e => e.OraApel).ToListAsync();
 
-            var entries = await query.ToListAsync();
+            // Apply in-memory filtering for 'In Timpul Programului'
+            if (!string.IsNullOrEmpty(filterInTimpulProgramului))
+            {
+                bool filterInWorkingHours = filterInTimpulProgramului.Equals("Da", StringComparison.OrdinalIgnoreCase);
+                entries = entries.Where(e =>
+                {
+                    var oraApelDateTime = DateTime.Parse($"{e.Data.ToString("yyyy-MM-dd")} {e.OraApel}");
+                    bool isWeekend = oraApelDateTime.DayOfWeek == DayOfWeek.Saturday || oraApelDateTime.DayOfWeek == DayOfWeek.Sunday;
+                    bool isWithinWorkingHours = oraApelDateTime.TimeOfDay >= TimeSpan.FromHours(8) && oraApelDateTime.TimeOfDay < TimeSpan.FromHours(19);
+                    bool isInWorkingHours = !isWeekend && isWithinWorkingHours;
+
+                    return filterInWorkingHours == isInWorkingHours;
+                }).ToList();
+            }
 
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Entries");
 
+                // Define headers
                 worksheet.Cells["A1"].Value = "Firma";
                 worksheet.Cells["B1"].Value = "Punct de Lucru";
                 worksheet.Cells["C1"].Value = "Numar Telefon";
@@ -639,15 +653,18 @@ namespace HelpdeskApp.Controllers
                 worksheet.Cells["E1"].Value = "Zi";
                 worksheet.Cells["F1"].Value = "Ora Apel";
                 worksheet.Cells["G1"].Value = "Durata Apel";
-                worksheet.Cells["H1"].Value = "Problema";
-                worksheet.Cells["I1"].Value = "Rezolvare";
+                worksheet.Cells["H1"].Value = "In Timpul Programului";  // New column for "In Timpul Programului"
+                worksheet.Cells["I1"].Value = "Problema";
+                worksheet.Cells["J1"].Value = "Rezolvare";
 
-                var headerCells = worksheet.Cells["A1:I1"];
+                // Format headers
+                var headerCells = worksheet.Cells["A1:J1"];
                 headerCells.Style.Font.Bold = true;
                 headerCells.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 headerCells.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
                 headerCells.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
 
+                // Populate data rows
                 int row = 2;
                 foreach (var entry in entries)
                 {
@@ -658,16 +675,18 @@ namespace HelpdeskApp.Controllers
                     worksheet.Cells[row, 5].Value = entry.Zi;
                     worksheet.Cells[row, 6].Value = entry.OraApel.ToString(@"hh\:mm\:ss");
                     worksheet.Cells[row, 7].Value = TimeSpan.TryParse(entry.DurataApel, out var duration) ? duration.ToString(@"hh\:mm\:ss") : entry.DurataApel;
-                    worksheet.Cells[row, 8].Value = entry.Problema;
-                    worksheet.Cells[row, 9].Value = entry.Rezolvare;
+
+                    // Calculate and populate 'In Timpul Programului'
+                    var oraApelDateTime = DateTime.Parse($"{entry.Data.ToString("yyyy-MM-dd")} {entry.OraApel}");
+                    bool isWeekend = oraApelDateTime.DayOfWeek == DayOfWeek.Saturday || oraApelDateTime.DayOfWeek == DayOfWeek.Sunday;
+                    bool isWithinWorkingHours = oraApelDateTime.TimeOfDay >= TimeSpan.FromHours(8) && oraApelDateTime.TimeOfDay < TimeSpan.FromHours(19);
+                    bool isInWorkingHours = !isWeekend && isWithinWorkingHours;
+                    worksheet.Cells[row, 8].Value = isInWorkingHours ? "Da" : "Nu";  // "In Timpul Programului"
+
+                    worksheet.Cells[row, 9].Value = entry.Problema;
+                    worksheet.Cells[row, 10].Value = entry.Rezolvare;
                     row++;
                 }
-
-                var dataCells = worksheet.Cells[$"A1:I{row - 1}"];
-                dataCells.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                dataCells.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                dataCells.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                dataCells.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
 
                 worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
@@ -680,17 +699,18 @@ namespace HelpdeskApp.Controllers
             }
         }
 
-
         [HttpGet]
-        public async Task<IActionResult> ExportToPdf(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> ExportToPdf(string filterFirma, string filterPctLucru, string filterNrTelefon, DateTime? startDate, DateTime? endDate, string filterInTimpulProgramului)
         {
-            _logger.LogInformation("ExportToPdf method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterNrTelefon={FilterNrTelefon}, startDate={StartDate}, endDate={EndDate}", filterFirma, filterPctLucru, filterNrTelefon, startDate, endDate);
+            _logger.LogInformation("ExportToPdf method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}");
 
+            // Start building the query with all necessary includes and asQueryable
             var query = _context.HelpdeskEntries
                 .Include(e => e.FirmaNrTelefon)
                 .ThenInclude(f => f.FirmaPunctLucru)
                 .AsQueryable();
 
+            // Apply filters based on the provided parameters
             if (!string.IsNullOrEmpty(filterFirma))
             {
                 query = query.Where(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma.Contains(filterFirma));
@@ -716,9 +736,23 @@ namespace HelpdeskApp.Controllers
                 query = query.Where(e => e.Data <= endDate.Value);
             }
 
-            query = query.OrderByDescending(e => e.Data).ThenByDescending(e => e.OraApel);
+            // Fetch entries from the database
+            var entries = await query.OrderByDescending(e => e.Data).ThenByDescending(e => e.OraApel).ToListAsync();
 
-            var entries = await query.ToListAsync();
+            // Apply 'In Timpul Programului' filter in-memory if filter is applied
+            if (!string.IsNullOrEmpty(filterInTimpulProgramului))
+            {
+                bool filterInWorkingHours = filterInTimpulProgramului.Equals("Da", StringComparison.OrdinalIgnoreCase);
+                entries = entries.Where(e =>
+                {
+                    var oraApelDateTime = DateTime.Parse($"{e.Data.ToString("yyyy-MM-dd")} {e.OraApel}");
+                    bool isWeekend = oraApelDateTime.DayOfWeek == DayOfWeek.Saturday || oraApelDateTime.DayOfWeek == DayOfWeek.Sunday;
+                    bool isWithinWorkingHours = oraApelDateTime.TimeOfDay >= TimeSpan.FromHours(8) && oraApelDateTime.TimeOfDay < TimeSpan.FromHours(19);
+                    bool isInWorkingHours = !isWeekend && isWithinWorkingHours;
+
+                    return filterInWorkingHours == isInWorkingHours;
+                }).ToList();
+            }
 
             using (var stream = new MemoryStream())
             {
@@ -726,68 +760,44 @@ namespace HelpdeskApp.Controllers
                 PdfWriter.GetInstance(document, stream);
                 document.Open();
 
-                var table = new PdfPTable(9);
+                var table = new PdfPTable(10); // Updated to 10 columns to include "In Timpul Programului"
                 table.WidthPercentage = 100;
-                table.SetWidths(new float[] { 20f, 20f, 20f, 15f, 10f, 15f, 15f, 25f, 25f });
+                table.SetWidths(new float[] { 20f, 20f, 20f, 15f, 10f, 15f, 15f, 15f, 25f, 25f });
 
-                var font = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE);
+                // Adding table header
+                var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE);
+                var headerCells = new string[] { "Firma", "Punct de Lucru", "Numar Telefon", "Data", "Zi", "Ora Apel", "Durata Apel", "In Timpul Programului", "Problema", "Rezolvare" };
 
-                PdfPCell cell = new PdfPCell(new Phrase("Firma", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
+                foreach (var header in headerCells)
+                {
+                    PdfPCell cell = new PdfPCell(new Phrase(header, headerFont))
+                    {
+                        BackgroundColor = BaseColor.GRAY,
+                        HorizontalAlignment = Element.ALIGN_CENTER
+                    };
+                    table.AddCell(cell);
+                }
 
-                cell = new PdfPCell(new Phrase("Punct de Lucru", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Numar Telefon", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Data", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Zi", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Ora Apel", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Durata Apel", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Problema", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
-                cell = new PdfPCell(new Phrase("Rezolvare", font));
-                cell.BackgroundColor = BaseColor.GRAY;
-                cell.NoWrap = true;
-                table.AddCell(cell);
-
+                // Adding data rows
                 foreach (var entry in entries)
                 {
-                    table.AddCell(new PdfPCell(new Phrase(entry.FirmaNrTelefon.FirmaPunctLucru.Firma)) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.FirmaNrTelefon.FirmaPunctLucru.PctLucru)) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.FirmaNrTelefon.NrTelefon)) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.Data.ToString("yyyy-MM-dd"))) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.Zi)) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.OraApel.ToString(@"hh\:mm\:ss"))) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(TimeSpan.TryParse(entry.DurataApel, out var duration) ? duration.ToString(@"hh\:mm\:ss") : entry.DurataApel)) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.Problema)) { NoWrap = false }); // Allow wrapping
-                    table.AddCell(new PdfPCell(new Phrase(entry.Rezolvare)) { NoWrap = false }); // Allow wrapping
+                    table.AddCell(new PdfPCell(new Phrase(entry.FirmaNrTelefon.FirmaPunctLucru.Firma)) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(entry.FirmaNrTelefon.FirmaPunctLucru.PctLucru)) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(entry.FirmaNrTelefon.NrTelefon)) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(entry.Data.ToString("yyyy-MM-dd"))) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(entry.Zi)) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(entry.OraApel.ToString(@"hh\:mm\:ss"))) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(TimeSpan.TryParse(entry.DurataApel, out var duration) ? duration.ToString(@"hh\:mm\:ss") : entry.DurataApel)) { NoWrap = false });
+
+                    // Calculate and populate 'In Timpul Programului'
+                    var oraApelDateTime = DateTime.Parse($"{entry.Data.ToString("yyyy-MM-dd")} {entry.OraApel}");
+                    bool isWeekend = oraApelDateTime.DayOfWeek == DayOfWeek.Saturday || oraApelDateTime.DayOfWeek == DayOfWeek.Sunday;
+                    bool isWithinWorkingHours = oraApelDateTime.TimeOfDay >= TimeSpan.FromHours(8) && oraApelDateTime.TimeOfDay < TimeSpan.FromHours(19);
+                    bool isInWorkingHours = !isWeekend && isWithinWorkingHours;
+                    table.AddCell(new PdfPCell(new Phrase(isInWorkingHours ? "Da" : "Nu")) { NoWrap = false });  // "In Timpul Programului"
+
+                    table.AddCell(new PdfPCell(new Phrase(entry.Problema)) { NoWrap = false });
+                    table.AddCell(new PdfPCell(new Phrase(entry.Rezolvare)) { NoWrap = false });
                 }
 
                 document.Add(table);
@@ -798,7 +808,6 @@ namespace HelpdeskApp.Controllers
                 return File(content, "application/pdf", "Entries.pdf");
             }
         }
-
 
         public async Task<IActionResult> Dashboard()
         {

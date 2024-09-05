@@ -47503,3 +47503,657 @@ WHERE [u].[Id] IN (
     FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
 )
 2024-09-04 10:03:13 [Information] ViewEntries method succeeded: Retrieved 352 entries.
+2024-09-04 10:18:24 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:18:25 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:18:25 [Information] Hosting environment: Development
+2024-09-04 10:18:25 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:18:25 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:18:26 [Information] Login page requested from IP ::1.
+2024-09-04 10:18:29 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:18:29 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:18:30 [Information] Executed DbCommand (61ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:18:30 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:18:30 [Information] Executed DbCommand (10ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:18:30 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:18:30 [Information] Dashboard method called.
+2024-09-04 10:18:30 [Information] Executed DbCommand (1ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:18:30 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:18:31 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:18:31 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:18:31 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:18:34 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:18:34 [Information] Executed DbCommand (4ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:18:34 [Information] Executed DbCommand (26ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:18:34 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:18:34 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:18:37 [Information] ExportToExcel method called with parameters: filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null)
+2024-09-04 10:18:37 [Information] Executed DbCommand (15ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:18:39 [Information] ExportToExcel method succeeded: 478 entries exported.
+2024-09-04 10:18:45 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=Nu.
+2024-09-04 10:18:45 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:18:45 [Information] Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:18:45 [Information] Executed DbCommand (3ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:18:45 [Information] ViewEntries method succeeded: Retrieved 126 entries.
+2024-09-04 10:18:50 [Information] ExportToExcel method called with parameters: filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null)
+2024-09-04 10:18:50 [Information] Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:18:50 [Information] ExportToExcel method succeeded: 478 entries exported.
+2024-09-04 10:21:19 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:21:19 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:21:19 [Information] Hosting environment: Development
+2024-09-04 10:21:19 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:21:20 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:21:20 [Information] Login page requested from IP ::1.
+2024-09-04 10:21:23 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:21:23 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:21:25 [Information] Executed DbCommand (67ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:21:25 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:21:25 [Information] Executed DbCommand (12ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:21:25 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:21:25 [Information] Dashboard method called.
+2024-09-04 10:21:25 [Information] Executed DbCommand (1ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:21:25 [Information] Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:21:25 [Information] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:21:25 [Information] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:21:25 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:21:28 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:21:28 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:21:28 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:21:28 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:21:28 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:21:32 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=Nu.
+2024-09-04 10:21:32 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:21:32 [Information] Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:21:32 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:21:32 [Information] ViewEntries method succeeded: Retrieved 126 entries.
+2024-09-04 10:21:35 [Information] ExportToExcel method called with parameters: filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null)
+2024-09-04 10:21:35 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:21:36 [Information] ExportToExcel method succeeded: 478 entries exported.
+2024-09-04 10:23:04 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:23:04 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:23:04 [Information] Hosting environment: Development
+2024-09-04 10:23:04 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:23:04 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:23:05 [Information] Login page requested from IP ::1.
+2024-09-04 10:23:11 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:23:11 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:23:13 [Information] Executed DbCommand (147ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:23:14 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:23:14 [Information] Executed DbCommand (16ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:23:14 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:23:14 [Information] Dashboard method called.
+2024-09-04 10:23:14 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:23:15 [Information] Executed DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:23:15 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:23:15 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:23:15 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:23:18 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:23:18 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:23:18 [Information] Executed DbCommand (12ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:23:18 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:23:18 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:23:22 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=Nu.
+2024-09-04 10:23:22 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:23:22 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:23:22 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:23:22 [Information] ViewEntries method succeeded: Retrieved 126 entries.
+2024-09-04 10:23:27 [Information] ExportToExcel method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}
+2024-09-04 10:23:27 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:23:29 [Information] ExportToExcel method succeeded: 478 entries exported.
+2024-09-04 10:24:34 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:24:34 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:24:34 [Information] Hosting environment: Development
+2024-09-04 10:24:34 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:24:35 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:24:35 [Information] Login page requested from IP ::1.
+2024-09-04 10:24:55 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:24:55 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:24:58 [Information] Executed DbCommand (161ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:24:58 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:24:58 [Information] Executed DbCommand (21ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:24:58 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:24:59 [Information] Dashboard method called.
+2024-09-04 10:24:59 [Information] Executed DbCommand (1ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:24:59 [Information] Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:25:00 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:25:00 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:25:00 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:25:03 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:25:03 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:25:03 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:25:03 [Information] Executed DbCommand (3ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:25:03 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:25:06 [Information] GetSuggestions method called with parameters: term=MALEXTHOR, field=Firma, firma=(null), pctLucru=(null)
+2024-09-04 10:25:06 [Information] Executed DbCommand (5ms) [Parameters=[p0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [h].[firma]
+FROM (
+    SELECT DISTINCT [firma] FROM [HelpDesk].[dbo].[firma_punct_lucru] WHERE [firma] LIKE @p0
+) AS [h]
+2024-09-04 10:25:07 [Information] ViewEntries method called with parameters: page=1, filterFirma=MALEXTHOR, filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:25:07 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:25:07 [Information] Executed DbCommand (6ms) [Parameters=[@__filterFirma_0_contains='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+WHERE [f0].[firma] LIKE @__filterFirma_0_contains ESCAPE N'\'
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:25:07 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:25:07 [Information] ViewEntries method succeeded: Retrieved 62 entries.
+2024-09-04 10:25:09 [Information] ExportToExcel method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}
+2024-09-04 10:25:09 [Information] Executed DbCommand (18ms) [Parameters=[@__filterFirma_0_contains='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+WHERE [f0].[firma] LIKE @__filterFirma_0_contains ESCAPE N'\'
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:25:10 [Information] ExportToExcel method succeeded: 62 entries exported.
+2024-09-04 10:27:33 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:27:33 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:27:33 [Information] Hosting environment: Development
+2024-09-04 10:27:33 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:27:34 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:27:34 [Information] Login page requested from IP ::1.
+2024-09-04 10:27:37 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:27:37 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:27:38 [Information] Executed DbCommand (67ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:27:38 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:27:38 [Information] Executed DbCommand (14ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:27:38 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:27:38 [Information] Dashboard method called.
+2024-09-04 10:27:39 [Information] Executed DbCommand (1ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:27:39 [Information] Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:27:39 [Information] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:27:39 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:27:39 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:27:42 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:27:42 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:27:42 [Information] Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:27:42 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:27:42 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:27:45 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=Nu.
+2024-09-04 10:27:45 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:27:45 [Information] Executed DbCommand (10ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:27:45 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:27:45 [Information] ViewEntries method succeeded: Retrieved 126 entries.
+2024-09-04 10:27:48 [Information] ExportToExcel method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}
+2024-09-04 10:27:48 [Information] Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:27:49 [Information] ExportToExcel method succeeded: 126 entries exported.
+2024-09-04 10:29:43 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:29:43 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:29:43 [Information] Hosting environment: Development
+2024-09-04 10:29:43 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:29:43 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:29:43 [Information] Login page requested from IP ::1.
+2024-09-04 10:29:47 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:29:47 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:29:48 [Information] Executed DbCommand (69ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:29:48 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:29:48 [Information] Executed DbCommand (15ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:29:48 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:29:48 [Information] Dashboard method called.
+2024-09-04 10:29:49 [Information] Executed DbCommand (1ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:29:49 [Information] Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:29:49 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:29:49 [Information] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:29:49 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:29:52 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:29:52 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:29:53 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:29:53 [Information] Executed DbCommand (3ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:29:53 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:29:56 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=Nu.
+2024-09-04 10:29:56 [Information] Executed DbCommand (3ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:29:56 [Information] Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:29:56 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:29:56 [Information] ViewEntries method succeeded: Retrieved 126 entries.
+2024-09-04 10:29:58 [Information] ExportToPdf method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}
+2024-09-04 10:29:58 [Information] Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:30:00 [Information] ExportToPdf method succeeded: 126 entries exported.
+2024-09-04 10:30:11 [Information] ExportToExcel method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}
+2024-09-04 10:30:11 [Information] Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:30:12 [Information] ExportToExcel method succeeded: 126 entries exported.
+2024-09-04 10:33:54 [Information] Now listening on: http://localhost:5235
+2024-09-04 10:33:54 [Information] Application started. Press Ctrl+C to shut down.
+2024-09-04 10:33:54 [Information] Hosting environment: Development
+2024-09-04 10:33:54 [Information] Content root path: C:\Users\djmix\Documents\GitHub\HelpDesk\HelpDesk
+2024-09-04 10:33:55 [Warning] Failed to determine the https port for redirect.
+2024-09-04 10:33:55 [Information] Login page requested from IP ::1.
+2024-09-04 10:33:58 [Information] Login attempt for user laur from IP ::1.
+2024-09-04 10:33:58 [Information] Validating credentials for user laur from IP ::1.
+2024-09-04 10:33:59 [Information] Executed DbCommand (63ms) [Parameters=[@Username='?' (Size = 4), @Password='?' (Size = 4)], CommandType='Text', CommandTimeout='30']
+EXEC ValidateUserCredentials @Username, @Password
+2024-09-04 10:33:59 [Information] User laur credentials validated successfully from IP ::1.
+2024-09-04 10:33:59 [Information] Executed DbCommand (13ms) [Parameters=[@p1='?' (DbType = Int32), @p0='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='30']
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [dbo].[users] SET [last_login_timestamp] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+2024-09-04 10:33:59 [Information] User laur successfully logged in from IP ::1.
+2024-09-04 10:33:59 [Information] Dashboard method called.
+2024-09-04 10:33:59 [Information] Executed DbCommand (1ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:34:00 [Information] Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+2024-09-04 10:34:00 [Information] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM [dbo].[firma_punct_lucru] AS [f]
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM [dbo].[firma_nr_telefon] AS [f0]
+    WHERE [f0].[ID_firma_punct_lucru] = [f].[Id])
+2024-09-04 10:34:00 [Information] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT COUNT(*)
+FROM (
+    SELECT [f].[ID_firma_punct_lucru]
+    FROM [dbo].[firma_nr_telefon] AS [f]
+    GROUP BY [f].[ID_firma_punct_lucru]
+    HAVING COUNT(*) > 1
+) AS [t]
+2024-09-04 10:34:00 [Information] Dashboard method succeeded: Data retrieved.
+2024-09-04 10:34:04 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=(null).
+2024-09-04 10:34:05 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:34:05 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:34:05 [Information] Executed DbCommand (2ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:34:05 [Information] ViewEntries method succeeded: Retrieved 478 entries.
+2024-09-04 10:34:09 [Information] ViewEntries method called with parameters: page=1, filterFirma=(null), filterPctLucru=(null), filterNrTelefon=(null), startDate=(null), endDate=(null), filterInTimpulProgramului=Nu.
+2024-09-04 10:34:09 [Information] Executed DbCommand (2ms) [Parameters=[@__GetString_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT TOP(1) [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[nume] = @__GetString_0
+2024-09-04 10:34:09 [Information] Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], COALESCE([f0].[firma], N'') AS [Firma], COALESCE([f0].[pct_lucru], N'') AS [PctLucru], COALESCE([f].[nr_telefon], N'') AS [NrTelefon], [e].[data] AS [Data], COALESCE([e].[zi], N'') AS [Zi], [e].[ora_apel] AS [OraApel], COALESCE([e].[durata_apel], N'') AS [DurataApel], COALESCE([e].[problema], N'') AS [Problema], COALESCE([e].[rezolvare], N'') AS [Rezolvare], [e].[ins_user_id] AS [InsUserId], [e].[mod_user_id] AS [ModUserId]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:34:09 [Information] Executed DbCommand (1ms) [Parameters=[@__userIds_0='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+SELECT [u].[Id], [u].[failed_logins_count], [u].[ins_time], [u].[ins_user_id], [u].[is_deleted], [u].[last_failed_login], [u].[last_login_timestamp], [u].[mod_time], [u].[mod_user_id], [u].[name], [u].[nume], [u].[parola]
+FROM [dbo].[users] AS [u]
+WHERE [u].[Id] IN (
+    SELECT [u0].[value]
+    FROM OPENJSON(@__userIds_0) WITH ([value] int '$') AS [u0]
+)
+2024-09-04 10:34:09 [Information] ViewEntries method succeeded: Retrieved 126 entries.
+2024-09-04 10:34:14 [Information] ExportToExcel method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterNrTelefon={filterNrTelefon}, startDate={startDate}, endDate={endDate}, filterInTimpulProgramului={filterInTimpulProgramului}
+2024-09-04 10:34:14 [Information] Executed DbCommand (9ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT [e].[Id], [e].[data], [e].[durata_apel], [e].[ID_nr_telefon], [e].[ins_time], [e].[ins_user_id], [e].[mod_time], [e].[mod_user_id], [e].[ora_apel], [e].[problema], [e].[rezolvare], [e].[zi], [f].[Id], [f].[ID_firma_punct_lucru], [f].[nr_telefon], [f0].[Id], [f0].[firma], [f0].[pct_lucru], [f0].[priority]
+FROM [dbo].[entry] AS [e]
+INNER JOIN [dbo].[firma_nr_telefon] AS [f] ON [e].[ID_nr_telefon] = [f].[Id]
+INNER JOIN [dbo].[firma_punct_lucru] AS [f0] ON [f].[ID_firma_punct_lucru] = [f0].[Id]
+ORDER BY [e].[data] DESC, [e].[ora_apel] DESC
+2024-09-04 10:34:15 [Information] ExportToExcel method succeeded: 126 entries exported.
