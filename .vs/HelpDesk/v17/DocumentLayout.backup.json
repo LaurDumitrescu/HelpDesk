@@ -3,24 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\shared\\_footer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\shared\\_footer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\modifyentry.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\modifyentry.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\listafirmapunctlucru.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\listafirmapunctlucru.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\viewentries.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\viewentries.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\models\\firmapunctlucru.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\models\\firmapunctlucru.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\controllers\\helpdeskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\controllers\\helpdeskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,67 +42,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "_Footer.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Shared\\_Footer.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-09-06T07:49:08.154Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ViewEntries.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ViewEntries.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\ViewEntries.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ViewEntries.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\ViewEntries.cshtml",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAAAGUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-09-06T07:27:09.221Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "FirmaPunctLucru.cs",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Models\\FirmaPunctLucru.cs",
-              "RelativeDocumentMoniker": "HelpDesk\\Models\\FirmaPunctLucru.cs",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Models\\FirmaPunctLucru.cs",
-              "RelativeToolTip": "HelpDesk\\Models\\FirmaPunctLucru.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-06T07:25:08.911Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "HelpdeskController.cs",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Controllers\\HelpdeskController.cs",
-              "RelativeDocumentMoniker": "HelpDesk\\Controllers\\HelpdeskController.cs",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Controllers\\HelpdeskController.cs",
-              "RelativeToolTip": "HelpDesk\\Controllers\\HelpdeskController.cs",
-              "ViewState": "AgIAAC8EAAAAAAAAAAAowJcEAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-06T07:22:59.938Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "ListaFirmaPunctLucru.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
-              "ViewState": "AgIAAAABAAAAAAAAAAAIwCIBAAAAAAAAAAAAAA==",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\Index.cshtml",
+              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\Index.cshtml",
+              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\Index.cshtml",
+              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\Index.cshtml",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAAAK0AAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-09-06T07:20:02.842Z",
+              "WhenOpened": "2024-09-06T08:00:21.157Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ModifyEntry.cshtml",
+              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
+              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
+              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
+              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAwwPsAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-09-06T08:00:11.898Z",
               "EditorCaption": ""
             }
           ]
