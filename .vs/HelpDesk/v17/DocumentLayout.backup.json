@@ -1,16 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\modifyentry.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\modifyentry.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -18,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -39,32 +30,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\Index.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\Index.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\Index.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\Index.cshtml",
-              "ViewState": "AgIAAKMAAAAAAAAAAAAAAK0AAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-09-06T08:00:21.157Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ModifyEntry.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\ModifyEntry.cshtml",
-              "ViewState": "AgIAAGgAAAAAAAAAAAAwwPsAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-09-06T08:00:11.898Z",
-              "EditorCaption": ""
             }
           ]
         }

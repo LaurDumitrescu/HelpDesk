@@ -107,10 +107,10 @@
                     <tr>
                         <th>Firma</th>
                         <th>Punct de Lucru</th>
-                        <th>eFactura</th>
-                        <th>OPT</th>
-                        <th>CMS</th>
-                        <th>Loyalty</th>
+                        <th class="text-center">eFactura</th>
+                        <th class="text-center">OPT</th>
+                        <th class="text-center">CMS</th>
+                        <th class="text-center">Loyalty</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -119,10 +119,67 @@
                         <tr>
                             <td>@item.Firma</td>
                             <td>@item.PctLucru</td>
-                            <td>@((item.Has_eFactura == null) ? "" : (item.Has_eFactura == true ? "Da" : "Nu"))</td>
-                            <td>@((item.Has_OPT == null) ? "" : (item.Has_OPT == true ? "Da" : "Nu"))</td>
-                            <td>@((item.Has_CMS == null) ? "" : (item.Has_CMS == true ? "Da" : "Nu"))</td>
-                            <td>@((item.Has_Loyalty == null) ? "" : (item.Has_Loyalty == true ? "Da" : "Nu"))</td>
+
+                            <!-- Display "Da" with green badge if true, otherwise display "Nu" or blank -->
+                            <td class="text-center">
+                                @if (item.Has_eFactura == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else if (item.Has_eFactura == false)
+                                {
+                                    <span>Nu</span>
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.Has_OPT == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else if (item.Has_OPT == false)
+                                {
+                                    <span>Nu</span>
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.Has_CMS == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else if (item.Has_CMS == false)
+                                {
+                                    <span>Nu</span>
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.Has_Loyalty == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else if (item.Has_Loyalty == false)
+                                {
+                                    <span>Nu</span>
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
