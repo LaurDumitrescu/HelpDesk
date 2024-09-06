@@ -1087,9 +1087,9 @@ namespace HelpdeskApp.Controllers
             }
         }
 
-        public async Task<IActionResult> ListaFirmaPunctLucru(string filterFirma = "", string filterPctLucru = "", int page = 1)
+        public async Task<IActionResult> ListaFirmaPunctLucru(string filterFirma = "", string filterPctLucru = "", string filterHas_eFactura = "Toate", string filterHas_OPT = "Toate", string filterHas_CMS = "Toate", string filterHas_Loyalty = "Toate", int page = 1)
         {
-            _logger.LogInformation("ListaFirmaPunctLucru method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, page={Page}", filterFirma, filterPctLucru, page);
+            _logger.LogInformation("ListaFirmaPunctLucru method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterHas_eFactura={filterHas_eFactura}, filterHas_OPT={filterHas_OPT}, filterHas_CMS={filterHas_CMS}, filterHas_Loyalty={filterHas_Loyalty}, page={Page}", filterFirma, filterPctLucru, filterHas_eFactura, filterHas_OPT, filterHas_CMS, filterHas_Loyalty, page);
 
             var currentUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Nume == HttpContext.Session.GetString("Username"));
@@ -1104,6 +1104,7 @@ namespace HelpdeskApp.Controllers
 
             var query = _context.FirmaPunctLucruEntries.AsQueryable();
 
+            // Apply filters
             if (!string.IsNullOrEmpty(filterFirma))
             {
                 query = query.Where(e => e.Firma.Contains(filterFirma));
@@ -1114,6 +1115,32 @@ namespace HelpdeskApp.Controllers
                 query = query.Where(e => e.PctLucru.Contains(filterPctLucru));
             }
 
+            // Filter by "Da", "Nu", or "Toate"
+            if (filterHas_eFactura != "Toate")
+            {
+                bool hasEFactura = filterHas_eFactura == "Da";
+                query = query.Where(e => e.Has_eFactura == hasEFactura);
+            }
+
+            if (filterHas_OPT != "Toate")
+            {
+                bool hasOPT = filterHas_OPT == "Da";
+                query = query.Where(e => e.Has_OPT == hasOPT);
+            }
+
+            if (filterHas_CMS != "Toate")
+            {
+                bool hasCMS = filterHas_CMS == "Da";
+                query = query.Where(e => e.Has_CMS == hasCMS);
+            }
+
+            if (filterHas_Loyalty != "Toate")
+            {
+                bool hasLoyalty = filterHas_Loyalty == "Da";
+                query = query.Where(e => e.Has_Loyalty == hasLoyalty);
+            }
+
+            // Pagination logic
             var totalEntries = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalEntries / (double)PageSize);
 
@@ -1125,19 +1152,28 @@ namespace HelpdeskApp.Controllers
                 .Select(e => new
                 {
                     e.Firma,
-                    e.PctLucru
+                    e.PctLucru,
+                    e.Has_eFactura,
+                    e.Has_OPT,
+                    e.Has_CMS,
+                    e.Has_Loyalty
                 })
-                .Distinct()
                 .ToListAsync();
 
+            // Set view data for pagination and filters
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.FilterFirma = filterFirma;
             ViewBag.FilterPctLucru = filterPctLucru;
+            ViewBag.FilterHas_eFactura = filterHas_eFactura;
+            ViewBag.FilterHas_OPT = filterHas_OPT;
+            ViewBag.FilterHas_CMS = filterHas_CMS;
+            ViewBag.FilterHas_Loyalty = filterHas_Loyalty;
 
             _logger.LogInformation("ListaFirmaPunctLucru method succeeded: Retrieved {TotalEntries} entries.", totalEntries);
             return View(entries);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> DeleteFirmaNrTelefon(int id)
