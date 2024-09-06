@@ -1,0 +1,98 @@
+﻿@model HelpdeskApp.Models.FirmaPunctLucru
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Firma Punct de Lucru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div class="container mt-5">
+        <h2>Modifica date @Model.Firma - @Model.PctLucru</h2>
+        <form id="modifyEntryForm" method="post" action="@Url.Action("UpdateFirmaPunctLucru", "Helpdesk", new { id = Model.Id })">
+            @Html.AntiForgeryToken()
+
+            <!-- Firma -->
+            <div class="mb-3">
+                <label for="Firma" class="form-label">Firma</label>
+                <input type="text" class="form-control" id="Firma" name="Firma" value="@Model.Firma" required />
+            </div>
+
+            <!-- Pct Lucru -->
+            <div class="mb-3">
+                <label for="PctLucru" class="form-label">Punct de Lucru</label>
+                <input type="text" class="form-control" id="PctLucru" name="PctLucru" value="@Model.PctLucru" required />
+            </div>
+
+            <!-- Dropdowns for the boolean fields -->
+            <div class="mb-3">
+                <label for="Has_eFactura" class="form-label">eFactura</label>
+                @Html.DropDownList("Has_eFactura", new List<SelectListItem>
+                {
+               
+                new SelectListItem { Text = "Da", Value = "true", Selected = Model.Has_eFactura == true },
+                new SelectListItem { Text = "Nu", Value = "false", Selected = Model.Has_eFactura == false }
+                }, new { @class = "form-select", id = "Has_eFactura" })
+            </div>
+
+            <div class="mb-3">
+                <label for="Has_OPT" class="form-label">OPT</label>
+                @Html.DropDownList("Has_OPT", new List<SelectListItem>
+                {
+          
+                new SelectListItem { Text = "Da", Value = "true", Selected = Model.Has_OPT == true },
+                new SelectListItem { Text = "Nu", Value = "false", Selected = Model.Has_OPT == false }
+                }, new { @class = "form-select", id = "Has_OPT" })
+            </div>
+
+            <div class="mb-3">
+                <label for="Has_CMS" class="form-label">CMS</label>
+                @Html.DropDownList("Has_CMS", new List<SelectListItem>
+                {
+                
+                new SelectListItem { Text = "Da", Value = "true", Selected = Model.Has_CMS == true },
+                new SelectListItem { Text = "Nu", Value = "false", Selected = Model.Has_CMS == false }
+                }, new { @class = "form-select", id = "Has_CMS" })
+            </div>
+
+            <div class="mb-3">
+                <label for="Has_Loyalty" class="form-label">Loyalty</label>
+                @Html.DropDownList("Has_Loyalty", new List<SelectListItem>
+                {
+              
+                new SelectListItem { Text = "Da", Value = "true", Selected = Model.Has_Loyalty == true },
+                new SelectListItem { Text = "Nu", Value = "false", Selected = Model.Has_Loyalty == false }
+                }, new { @class = "form-select", id = "Has_Loyalty" })
+            </div>
+
+            <!-- Confirmation Modal -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmModal">Confirmare</button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmModalLabel">Confirma Modificari</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Esti sigur ca vrei sa faci schimbarile?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nu</button>
+                            <button type="submit" class="btn btn-primary">Da</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    @Html.Partial("_Footer")
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

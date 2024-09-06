@@ -240,7 +240,9 @@ namespace HelpdeskApp.Controllers
                 {
                     Firma = Firma,
                     PctLucru = PctLucru,
-                    Priority = existingPriority != 0 ? existingPriority : 0
+                    Priority = existingPriority != 0 ? existingPriority : 0,
+                    InsTime = DateTime.Now,
+                    InsUserId = currentUser.Id
                 };
                 _context.FirmaPunctLucruEntries.Add(firmaPunctLucru);
                 await _context.SaveChangesAsync();
@@ -1086,7 +1088,6 @@ namespace HelpdeskApp.Controllers
                 return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "FilteredEntries.xlsx");
             }
         }
-
         public async Task<IActionResult> ListaFirmaPunctLucru(string filterFirma = "", string filterPctLucru = "", string filterHas_eFactura = "Toate", string filterHas_OPT = "Toate", string filterHas_CMS = "Toate", string filterHas_Loyalty = "Toate", int page = 1)
         {
             _logger.LogInformation("ListaFirmaPunctLucru method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterHas_eFactura={filterHas_eFactura}, filterHas_OPT={filterHas_OPT}, filterHas_CMS={filterHas_CMS}, filterHas_Loyalty={filterHas_Loyalty}, page={Page}", filterFirma, filterPctLucru, filterHas_eFactura, filterHas_OPT, filterHas_CMS, filterHas_Loyalty, page);
@@ -1144,6 +1145,7 @@ namespace HelpdeskApp.Controllers
             var totalEntries = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalEntries / (double)PageSize);
 
+            // Fetch the entries including insertion and modification details and related usernames
             var entries = await query
                 .OrderBy(e => e.Firma)
                 .ThenBy(e => e.PctLucru)
@@ -1151,12 +1153,17 @@ namespace HelpdeskApp.Controllers
                 .Take(PageSize)
                 .Select(e => new
                 {
+                    e.Id,
                     e.Firma,
                     e.PctLucru,
                     e.Has_eFactura,
                     e.Has_OPT,
                     e.Has_CMS,
-                    e.Has_Loyalty
+                    e.Has_Loyalty,
+                    e.InsTime,  // Include insert time
+                    e.ModTime,  // Include modify time
+                    InsUser = _context.Users.Where(u => u.Id == e.InsUserId).Select(u => u.Name).FirstOrDefault(),  // Fetch InsUser name
+                    ModUser = _context.Users.Where(u => u.Id == e.ModUserId).Select(u => u.Name).FirstOrDefault()   // Fetch ModUser name
                 })
                 .ToListAsync();
 
@@ -1172,6 +1179,67 @@ namespace HelpdeskApp.Controllers
 
             _logger.LogInformation("ListaFirmaPunctLucru method succeeded: Retrieved {TotalEntries} entries.", totalEntries);
             return View(entries);
+        }
+
+
+        public async Task<IActionResult> ModifyFirmaPunctLucru(int id)
+        {
+            var entry = await _context.FirmaPunctLucruEntries.FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entry == null)
+            {
+                _logger.LogWarning("ModifyFirmaPunctLucru: Entry with Id {Id} not found.", id);
+                return NotFound();
+            }
+
+            return View(entry);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateFirmaPunctLucru(int id, FirmaPunctLucru model)
+        {
+            var entry = await _context.FirmaPunctLucruEntries.FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entry == null)
+            {
+                return NotFound();
+            }
+
+            // Update the entry fields
+            entry.Firma = model.Firma;
+            entry.PctLucru = model.PctLucru;
+            entry.Has_eFactura = model.Has_eFactura;
+            entry.Has_OPT = model.Has_OPT;
+            entry.Has_CMS = model.Has_CMS;
+            entry.Has_Loyalty = model.Has_Loyalty;
+
+            // Retrieve UserId from session as an integer
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                _logger.LogWarning("UserId is missing in session.");
+                TempData["ErrorMessage"] = "User ID is missing from the session. Please log in again.";
+                return RedirectToAction("ListaFirmaPunctLucru");
+            }
+
+            // Set modification timestamp and user ID
+            entry.ModTime = DateTime.Now; // Current timestamp for modification
+            entry.ModUserId = userId.Value;  // Current user ID from session
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Modificare efectuata cu succes";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update Firma Punct Lucru");
+                TempData["ErrorMessage"] = "A aparut o eroare la actualizare.";
+            }
+
+            return RedirectToAction("ListaFirmaPunctLucru");
         }
 
 

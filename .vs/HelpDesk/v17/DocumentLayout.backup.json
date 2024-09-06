@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\listafirmapunctlucru.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\listafirmapunctlucru.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\modifyfirmapunctlucru.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\modifyfirmapunctlucru.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -30,6 +39,32 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ModifyFirmaPunctLucru.cshtml",
+              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ModifyFirmaPunctLucru.cshtml",
+              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\ModifyFirmaPunctLucru.cshtml",
+              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ModifyFirmaPunctLucru.cshtml",
+              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\ModifyFirmaPunctLucru.cshtml",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAAAEcAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-09-06T10:54:12.802Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ListaFirmaPunctLucru.cshtml",
+              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
+              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
+              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
+              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\ListaFirmaPunctLucru.cshtml",
+              "ViewState": "AgIAAHsAAAAAAAAAAAAAAIUAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-09-06T10:33:14.872Z",
+              "EditorCaption": ""
             }
           ]
         }
