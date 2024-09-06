@@ -4,10 +4,14 @@
     Layout = null;
     var filterFirma = ViewBag.FilterFirma as string ?? "";
     var filterPctLucru = ViewBag.FilterPctLucru as string ?? "";
+    var filterHas_eFactura = ViewBag.FilterHas_eFactura as string ?? "";
+    var filterHas_OPT = ViewBag.FilterHas_OPT as string ?? "";
+    var filterHas_CMS = ViewBag.FilterHas_CMS as string ?? "";
+    var filterHas_Loyalty = ViewBag.FilterHas_Loyalty as string ?? "";
     var currentPage = ViewBag.CurrentPage as int? ?? 1;
     var totalPages = ViewBag.TotalPages as int? ?? 1;
     var userName = ViewBag.UserName;
-    var displayPages = 15; 
+    var displayPages = 15;
 }
 
 <!DOCTYPE html>
@@ -20,13 +24,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     @Html.Partial("_Header")
+    <div class="container-fluid mt-4">
 
-    <div class="container mt-4">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-lg alert-dismissible fade show" role="alert" style="font-size: 0.875rem;">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-lg alert-dismissible fade show" role="alert" style="font-size: 0.875rem;">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
         <!-- Filter Button and Dropdown Menu -->
         <div class="d-flex justify-content-between mb-3">
-            <!-- Filter button with a funnel icon -->
             <button class="btn btn-secondary" id="lista-firma-filter-button">
                 <i class="bi bi-funnel"></i> Filtrare
             </button>
@@ -37,41 +56,184 @@
             <div class="mb-2">
                 <label for="lista-firma-filter-firma" class="form-label">Firma:</label>
                 <input type="text" class="form-control" id="lista-firma-filter-firma" name="filterFirma" value="@filterFirma">
-                <div id="firmaSuggestions" class="dropdown-menu"></div>
+                <div id="firmaSuggestions" class="dropdown-menu"></div> <!-- Suggestions container -->
             </div>
             <div class="mb-2">
                 <label for="lista-firma-filter-pctlucru" class="form-label">Punct de Lucru:</label>
                 <input type="text" class="form-control" id="lista-firma-filter-pctlucru" name="filterPctLucru" value="@filterPctLucru">
-                <div id="pctLucruSuggestions" class="dropdown-menu"></div>
+                <div id="pctLucruSuggestions" class="dropdown-menu"></div> <!-- Suggestions container -->
             </div>
+
+            <!-- Filters for the boolean fields -->
+            <div class="mb-2">
+                <label for="filterHas_eFactura" class="form-label">eFactura:</label>
+                @Html.DropDownList("filterHas_eFactura", new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Toate", Value = "", Selected = ViewBag.FilterHas_eFactura == "" },
+                new SelectListItem { Text = "Da", Value = "Da", Selected = ViewBag.FilterHas_eFactura == "Da" },
+                new SelectListItem { Text = "Nu", Value = "Nu", Selected = ViewBag.FilterHas_eFactura == "Nu" }
+                }, new { @class = "form-select", id = "filterHas_eFactura" })
+            </div>
+
+            <div class="mb-2">
+                <label for="filterHas_OPT" class="form-label">OPT:</label>
+                @Html.DropDownList("filterHas_OPT", new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Toate", Value = "", Selected = ViewBag.FilterHas_OPT == "" },
+                new SelectListItem { Text = "Da", Value = "Da", Selected = ViewBag.FilterHas_OPT == "Da" },
+                new SelectListItem { Text = "Nu", Value = "Nu", Selected = ViewBag.FilterHas_OPT == "Nu" }
+                }, new { @class = "form-select", id = "filterHas_OPT" })
+            </div>
+
+            <div class="mb-2">
+                <label for="filterHas_CMS" class="form-label">CMS:</label>
+                @Html.DropDownList("filterHas_CMS", new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Toate", Value = "", Selected = ViewBag.FilterHas_CMS == "" },
+                new SelectListItem { Text = "Da", Value = "Da", Selected = ViewBag.FilterHas_CMS == "Da" },
+                new SelectListItem { Text = "Nu", Value = "Nu", Selected = ViewBag.FilterHas_CMS == "Nu" }
+                }, new { @class = "form-select", id = "filterHas_CMS" })
+            </div>
+
+            <div class="mb-2">
+                <label for="filterHas_Loyalty" class="form-label">Loyalty:</label>
+                @Html.DropDownList("filterHas_Loyalty", new List<SelectListItem>
+                {
+                new SelectListItem { Text = "Toate", Value = "", Selected = ViewBag.FilterHas_Loyalty == "" },
+                new SelectListItem { Text = "Da", Value = "Da", Selected = ViewBag.FilterHas_Loyalty == "Da" },
+                new SelectListItem { Text = "Nu", Value = "Nu", Selected = ViewBag.FilterHas_Loyalty == "Nu" }
+                }, new { @class = "form-select", id = "filterHas_Loyalty" })
+            </div>
+
+            <!-- Apply and Reset buttons -->
             <div class="d-flex justify-content-start mt-3">
-                <!-- Apply filter button with a check-circle icon -->
                 <button class="btn btn-success me-2" id="lista-firma-apply-filter-button">
                     <i class="bi bi-check-circle"></i> Apply Filter
                 </button>
-                <!-- Reset filter button with an arrow-clockwise icon -->
                 <button class="btn btn-warning" id="lista-firma-reset-filter-button">
                     <i class="bi bi-arrow-clockwise"></i> Reset Filter
                 </button>
             </div>
         </div>
 
-
-        <!-- Table Container -->
+        <!-- Table -->
         <div class="table-responsive mb-4">
-            <table class="table table-bordered table-striped" id="lista-firma-table">
+            <table class="table table-bordered table-striped table-sm" id="lista-firma-table">
                 <thead class="table-dark text-white">
                     <tr>
-                        <th>Firma</th>
-                        <th>Punct de Lucru</th>
+                        <th class="text-nowrap px-2">Firma</th>
+                        <th class="text-nowrap px-2">Punct de Lucru</th>
+                        <th class="text-center text-nowrap px-2">eFactura</th>
+                        <th class="text-center text-nowrap px-2">OPT</th>
+                        <th class="text-center text-nowrap px-2">CMS</th>
+                        <th class="text-center text-nowrap px-2">Loyalty</th>
+                        <th class="text-center text-nowrap px-2">Inserat la</th>
+                        <th class="text-center text-nowrap px-2">Inserat de</th>
+                        <th class="text-center text-nowrap px-2">Modificat la</th>
+                        <th class="text-center text-nowrap px-2">Modificat de</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Firma</td>
-                            <td>@item.PctLucru</td>
+                            <td class="text-nowrap px-2">@item.Firma</td>
+                            <td class="text-nowrap px-2">@item.PctLucru</td>
+
+                            <td class="text-center px-2">
+                                @if (item.Has_eFactura == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else
+                                {
+                                    <span>Nu</span>
+                                }
+                            </td>
+
+                            <td class="text-center px-2">
+                                @if (item.Has_OPT == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else
+                                {
+                                    <span>Nu</span>
+                                }
+                            </td>
+
+                            <td class="text-center px-2">
+                                @if (item.Has_CMS == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else
+                                {
+                                    <span>Nu</span>
+                                }
+                            </td>
+
+                            <td class="text-center px-2">
+                                @if (item.Has_Loyalty == true)
+                                {
+                                    <span class="badge bg-success">Da</span>
+                                }
+                                else
+                                {
+                                    <span>Nu</span>
+                                }
+                            </td>
+
+                            <td class="text-center text-nowrap px-2">
+                                @if (item.InsTime != null)
+                                {
+                                    @item.InsTime.ToString("yyyy-MM-dd HH:mm:ss")
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center text-nowrap px-2">
+                                @if (item.InsUser != null)
+                                {
+                                    @item.InsUser
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center text-nowrap px-2">
+                                @if (item.ModTime != null)
+                                {
+                                    @item.ModTime.ToString("yyyy-MM-dd HH:mm:ss")
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center text-nowrap px-2">
+                                @if (item.ModUser != null)
+                                {
+                                    @item.ModUser
+                                }
+                                else
+                                {
+                                    <span></span>
+                                }
+                            </td>
+
+                            <td class="text-center px-3">
+                                <a href="@Url.Action("ModifyFirmaPunctLucru", "Helpdesk", new { id = item.Id })" class="btn btn-secondary btn-sm">
+                                    Modificare
+                                </a>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -148,7 +310,7 @@
             </nav>
         </div>
     </div>
-
+    @Html.Partial("_Footer")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -158,23 +320,35 @@
             const applyFilterButton = $('#lista-firma-apply-filter-button');
             const resetFilterButton = $('#lista-firma-reset-filter-button');
 
+            // Toggle filter dropdown
             filterButton.click(function () {
                 filterDropdown.toggleClass('d-none');
             });
 
+            // Apply filters
             applyFilterButton.click(function () {
                 const filterFirma = $('#lista-firma-filter-firma').val();
                 const filterPctLucru = $('#lista-firma-filter-pctlucru').val();
-                const url = `@Url.Action("ListaFirmaPunctLucru", "Helpdesk")?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}`;
+                const filterHas_eFactura = $('#filterHas_eFactura').val();
+                const filterHas_OPT = $('#filterHas_OPT').val();
+                const filterHas_CMS = $('#filterHas_CMS').val();
+                const filterHas_Loyalty = $('#filterHas_Loyalty').val();
+
+                const url = `@Url.Action("ListaFirmaPunctLucru", "Helpdesk")?filterFirma=${filterFirma}&filterPctLucru=${filterPctLucru}&filterHas_eFactura=${filterHas_eFactura}&filterHas_OPT=${filterHas_OPT}&filterHas_CMS=${filterHas_CMS}&filterHas_Loyalty=${filterHas_Loyalty}`;
                 window.location.href = url;
             });
 
+            // Reset filters
             resetFilterButton.click(function () {
                 $('#lista-firma-filter-firma').val('');
                 $('#lista-firma-filter-pctlucru').val('');
-                $('.dropdown-menu').hide(); // Hide suggestions when filters are reset
+                $('#filterHas_eFactura').val('');
+                $('#filterHas_OPT').val('');
+                $('#filterHas_CMS').val('');
+                $('#filterHas_Loyalty').val('');
             });
 
+            // Auto-suggestions for "Firma"
             $('#lista-firma-filter-firma').on('input', function () {
                 const term = $(this).val();
                 if (term.length >= 3) {
@@ -190,13 +364,15 @@
                 }
             });
 
+            // Handle selection from "Firma" suggestions
             $('#firmaSuggestions').on('click', '.dropdown-item', function () {
                 const selectedFirma = $(this).text();
                 $('#lista-firma-filter-firma').val(selectedFirma);
                 $('#firmaSuggestions').hide();
-                $('#lista-firma-filter-pctlucru').val('');
+                $('#lista-firma-filter-pctlucru').val('');  // Clear "Punct de Lucru" when "Firma" is changed
             });
 
+            // Auto-suggestions for "Punct de Lucru"
             $('#lista-firma-filter-pctlucru').on('input', function () {
                 const term = $(this).val();
                 const firma = $('#lista-firma-filter-firma').val();
@@ -213,6 +389,7 @@
                 }
             });
 
+            // Handle selection from "Punct de Lucru" suggestions
             $('#pctLucruSuggestions').on('click', '.dropdown-item', function () {
                 const selectedPctLucru = $(this).text();
                 $('#lista-firma-filter-pctlucru').val(selectedPctLucru);
