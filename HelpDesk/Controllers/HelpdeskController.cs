@@ -959,6 +959,24 @@ namespace HelpdeskApp.Controllers
 
             ViewBag.OutsideScheduleFirms = outsideScheduleFirms;
 
+            // Calculate CallsOutsideHoursData (before 7 AM or after 8 PM)
+            var callsOutsideHoursData = Enumerable.Range(1, daysInMonth)
+                .Select(day => new
+                {
+                    Date = new DateTime(currentYear, currentMonth, day),
+                    Count = entries.Count(e =>
+                        e.Data.Day == day && e.Data.Month == currentMonth && e.Data.Year == currentYear &&
+                        (e.OraApel < new TimeSpan(7, 0, 0) || e.OraApel >= new TimeSpan(20, 0, 0)))
+                })
+                .ToList();
+
+            ViewBag.CallsOutsideHoursData = new
+            {
+                labels = callsOutsideHoursData.Select(d => d.Date.ToString("dd")).ToArray(),
+                fullDates = callsOutsideHoursData.Select(d => d.Date.ToString("yyyy-MM-dd")).ToArray(),
+                data = callsOutsideHoursData.Select(d => (double)d.Count).ToArray()
+            };
+
 
             _logger.LogInformation("Dashboard method succeeded: Data retrieved.");
             return View();

@@ -201,6 +201,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var callsData = @Html.Raw(Json.Serialize(ViewBag.CallsData));
+            var callsOutsideHoursData = @Html.Raw(Json.Serialize(ViewBag.CallsOutsideHoursData));  // New data for calls outside 8 PM - 7 AM
             var durationsData = @Html.Raw(Json.Serialize(ViewBag.DurationsData));
 
             function formatLabels(labels) {
@@ -217,6 +218,15 @@
                         data: callsData.data,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderWidth: 1,
+                        fill: true,
+                        spanGaps: true
+                    },
+                    {
+                        label: 'Apeluri în afara orelor 20:00 - 07:00',
+                        data: callsOutsideHoursData.data,  // Use the new dataset here
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderWidth: 1,
                         fill: true,
                         spanGaps: true
@@ -325,6 +335,7 @@
                 }
             });
         });
+
     </script>
 </body>
 </html>
