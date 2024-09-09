@@ -116,6 +116,7 @@
         </div>
 
         <!-- Tables Section: Updated Table Header Styles -->
+        <!-- Tables Section: Updated Table Header Styles -->
         <div class="row">
             <div class="col-md-6 mb-4">
                 <h2 class="text-center mb-4">Top 10 Firme (Toate Timpurile)</h2>
@@ -158,6 +159,32 @@
                                 <td>@item.Firma</td>
                                 <td>@item.TotalCalls</td>
                                 <td>@item.TotalDuration</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- New Table for Calls and Duration Outside Schedule -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center mb-4">Top 10 Firme (In afara programului)</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark text-white">
+                        <tr>
+                            <th>Firma</th>
+                            <th>Număr Total Apeluri</th>
+                            <th>Durată Totală Apeluri</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.OutsideScheduleFirms)
+                        {
+                            <tr>
+                                <td>@item.Firma</td>
+                                <td>@item.TotalCallsOutsideSchedule</td>
+                                <td>@item.TotalDurationOutsideSchedule</td>
                             </tr>
                         }
                     </tbody>

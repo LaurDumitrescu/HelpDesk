@@ -943,6 +943,23 @@ namespace HelpdeskApp.Controllers
             ViewBag.FirmsWithoutIdCount = firmsWithoutIdCount;
             ViewBag.FirmsWithMultipleIdsCount = firmsWithMultipleIdsCount;
 
+            var outsideScheduleFirms = entries
+                .Where(e => e.OraApel < scheduleStart || e.OraApel >= scheduleEnd || 
+                            e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideSchedule = g.Count(),
+                    TotalDurationOutsideSchedule = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideSchedule)
+                .Take(10)
+                .ToList();
+
+            ViewBag.OutsideScheduleFirms = outsideScheduleFirms;
+
+
             _logger.LogInformation("Dashboard method succeeded: Data retrieved.");
             return View();
         }
@@ -1303,23 +1320,28 @@ namespace HelpdeskApp.Controllers
                 return Unauthorized();
             }
 
+            // Set the report period and username in the ViewBag
             ViewBag.UserName = currentUser?.Name;
             ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
 
+            // Query helpdesk entries within the selected date range
             var entries = await _context.HelpdeskEntries
                 .Include(e => e.FirmaNrTelefon)
                 .ThenInclude(f => f.FirmaPunctLucru)
                 .Where(e => e.Data >= startDate && e.Data <= endDate)
                 .ToListAsync();
 
+            // Total calls and total duration for the selected period
             var totalCalls = entries.Count;
             var totalDurationMinutes = entries
                 .Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0);
 
+            // Define working hours (schedule)
             var scheduleStart = new TimeSpan(8, 0, 0);
             var scheduleEnd = new TimeSpan(19, 0, 0);
 
+            // Filter and count calls during working hours
             var totalCallsDuringSchedule = entries.Count(e =>
                 (e.OraApel >= scheduleStart && e.OraApel < scheduleEnd) &&
                 e.Data.DayOfWeek != DayOfWeek.Saturday && e.Data.DayOfWeek != DayOfWeek.Sunday);
@@ -1330,6 +1352,7 @@ namespace HelpdeskApp.Controllers
                     e.Data.DayOfWeek != DayOfWeek.Saturday && e.Data.DayOfWeek != DayOfWeek.Sunday)
                 .Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0);
 
+            // Filter and count calls outside working hours
             var totalCallsOutsideSchedule = entries.Count(e =>
                 (e.OraApel < scheduleStart || e.OraApel >= scheduleEnd) ||
                 e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday);
@@ -1340,6 +1363,7 @@ namespace HelpdeskApp.Controllers
                     e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
                 .Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0);
 
+            // Set calculated data to the ViewBag
             ViewBag.TotalCallsCurrentMonth = totalCalls;
             ViewBag.TotalDurationCurrentMonthMinutes = totalDurationMinutes.ToString("F2");
             ViewBag.TotalDurationCurrentMonthHours = (totalDurationMinutes / 60).ToString("F2");
@@ -1352,6 +1376,7 @@ namespace HelpdeskApp.Controllers
             ViewBag.TotalDurationOutsideScheduleMinutes = totalDurationOutsideSchedule.ToString("F2");
             ViewBag.TotalDurationOutsideScheduleHours = (totalDurationOutsideSchedule / 60).ToString("F2");
 
+            // Group data per company (firm) and calculate total calls and durations
             var totalPerFirma = entries
                 .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
                 .Select(g => new
@@ -1365,6 +1390,24 @@ namespace HelpdeskApp.Controllers
 
             ViewBag.TotalPerFirma = totalPerFirma;
 
+            // New section: Group entries by firm for outside schedule calls
+            var totalPerFirmaOutsideSchedule = entries
+                .Where(e => (e.OraApel < scheduleStart || e.OraApel >= scheduleEnd) ||
+                            e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideSchedule = g.Count(),
+                    TotalDurationOutsideSchedule = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideSchedule)
+                .ToList();
+
+            // Pass the new outside schedule data to the view
+            ViewBag.TotalPerFirmaOutsideSchedule = totalPerFirmaOutsideSchedule;
+
+            // Prepare data for charts (calls and durations over the selected period)
             var daysInPeriod = (endDate - startDate).Days + 1;
             var callsData = Enumerable.Range(0, daysInPeriod)
                 .Select(day => new
@@ -1393,6 +1436,7 @@ namespace HelpdeskApp.Controllers
             _logger.LogInformation("GenerateReport method succeeded: Report generated.");
             return View("Report", entries);
         }
+
 
         public async Task<IActionResult> ListaFirma(string filterFirma = "", int? filterPriority = null)
         {

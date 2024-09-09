@@ -140,6 +140,40 @@
                 </table>
             </div>
         </div>
+        <!-- New Table for Total Apeluri and Durată în afara programului -->
+        <div class="row">
+            <div class="col-12 mb-4">
+                <h2 class="text-center mb-4">Total Apeluri și Durată în afara programului</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Firmă</th>
+                            <th>Număr Total Apeluri</th>
+                            <th>Durată Totală Apeluri</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.TotalPerFirmaOutsideSchedule != null)
+                        {
+                            @foreach (var item in ViewBag.TotalPerFirmaOutsideSchedule)
+                            {
+                                <tr>
+                                    <td>@item.Firma</td>
+                                    <td>@item.TotalCallsOutsideSchedule</td>
+                                    <td>@item.TotalDurationOutsideSchedule</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center">No data available</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     @Html.Partial("_Footer")
