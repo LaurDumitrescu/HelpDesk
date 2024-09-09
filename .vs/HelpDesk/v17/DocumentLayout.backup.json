@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\helpdesk\\report.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\helpdesk\\report.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\controllers\\helpdeskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\controllers\\helpdeskcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|c:\\users\\djmix\\documents\\github\\helpdesk\\helpdesk\\views\\shared\\_footer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{0D71F74A-7417-47FF-BEF0-77332EE9FC17}|HelpDesk\\HelpDesk.csproj|solutionrelative:helpdesk\\views\\shared\\_footer.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -43,27 +39,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Report.cshtml",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\Report.cshtml",
-              "RelativeDocumentMoniker": "HelpDesk\\Views\\Helpdesk\\Report.cshtml",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Helpdesk\\Report.cshtml",
-              "RelativeToolTip": "HelpDesk\\Views\\Helpdesk\\Report.cshtml",
-              "ViewState": "AgIAAJQAAAAAAAAAAAAwwK8AAAAOAAAAAAAAAA==",
+              "Title": "_Footer.cshtml",
+              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Shared\\_Footer.cshtml",
+              "RelativeDocumentMoniker": "HelpDesk\\Views\\Shared\\_Footer.cshtml",
+              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Views\\Shared\\_Footer.cshtml",
+              "RelativeToolTip": "HelpDesk\\Views\\Shared\\_Footer.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-09-09T06:38:19.432Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "HelpdeskController.cs",
-              "DocumentMoniker": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Controllers\\HelpdeskController.cs",
-              "RelativeDocumentMoniker": "HelpDesk\\Controllers\\HelpdeskController.cs",
-              "ToolTip": "C:\\Users\\djmix\\Documents\\GitHub\\HelpDesk\\HelpDesk\\Controllers\\HelpdeskController.cs",
-              "RelativeToolTip": "HelpDesk\\Controllers\\HelpdeskController.cs",
-              "ViewState": "AgIAAFwFAAAAAAAAAAAwwJ4FAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-09T06:34:01.166Z",
+              "WhenOpened": "2024-09-09T06:48:37.579Z",
               "EditorCaption": ""
             }
           ]
