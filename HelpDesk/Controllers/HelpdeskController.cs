@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using OfficeOpenXml.Style;
+using System.Drawing;
 
 namespace HelpdeskApp.Controllers
 {
@@ -977,6 +979,24 @@ namespace HelpdeskApp.Controllers
                 data = callsOutsideHoursData.Select(d => (double)d.Count).ToArray()
             };
 
+            // Calculate Calls and Durations Outside of Program for Current Month
+            var currentMonthOutsideHoursFirms = entries
+                .Where(e => e.Data.Month == currentMonth && e.Data.Year == currentYear &&
+                            (e.OraApel < new TimeSpan(7, 0, 0) || e.OraApel >= new TimeSpan(20, 0, 0)))
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideHours = g.Count(),
+                    TotalDurationOutsideHours = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideHours)
+                .Take(10)
+                .ToList();
+
+            ViewBag.CurrentMonthOutsideHoursFirms = currentMonthOutsideHoursFirms;
+
+
 
             _logger.LogInformation("Dashboard method succeeded: Data retrieved.");
             return View();
@@ -1275,6 +1295,162 @@ namespace HelpdeskApp.Controllers
             }
 
             return RedirectToAction("ListaFirmaPunctLucru");
+        }
+
+        public async Task<IActionResult> ExportListaFirmaPunctLucru(string filterFirma = "", string filterPctLucru = "", string filterHas_eFactura = "Toate", string filterHas_OPT = "Toate", string filterHas_CMS = "Toate", string filterHas_Loyalty = "Toate")
+        {
+            // Set the license context for EPPlus
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            // Log the export request
+            _logger.LogInformation("ExportListaFirmaPunctLucru method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterHas_eFactura={filterHas_eFactura}, filterHas_OPT={filterHas_OPT}, filterHas_CMS={filterHas_CMS}, filterHas_Loyalty={filterHas_Loyalty}", filterFirma, filterPctLucru, filterHas_eFactura, filterHas_OPT, filterHas_CMS, filterHas_Loyalty);
+
+            // Get the current user
+            var currentUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Nume == HttpContext.Session.GetString("Username"));
+
+            if (currentUser == null)
+            {
+                _logger.LogWarning("ExportListaFirmaPunctLucru method failed: Current user not found in session.");
+                return Unauthorized();
+            }
+
+            // Query the data from the database
+            var query = _context.FirmaPunctLucruEntries.AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(filterFirma))
+            {
+                query = query.Where(e => e.Firma.Contains(filterFirma));
+            }
+
+            if (!string.IsNullOrEmpty(filterPctLucru))
+            {
+                query = query.Where(e => e.PctLucru.Contains(filterPctLucru));
+            }
+
+            // Filter Has_eFactura
+            if (filterHas_eFactura != "Toate")
+            {
+                bool hasEFactura = filterHas_eFactura == "Da";
+                query = query.Where(e => e.Has_eFactura != null && e.Has_eFactura == hasEFactura);
+            }
+
+            // Filter Has_OPT
+            if (filterHas_OPT != "Toate")
+            {
+                bool hasOPT = filterHas_OPT == "Da";
+                query = query.Where(e => e.Has_OPT != null && e.Has_OPT == hasOPT);
+            }
+
+            // Filter Has_CMS
+            if (filterHas_CMS != "Toate")
+            {
+                bool hasCMS = filterHas_CMS == "Da";
+                query = query.Where(e => e.Has_CMS != null && e.Has_CMS == hasCMS);
+            }
+
+            // Filter Has_Loyalty
+            if (filterHas_Loyalty != "Toate")
+            {
+                bool hasLoyalty = filterHas_Loyalty == "Da";
+                query = query.Where(e => e.Has_Loyalty != null && e.Has_Loyalty == hasLoyalty);
+            }
+
+            // Fetch the filtered data including user details
+            var entries = await query
+                .OrderBy(e => e.Firma)
+                .ThenBy(e => e.PctLucru)
+                .Select(e => new
+                {
+                    e.Firma,
+                    e.PctLucru,
+                    e.Has_eFactura,
+                    e.Has_OPT,
+                    e.Has_CMS,
+                    e.Has_Loyalty,
+                    e.InsTime,
+                    e.ModTime,
+                    InsUser = _context.Users.Where(u => u.Id == e.InsUserId).Select(u => u.Name).FirstOrDefault(),
+                    ModUser = _context.Users.Where(u => u.Id == e.ModUserId).Select(u => u.Name).FirstOrDefault()
+                })
+                .ToListAsync();
+
+            // Generate Excel file using EPPlus
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("ListaFirmaPunctLucru");
+
+                // Add Headers
+                worksheet.Cells[1, 1].Value = "Firma";
+                worksheet.Cells[1, 2].Value = "Punct de Lucru";
+                worksheet.Cells[1, 3].Value = "eFactura";
+                worksheet.Cells[1, 4].Value = "OPT";
+                worksheet.Cells[1, 5].Value = "CMS";
+                worksheet.Cells[1, 6].Value = "Loyalty";
+                worksheet.Cells[1, 7].Value = "Inserat la";
+                worksheet.Cells[1, 8].Value = "Inserat de";
+                worksheet.Cells[1, 9].Value = "Modificat la";
+                worksheet.Cells[1, 10].Value = "Modificat de";
+
+                using (var headerRange = worksheet.Cells[1, 1, 1, 10])
+                {
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    headerRange.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                    headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // Populate data rows
+                int row = 2;
+                foreach (var item in entries)
+                {
+                    worksheet.Cells[row, 1].Value = item.Firma;
+                    worksheet.Cells[row, 2].Value = item.PctLucru;
+
+                    // eFactura Cell
+                    worksheet.Cells[row, 3].Value = item.Has_eFactura.HasValue && item.Has_eFactura.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 3].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 3].Style.Fill.BackgroundColor.SetColor(item.Has_eFactura.HasValue && item.Has_eFactura.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 3].Style.Font.Color.SetColor(Color.White);
+
+                    // OPT Cell
+                    worksheet.Cells[row, 4].Value = item.Has_OPT.HasValue && item.Has_OPT.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 4].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 4].Style.Fill.BackgroundColor.SetColor(item.Has_OPT.HasValue && item.Has_OPT.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 4].Style.Font.Color.SetColor(Color.White);
+
+                    // CMS Cell
+                    worksheet.Cells[row, 5].Value = item.Has_CMS.HasValue && item.Has_CMS.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 5].Style.Fill.BackgroundColor.SetColor(item.Has_CMS.HasValue && item.Has_CMS.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 5].Style.Font.Color.SetColor(Color.White);
+
+                    // Loyalty Cell
+                    worksheet.Cells[row, 6].Value = item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 6].Style.Fill.BackgroundColor.SetColor(item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 6].Style.Font.Color.SetColor(Color.White);
+
+                    worksheet.Cells[row, 7].Value = item.InsTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+                    worksheet.Cells[row, 8].Value = item.InsUser ?? "";
+                    worksheet.Cells[row, 9].Value = item.ModTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+                    worksheet.Cells[row, 10].Value = item.ModUser ?? "";
+
+                    row++;
+                }
+
+                // Auto-fit columns for better presentation
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                // Stream the file to the user
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                string excelFileName = $"ListaFirmaPunctLucru_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
         }
 
 
