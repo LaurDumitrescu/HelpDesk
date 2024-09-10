@@ -945,22 +945,6 @@ namespace HelpdeskApp.Controllers
             ViewBag.FirmsWithoutIdCount = firmsWithoutIdCount;
             ViewBag.FirmsWithMultipleIdsCount = firmsWithMultipleIdsCount;
 
-            var outsideScheduleFirms = entries
-                .Where(e => e.OraApel < scheduleStart || e.OraApel >= scheduleEnd || 
-                            e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
-                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
-                .Select(g => new
-                {
-                    Firma = g.Key,
-                    TotalCallsOutsideSchedule = g.Count(),
-                    TotalDurationOutsideSchedule = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
-                })
-                .OrderByDescending(g => g.TotalCallsOutsideSchedule)
-                .Take(10)
-                .ToList();
-
-            ViewBag.OutsideScheduleFirms = outsideScheduleFirms;
-
             // Calculate CallsOutsideHoursData (before 7 AM or after 8 PM)
             var callsOutsideHoursData = Enumerable.Range(1, daysInMonth)
                 .Select(day => new
@@ -979,10 +963,27 @@ namespace HelpdeskApp.Controllers
                 data = callsOutsideHoursData.Select(d => (double)d.Count).ToArray()
             };
 
-            // Calculate Calls and Durations Outside of Program for Current Month
+            var outsideScheduleFirms = entries
+                .Where(e => e.OraApel < scheduleStart || e.OraApel >= scheduleEnd || 
+                            e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideSchedule = g.Count(),
+                    TotalDurationOutsideSchedule = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideSchedule)
+                .Take(10)
+                .ToList();
+
+            ViewBag.OutsideScheduleFirms = outsideScheduleFirms; 
+
+            /// Calculate Calls and Durations Outside of Program for Current Month (Weekends regardless of time, weekdays outside 7 AM - 8 PM)
             var currentMonthOutsideHoursFirms = entries
                 .Where(e => e.Data.Month == currentMonth && e.Data.Year == currentYear &&
-                            (e.OraApel < new TimeSpan(7, 0, 0) || e.OraApel >= new TimeSpan(20, 0, 0)))
+                            (e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday ||
+                            (e.OraApel < new TimeSpan(7, 0, 0) || e.OraApel >= new TimeSpan(20, 0, 0))))
                 .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
                 .Select(g => new
                 {
@@ -995,6 +996,7 @@ namespace HelpdeskApp.Controllers
                 .ToList();
 
             ViewBag.CurrentMonthOutsideHoursFirms = currentMonthOutsideHoursFirms;
+
 
 
 
