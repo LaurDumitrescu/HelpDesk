@@ -1305,7 +1305,7 @@ namespace HelpdeskApp.Controllers
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             // Log the export request
-            _logger.LogInformation("ExportListaFirmaPunctLucru method called with parameters: filterFirma={FilterFirma}, filterPctLucru={FilterPctLucru}, filterHas_eFactura={filterHas_eFactura}, filterHas_OPT={filterHas_OPT}, filterHas_CMS={filterHas_CMS}, filterHas_Loyalty={filterHas_Loyalty}", filterFirma, filterPctLucru, filterHas_eFactura, filterHas_OPT, filterHas_CMS, filterHas_Loyalty);
+            _logger.LogInformation("ExportListaFirmaPunctLucru method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterHas_eFactura={filterHas_eFactura}, filterHas_OPT={filterHas_OPT}, filterHas_CMS={filterHas_CMS}, filterHas_Loyalty={filterHas_Loyalty}", filterFirma, filterPctLucru, filterHas_eFactura, filterHas_OPT, filterHas_CMS, filterHas_Loyalty);
 
             // Get the current user
             var currentUser = await _context.Users
@@ -1367,6 +1367,7 @@ namespace HelpdeskApp.Controllers
                 {
                     e.Firma,
                     e.PctLucru,
+                    e.Priority,  // Include Priority field
                     e.Has_eFactura,
                     e.Has_OPT,
                     e.Has_CMS,
@@ -1386,16 +1387,17 @@ namespace HelpdeskApp.Controllers
                 // Add Headers
                 worksheet.Cells[1, 1].Value = "Firma";
                 worksheet.Cells[1, 2].Value = "Punct de Lucru";
-                worksheet.Cells[1, 3].Value = "eFactura";
-                worksheet.Cells[1, 4].Value = "OPT";
-                worksheet.Cells[1, 5].Value = "CMS";
-                worksheet.Cells[1, 6].Value = "Loyalty";
-                worksheet.Cells[1, 7].Value = "Inserat la";
-                worksheet.Cells[1, 8].Value = "Inserat de";
-                worksheet.Cells[1, 9].Value = "Modificat la";
-                worksheet.Cells[1, 10].Value = "Modificat de";
+                worksheet.Cells[1, 3].Value = "Prioritate";  // New Priority header
+                worksheet.Cells[1, 4].Value = "eFactura";
+                worksheet.Cells[1, 5].Value = "OPT";
+                worksheet.Cells[1, 6].Value = "CMS";
+                worksheet.Cells[1, 7].Value = "Loyalty";
+                worksheet.Cells[1, 8].Value = "Inserat la";
+                worksheet.Cells[1, 9].Value = "Inserat de";
+                worksheet.Cells[1, 10].Value = "Modificat la";
+                worksheet.Cells[1, 11].Value = "Modificat de";
 
-                using (var headerRange = worksheet.Cells[1, 1, 1, 10])
+                using (var headerRange = worksheet.Cells[1, 1, 1, 11])  // Adjust range to include the new column
                 {
                     headerRange.Style.Font.Bold = true;
                     headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
@@ -1409,35 +1411,36 @@ namespace HelpdeskApp.Controllers
                 {
                     worksheet.Cells[row, 1].Value = item.Firma;
                     worksheet.Cells[row, 2].Value = item.PctLucru;
+                    worksheet.Cells[row, 3].Value = item.Priority;  // Include Priority data
 
                     // eFactura Cell
-                    worksheet.Cells[row, 3].Value = item.Has_eFactura.HasValue && item.Has_eFactura.Value ? "Da" : "Nu";
-                    worksheet.Cells[row, 3].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[row, 3].Style.Fill.BackgroundColor.SetColor(item.Has_eFactura.HasValue && item.Has_eFactura.Value ? Color.Green : Color.Red);
-                    worksheet.Cells[row, 3].Style.Font.Color.SetColor(Color.White);
-
-                    // OPT Cell
-                    worksheet.Cells[row, 4].Value = item.Has_OPT.HasValue && item.Has_OPT.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 4].Value = item.Has_eFactura.HasValue && item.Has_eFactura.Value ? "Da" : "Nu";
                     worksheet.Cells[row, 4].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[row, 4].Style.Fill.BackgroundColor.SetColor(item.Has_OPT.HasValue && item.Has_OPT.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 4].Style.Fill.BackgroundColor.SetColor(item.Has_eFactura.HasValue && item.Has_eFactura.Value ? Color.Green : Color.Red);
                     worksheet.Cells[row, 4].Style.Font.Color.SetColor(Color.White);
 
-                    // CMS Cell
-                    worksheet.Cells[row, 5].Value = item.Has_CMS.HasValue && item.Has_CMS.Value ? "Da" : "Nu";
+                    // OPT Cell
+                    worksheet.Cells[row, 5].Value = item.Has_OPT.HasValue && item.Has_OPT.Value ? "Da" : "Nu";
                     worksheet.Cells[row, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[row, 5].Style.Fill.BackgroundColor.SetColor(item.Has_CMS.HasValue && item.Has_CMS.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 5].Style.Fill.BackgroundColor.SetColor(item.Has_OPT.HasValue && item.Has_OPT.Value ? Color.Green : Color.Red);
                     worksheet.Cells[row, 5].Style.Font.Color.SetColor(Color.White);
 
-                    // Loyalty Cell
-                    worksheet.Cells[row, 6].Value = item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? "Da" : "Nu";
+                    // CMS Cell
+                    worksheet.Cells[row, 6].Value = item.Has_CMS.HasValue && item.Has_CMS.Value ? "Da" : "Nu";
                     worksheet.Cells[row, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[row, 6].Style.Fill.BackgroundColor.SetColor(item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 6].Style.Fill.BackgroundColor.SetColor(item.Has_CMS.HasValue && item.Has_CMS.Value ? Color.Green : Color.Red);
                     worksheet.Cells[row, 6].Style.Font.Color.SetColor(Color.White);
 
-                    worksheet.Cells[row, 7].Value = item.InsTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
-                    worksheet.Cells[row, 8].Value = item.InsUser ?? "";
-                    worksheet.Cells[row, 9].Value = item.ModTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
-                    worksheet.Cells[row, 10].Value = item.ModUser ?? "";
+                    // Loyalty Cell
+                    worksheet.Cells[row, 7].Value = item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 7].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 7].Style.Fill.BackgroundColor.SetColor(item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 7].Style.Font.Color.SetColor(Color.White);
+
+                    worksheet.Cells[row, 8].Value = item.InsTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+                    worksheet.Cells[row, 9].Value = item.InsUser ?? "";
+                    worksheet.Cells[row, 10].Value = item.ModTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+                    worksheet.Cells[row, 11].Value = item.ModUser ?? "";
 
                     row++;
                 }
@@ -1454,7 +1457,6 @@ namespace HelpdeskApp.Controllers
                 return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
             }
         }
-
 
         [HttpPost]
         public async Task<IActionResult> DeleteFirmaNrTelefon(int id)
