@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using OfficeOpenXml.Style;
+using System.Drawing;
 
 namespace HelpdeskApp.Controllers
 {
@@ -943,6 +945,61 @@ namespace HelpdeskApp.Controllers
             ViewBag.FirmsWithoutIdCount = firmsWithoutIdCount;
             ViewBag.FirmsWithMultipleIdsCount = firmsWithMultipleIdsCount;
 
+            // Calculate CallsOutsideHoursData (before 7 AM or after 8 PM)
+            var callsOutsideHoursData = Enumerable.Range(1, daysInMonth)
+                .Select(day => new
+                {
+                    Date = new DateTime(currentYear, currentMonth, day),
+                    Count = entries.Count(e =>
+                        e.Data.Day == day && e.Data.Month == currentMonth && e.Data.Year == currentYear &&
+                        (e.OraApel < new TimeSpan(7, 0, 0) || e.OraApel >= new TimeSpan(20, 0, 0)))
+                })
+                .ToList();
+
+            ViewBag.CallsOutsideHoursData = new
+            {
+                labels = callsOutsideHoursData.Select(d => d.Date.ToString("dd")).ToArray(),
+                fullDates = callsOutsideHoursData.Select(d => d.Date.ToString("yyyy-MM-dd")).ToArray(),
+                data = callsOutsideHoursData.Select(d => (double)d.Count).ToArray()
+            };
+
+            var outsideScheduleFirms = entries
+                .Where(e => e.OraApel < scheduleStart || e.OraApel >= scheduleEnd || 
+                            e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideSchedule = g.Count(),
+                    TotalDurationOutsideSchedule = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideSchedule)
+                .Take(10)
+                .ToList();
+
+            ViewBag.OutsideScheduleFirms = outsideScheduleFirms; 
+
+            /// Calculate Calls and Durations Outside of Program for Current Month (Weekends regardless of time, weekdays outside 7 AM - 8 PM)
+            var currentMonthOutsideHoursFirms = entries
+                .Where(e => e.Data.Month == currentMonth && e.Data.Year == currentYear &&
+                            (e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday ||
+                            (e.OraApel < new TimeSpan(7, 0, 0) || e.OraApel >= new TimeSpan(20, 0, 0))))
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideHours = g.Count(),
+                    TotalDurationOutsideHours = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideHours)
+                .Take(10)
+                .ToList();
+
+            ViewBag.CurrentMonthOutsideHoursFirms = currentMonthOutsideHoursFirms;
+
+
+
+
             _logger.LogInformation("Dashboard method succeeded: Data retrieved.");
             return View();
         }
@@ -1242,6 +1299,164 @@ namespace HelpdeskApp.Controllers
             return RedirectToAction("ListaFirmaPunctLucru");
         }
 
+        public async Task<IActionResult> ExportListaFirmaPunctLucru(string filterFirma = "", string filterPctLucru = "", string filterHas_eFactura = "Toate", string filterHas_OPT = "Toate", string filterHas_CMS = "Toate", string filterHas_Loyalty = "Toate")
+        {
+            // Set the license context for EPPlus
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            // Log the export request
+            _logger.LogInformation("ExportListaFirmaPunctLucru method called with parameters: filterFirma={filterFirma}, filterPctLucru={filterPctLucru}, filterHas_eFactura={filterHas_eFactura}, filterHas_OPT={filterHas_OPT}, filterHas_CMS={filterHas_CMS}, filterHas_Loyalty={filterHas_Loyalty}", filterFirma, filterPctLucru, filterHas_eFactura, filterHas_OPT, filterHas_CMS, filterHas_Loyalty);
+
+            // Get the current user
+            var currentUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Nume == HttpContext.Session.GetString("Username"));
+
+            if (currentUser == null)
+            {
+                _logger.LogWarning("ExportListaFirmaPunctLucru method failed: Current user not found in session.");
+                return Unauthorized();
+            }
+
+            // Query the data from the database
+            var query = _context.FirmaPunctLucruEntries.AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(filterFirma))
+            {
+                query = query.Where(e => e.Firma.Contains(filterFirma));
+            }
+
+            if (!string.IsNullOrEmpty(filterPctLucru))
+            {
+                query = query.Where(e => e.PctLucru.Contains(filterPctLucru));
+            }
+
+            // Filter Has_eFactura
+            if (filterHas_eFactura != "Toate")
+            {
+                bool hasEFactura = filterHas_eFactura == "Da";
+                query = query.Where(e => e.Has_eFactura != null && e.Has_eFactura == hasEFactura);
+            }
+
+            // Filter Has_OPT
+            if (filterHas_OPT != "Toate")
+            {
+                bool hasOPT = filterHas_OPT == "Da";
+                query = query.Where(e => e.Has_OPT != null && e.Has_OPT == hasOPT);
+            }
+
+            // Filter Has_CMS
+            if (filterHas_CMS != "Toate")
+            {
+                bool hasCMS = filterHas_CMS == "Da";
+                query = query.Where(e => e.Has_CMS != null && e.Has_CMS == hasCMS);
+            }
+
+            // Filter Has_Loyalty
+            if (filterHas_Loyalty != "Toate")
+            {
+                bool hasLoyalty = filterHas_Loyalty == "Da";
+                query = query.Where(e => e.Has_Loyalty != null && e.Has_Loyalty == hasLoyalty);
+            }
+
+            // Fetch the filtered data including user details
+            var entries = await query
+                .OrderBy(e => e.Firma)
+                .ThenBy(e => e.PctLucru)
+                .Select(e => new
+                {
+                    e.Firma,
+                    e.PctLucru,
+                    e.Priority,  // Include Priority field
+                    e.Has_eFactura,
+                    e.Has_OPT,
+                    e.Has_CMS,
+                    e.Has_Loyalty,
+                    e.InsTime,
+                    e.ModTime,
+                    InsUser = _context.Users.Where(u => u.Id == e.InsUserId).Select(u => u.Name).FirstOrDefault(),
+                    ModUser = _context.Users.Where(u => u.Id == e.ModUserId).Select(u => u.Name).FirstOrDefault()
+                })
+                .ToListAsync();
+
+            // Generate Excel file using EPPlus
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("ListaFirmaPunctLucru");
+
+                // Add Headers
+                worksheet.Cells[1, 1].Value = "Firma";
+                worksheet.Cells[1, 2].Value = "Punct de Lucru";
+                worksheet.Cells[1, 3].Value = "Prioritate";  // New Priority header
+                worksheet.Cells[1, 4].Value = "eFactura";
+                worksheet.Cells[1, 5].Value = "OPT";
+                worksheet.Cells[1, 6].Value = "CMS";
+                worksheet.Cells[1, 7].Value = "Loyalty";
+                worksheet.Cells[1, 8].Value = "Inserat la";
+                worksheet.Cells[1, 9].Value = "Inserat de";
+                worksheet.Cells[1, 10].Value = "Modificat la";
+                worksheet.Cells[1, 11].Value = "Modificat de";
+
+                using (var headerRange = worksheet.Cells[1, 1, 1, 11])  // Adjust range to include the new column
+                {
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    headerRange.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                    headerRange.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                }
+
+                // Populate data rows
+                int row = 2;
+                foreach (var item in entries)
+                {
+                    worksheet.Cells[row, 1].Value = item.Firma;
+                    worksheet.Cells[row, 2].Value = item.PctLucru;
+                    worksheet.Cells[row, 3].Value = item.Priority;  // Include Priority data
+
+                    // eFactura Cell
+                    worksheet.Cells[row, 4].Value = item.Has_eFactura.HasValue && item.Has_eFactura.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 4].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 4].Style.Fill.BackgroundColor.SetColor(item.Has_eFactura.HasValue && item.Has_eFactura.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 4].Style.Font.Color.SetColor(Color.White);
+
+                    // OPT Cell
+                    worksheet.Cells[row, 5].Value = item.Has_OPT.HasValue && item.Has_OPT.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 5].Style.Fill.BackgroundColor.SetColor(item.Has_OPT.HasValue && item.Has_OPT.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 5].Style.Font.Color.SetColor(Color.White);
+
+                    // CMS Cell
+                    worksheet.Cells[row, 6].Value = item.Has_CMS.HasValue && item.Has_CMS.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 6].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 6].Style.Fill.BackgroundColor.SetColor(item.Has_CMS.HasValue && item.Has_CMS.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 6].Style.Font.Color.SetColor(Color.White);
+
+                    // Loyalty Cell
+                    worksheet.Cells[row, 7].Value = item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? "Da" : "Nu";
+                    worksheet.Cells[row, 7].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[row, 7].Style.Fill.BackgroundColor.SetColor(item.Has_Loyalty.HasValue && item.Has_Loyalty.Value ? Color.Green : Color.Red);
+                    worksheet.Cells[row, 7].Style.Font.Color.SetColor(Color.White);
+
+                    worksheet.Cells[row, 8].Value = item.InsTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+                    worksheet.Cells[row, 9].Value = item.InsUser ?? "";
+                    worksheet.Cells[row, 10].Value = item.ModTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "";
+                    worksheet.Cells[row, 11].Value = item.ModUser ?? "";
+
+                    row++;
+                }
+
+                // Auto-fit columns for better presentation
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                // Stream the file to the user
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                stream.Position = 0;
+
+                string excelFileName = $"ListaFirmaPunctLucru_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelFileName);
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> DeleteFirmaNrTelefon(int id)
@@ -1303,23 +1518,28 @@ namespace HelpdeskApp.Controllers
                 return Unauthorized();
             }
 
+            // Set the report period and username in the ViewBag
             ViewBag.UserName = currentUser?.Name;
             ViewBag.StartDate = startDate.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate.ToString("yyyy-MM-dd");
 
+            // Query helpdesk entries within the selected date range
             var entries = await _context.HelpdeskEntries
                 .Include(e => e.FirmaNrTelefon)
                 .ThenInclude(f => f.FirmaPunctLucru)
                 .Where(e => e.Data >= startDate && e.Data <= endDate)
                 .ToListAsync();
 
+            // Total calls and total duration for the selected period
             var totalCalls = entries.Count;
             var totalDurationMinutes = entries
                 .Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0);
 
+            // Define working hours (schedule)
             var scheduleStart = new TimeSpan(8, 0, 0);
             var scheduleEnd = new TimeSpan(19, 0, 0);
 
+            // Filter and count calls during working hours
             var totalCallsDuringSchedule = entries.Count(e =>
                 (e.OraApel >= scheduleStart && e.OraApel < scheduleEnd) &&
                 e.Data.DayOfWeek != DayOfWeek.Saturday && e.Data.DayOfWeek != DayOfWeek.Sunday);
@@ -1330,6 +1550,7 @@ namespace HelpdeskApp.Controllers
                     e.Data.DayOfWeek != DayOfWeek.Saturday && e.Data.DayOfWeek != DayOfWeek.Sunday)
                 .Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0);
 
+            // Filter and count calls outside working hours
             var totalCallsOutsideSchedule = entries.Count(e =>
                 (e.OraApel < scheduleStart || e.OraApel >= scheduleEnd) ||
                 e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday);
@@ -1340,6 +1561,7 @@ namespace HelpdeskApp.Controllers
                     e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
                 .Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0);
 
+            // Set calculated data to the ViewBag
             ViewBag.TotalCallsCurrentMonth = totalCalls;
             ViewBag.TotalDurationCurrentMonthMinutes = totalDurationMinutes.ToString("F2");
             ViewBag.TotalDurationCurrentMonthHours = (totalDurationMinutes / 60).ToString("F2");
@@ -1352,6 +1574,7 @@ namespace HelpdeskApp.Controllers
             ViewBag.TotalDurationOutsideScheduleMinutes = totalDurationOutsideSchedule.ToString("F2");
             ViewBag.TotalDurationOutsideScheduleHours = (totalDurationOutsideSchedule / 60).ToString("F2");
 
+            // Group data per company (firm) and calculate total calls and durations
             var totalPerFirma = entries
                 .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
                 .Select(g => new
@@ -1365,6 +1588,24 @@ namespace HelpdeskApp.Controllers
 
             ViewBag.TotalPerFirma = totalPerFirma;
 
+            // New section: Group entries by firm for outside schedule calls
+            var totalPerFirmaOutsideSchedule = entries
+                .Where(e => (e.OraApel < scheduleStart || e.OraApel >= scheduleEnd) ||
+                            e.Data.DayOfWeek == DayOfWeek.Saturday || e.Data.DayOfWeek == DayOfWeek.Sunday)
+                .GroupBy(e => e.FirmaNrTelefon.FirmaPunctLucru.Firma)
+                .Select(g => new
+                {
+                    Firma = g.Key,
+                    TotalCallsOutsideSchedule = g.Count(),
+                    TotalDurationOutsideSchedule = Math.Round(g.Sum(e => TimeSpan.TryParse(e.DurataApel, out var duration) ? duration.TotalMinutes : 0), 2)
+                })
+                .OrderByDescending(g => g.TotalCallsOutsideSchedule)
+                .ToList();
+
+            // Pass the new outside schedule data to the view
+            ViewBag.TotalPerFirmaOutsideSchedule = totalPerFirmaOutsideSchedule;
+
+            // Prepare data for charts (calls and durations over the selected period)
             var daysInPeriod = (endDate - startDate).Days + 1;
             var callsData = Enumerable.Range(0, daysInPeriod)
                 .Select(day => new
@@ -1393,6 +1634,7 @@ namespace HelpdeskApp.Controllers
             _logger.LogInformation("GenerateReport method succeeded: Report generated.");
             return View("Report", entries);
         }
+
 
         public async Task<IActionResult> ListaFirma(string filterFirma = "", int? filterPriority = null)
         {

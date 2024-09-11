@@ -45,11 +45,16 @@
         }
 
         <!-- Filter Button and Dropdown Menu -->
-        <div class="d-flex justify-content-between mb-3">
-            <button class="btn btn-secondary" id="lista-firma-filter-button">
+        <div class="d-flex justify-content-start mb-3">
+            <button class="btn btn-secondary me-2" id="lista-firma-filter-button">
                 <i class="bi bi-funnel"></i> Filtrare
             </button>
+            <a href="@Url.Action("ExportListaFirmaPunctLucru", "Helpdesk", new { filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i> Export
+            </a>
         </div>
+
+
 
         <!-- Filter Dropdown -->
         <div id="lista-firma-filter-dropdown" class="border p-3 mb-3 rounded bg-light d-none">
@@ -244,8 +249,8 @@
                 <ul class="pagination justify-content-center">
                     @if (currentPage > 1)
                     {
-                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">First</a></li>
-                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = currentPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">Previous</a></li>
+                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">First</a></li>
+                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = currentPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">Previous</a></li>
                     }
 
                     @{
@@ -281,7 +286,7 @@
 
                     @if (startPage > 1)
                     {
-                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = startPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">...</a></li>
+                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = startPage - 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">...</a></li>
                     }
 
                     @for (int i = startPage; i <= endPage; i++)
@@ -292,22 +297,23 @@
                         }
                         else
                         {
-                            <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = i, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">@i</a></li>
+                            <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = i, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">@i</a></li>
                         }
                     }
 
                     @if (endPage < totalPages)
                     {
-                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = endPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">...</a></li>
+                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = endPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">...</a></li>
                     }
 
                     @if (currentPage < totalPages)
                     {
-                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = currentPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">Next</a></li>
-                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = totalPages, filterFirma = filterFirma, filterPctLucru = filterPctLucru })" class="page-link">Last</a></li>
+                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = currentPage + 1, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">Next</a></li>
+                        <li class="page-item"><a href="@Url.Action("ListaFirmaPunctLucru", new { page = totalPages, filterFirma = filterFirma, filterPctLucru = filterPctLucru, filterHas_eFactura = filterHas_eFactura, filterHas_OPT = filterHas_OPT, filterHas_CMS = filterHas_CMS, filterHas_Loyalty = filterHas_Loyalty })" class="page-link">Last</a></li>
                     }
                 </ul>
             </nav>
+
         </div>
     </div>
     @Html.Partial("_Footer")

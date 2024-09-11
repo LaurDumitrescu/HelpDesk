@@ -116,6 +116,7 @@
         </div>
 
         <!-- Tables Section: Updated Table Header Styles -->
+        <!-- Tables Section: Updated Table Header Styles -->
         <div class="row">
             <div class="col-md-6 mb-4">
                 <h2 class="text-center mb-4">Top 10 Firme (Toate Timpurile)</h2>
@@ -164,6 +165,56 @@
                 </table>
             </div>
         </div>
+
+        <!-- New Table for Calls and Duration Outside Schedule -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <h2 class="text-center mb-4">Top 10 Firme in afara programului</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark text-white">
+                        <tr>
+                            <th>Firma</th>
+                            <th>Număr Total Apeluri</th>
+                            <th>Durată Totală Apeluri</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.OutsideScheduleFirms)
+                        {
+                            <tr>
+                                <td>@item.Firma</td>
+                                <td>@item.TotalCallsOutsideSchedule</td>
+                                <td>@item.TotalDurationOutsideSchedule</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <h2 class="text-center mb-4">Top 10 firme în afara programului (Luna Curentă)</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark text-white">
+                        <tr>
+                            <th>Firma</th>
+                            <th>Număr Total Apeluri</th>
+                            <th>Durată Totală Apeluri (Minute)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.CurrentMonthOutsideHoursFirms)
+                        {
+                            <tr>
+                                <td>@item.Firma</td>
+                                <td>@item.TotalCallsOutsideHours</td>
+                                <td>@item.TotalDurationOutsideHours</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
     @Html.Partial("_Footer")
@@ -174,6 +225,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var callsData = @Html.Raw(Json.Serialize(ViewBag.CallsData));
+            var callsOutsideHoursData = @Html.Raw(Json.Serialize(ViewBag.CallsOutsideHoursData));  // New data for calls outside 8 PM - 7 AM
             var durationsData = @Html.Raw(Json.Serialize(ViewBag.DurationsData));
 
             function formatLabels(labels) {
@@ -190,6 +242,15 @@
                         data: callsData.data,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderWidth: 1,
+                        fill: true,
+                        spanGaps: true
+                    },
+                    {
+                        label: 'Apeluri în intervalul 20:00 - 07:00',
+                        data: callsOutsideHoursData.data,  
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderWidth: 1,
                         fill: true,
                         spanGaps: true
@@ -298,6 +359,7 @@
                 }
             });
         });
+
     </script>
 </body>
 </html>
